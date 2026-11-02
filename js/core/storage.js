@@ -13,6 +13,7 @@
     lastPlayed: null,
     log: [],       // { date, kind: 'spot'|'review', spotId?, exp }
     settings: { rate: 0.85, showPinyin: true, sfx: true },
+    world3d: {},   // 3D 探索の進み具合（例: airportCheckedIn）
   });
 
   const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);

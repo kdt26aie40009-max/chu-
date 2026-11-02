@@ -31,6 +31,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
@@ -424,6 +425,93 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 @keyframes drift { from { transform: translateX(0); } to { transform: translateX(140vw); } }
 @keyframes fall { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(105vh) rotate(360deg); opacity: 0; } }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+/* ---------- map: 3D バッジ ---------- */
+.spot-3d {
+  position: absolute; left: -6px; top: -4px; padding: 0 5px; border-radius: 6px;
+  background: var(--accent); color: #fff; font-size: 10px; font-weight: 800; box-shadow: 0 2px 0 var(--accent-dark);
+}
+
+/* ---------- 3D 空港 ---------- */
+.screen-airport3d { max-width: none; padding: 0; background: var(--sky); }
+.w3d { position: fixed; inset: 0; overflow: hidden; user-select: none; -webkit-user-select: none; }
+.w3d-canvas, .w3d-canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.w3d-canvas canvas:active { cursor: grabbing; }
+
+.w3d-top {
+  position: absolute; z-index: 3; top: calc(12px + env(safe-area-inset-top)); left: 12px; right: 12px;
+  display: flex; align-items: flex-start; gap: 8px; pointer-events: none;
+}
+.w3d-top > * { pointer-events: auto; }
+.w3d-back {
+  flex: none; border: 0; border-radius: 999px; background: #fff; padding: 10px 16px;
+  font-weight: 800; font-size: 14px; box-shadow: 0 3px 0 var(--line), var(--shadow);
+}
+.w3d-goal {
+  flex: 1; align-self: center; max-width: 380px; margin: 0 auto; text-align: center;
+  padding: 8px 14px; border-radius: 999px; background: rgba(58, 46, 38, .82); color: #fff;
+  font-weight: 800; font-size: 14px;
+}
+.w3d-help-btn { flex: none; width: 42px; height: 42px; border: 0; border-radius: 50%; background: #fff; font-weight: 800; font-size: 18px; box-shadow: 0 3px 0 var(--line), var(--shadow); }
+
+.w3d-label { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; will-change: transform; }
+.w3d-hamster-label .bubble { width: max-content; max-width: 250px; font-size: 14px; padding: 10px 14px; line-height: 1.5; }
+.w3d-hamster-label .bubble::after {
+  content: ""; position: absolute; left: 50%; bottom: -8px; transform: translateX(-50%);
+  border: 8px solid transparent; border-top-color: #fff; border-bottom: 0;
+}
+.w3d-hamster-label small { color: var(--muted); font-weight: 700; }
+.w3d-person-label { padding: 4px 12px; border-radius: 999px; background: rgba(255, 255, 255, .95); color: var(--ink); font-size: 13px; font-weight: 800; white-space: nowrap; box-shadow: var(--shadow), inset 0 0 0 2px var(--primary-soft); }
+.w3d-me { margin-top: 10px; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--accent); color: #fff; font-weight: 700; font-size: 14px; }
+.w3d-me .zh { font-size: 18px; }
+.w3d-success p { margin: 0 0 8px; font-size: 14px; font-weight: 700; }
+.w3d-npc-label { padding: 4px 12px; border-radius: 999px; background: #24476B; color: #fff; font-size: 13px; font-weight: 800; white-space: nowrap; box-shadow: var(--shadow); }
+
+.w3d-interact {
+  position: absolute; z-index: 3; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom));
+  transform: translateX(-50%); white-space: nowrap; animation: pulse 1.4s ease-in-out infinite;
+}
+.w3d-controls {
+  position: absolute; z-index: 2; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom));
+  width: max-content; max-width: calc(100% - 24px); margin: 0 auto;
+  padding: 6px 14px; border-radius: 999px; background: rgba(255, 255, 255, .85);
+  font-size: 12px; font-weight: 700; color: var(--ink); text-align: center; pointer-events: none;
+}
+.w3d-joy {
+  position: absolute; z-index: 2; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%;
+  background: rgba(255, 255, 255, .25); border: 3px solid rgba(255, 255, 255, .75); pointer-events: none;
+}
+.w3d-joy-knob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px; border-radius: 50%; background: rgba(255, 255, 255, .92); box-shadow: var(--shadow); }
+
+.w3d-overlay { position: absolute; inset: 0; z-index: 5; display: flex; align-items: flex-end; justify-content: center; padding: 16px; background: rgba(40, 28, 16, .35); }
+.w3d-help { align-items: center; }
+.w3d-card {
+  width: 100%; max-width: 460px; max-height: calc(100% - 16px); overflow-y: auto;
+  padding: 16px; border-radius: 24px; background: var(--bg); box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+}
+.w3d-card .btn + .btn { margin-top: 10px; }
+.w3d-help-list { display: grid; gap: 6px; margin: 0 0 14px; font-size: 14px; font-weight: 500; }
+.w3d-help-list li { padding: 8px 12px; border-radius: var(--radius-sm); background: #fff; }
+.w3d-npc-line { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 10px; }
+.w3d-npc-line .msg-bubble { flex: 1; background: #FFFDF8; box-shadow: var(--shadow), inset 0 0 0 2px var(--primary-soft); }
+.w3d-npc-line .msg-zh .zh { font-size: 22px; }
+.w3d-q { margin: 6px 4px 10px; font-weight: 800; font-size: 16px; }
+.w3d-q .zh { font-size: 20px; color: var(--primary-dark); }
+.w3d-options { margin-top: 8px; }
+.w3d-options.options-zh { grid-template-columns: repeat(3, 1fr); }
+.w3d-options.options-zh .option { justify-content: center; text-align: center; }
+.w3d-options.options-zh .opt-key { display: none; }
+.w3d-options:not(.options-zh) { grid-template-columns: 1fr; }
+.w3d-fb:empty { display: none; }
+.w3d-success { text-align: center; margin-bottom: 12px; }
+.w3d-success-emoji { font-size: 56px; line-height: 1; animation: bounce 2s ease-in-out infinite; }
+.w3d-success h2 { margin: 8px 0; font-size: 24px; color: var(--primary-dark); }
+.w3d-used { display: grid; gap: 8px; margin-bottom: 6px; }
+.w3d-used li { display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); background: #fff; font-weight: 700; font-size: 14px; }
+.w3d-used .zh { font-size: 20px; }
+
+.w3d-loading { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 16px; background: linear-gradient(180deg, var(--sky), var(--bg)); text-align: center; font-weight: 800; font-size: 18px; }
+.w3d-loading p { margin: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }

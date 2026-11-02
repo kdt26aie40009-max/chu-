@@ -36,6 +36,22 @@
     return `${Number(m)}/${Number(d)}`;
   };
 
+  // 外部スクリプトを必要になったときだけ読み込む（同じ URL は 1 回だけ）
+  const scriptCache = {};
+  U.loadScript = (src) => {
+    if (!scriptCache[src]) {
+      scriptCache[src] = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src;
+        s.async = true;
+        s.onload = () => resolve();
+        s.onerror = () => { delete scriptCache[src]; s.remove(); reject(new Error('load failed: ' + src)); };
+        document.head.appendChild(s);
+      });
+    }
+    return scriptCache[src];
+  };
+
   let toastTimer = null;
   U.toast = (msg) => {
     const el = document.getElementById('toast');

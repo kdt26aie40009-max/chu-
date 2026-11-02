@@ -4,9 +4,16 @@
 
   App.screens = App.screens || {};
 
+  // 画面を離れるときの後始末（3D 画面のループ停止・イベント解除など）
+  let leaveHandlers = [];
+  App.onLeave = (fn) => { leaveHandlers.push(fn); };
+
   App.go = (name, params = {}) => {
     const screen = App.screens[name];
     if (!screen) { console.error('unknown screen:', name); return; }
+    const handlers = leaveHandlers;
+    leaveHandlers = [];
+    handlers.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
     App.Speech.stop();
     const root = document.getElementById('app');
     root.innerHTML = '';

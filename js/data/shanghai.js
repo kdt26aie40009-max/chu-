@@ -21,6 +21,7 @@
       /* ================= DAY 1 ================= */
       {
         id: 'airport', name: '空港', emoji: '✈️', day: 1, x: 84, y: 106,
+        scene3d: 'airport3d', // マップのアイコンをタップすると 3D 空港へ（下の「行く」ボタンは 2D レッスン）
         theme: 'あいさつ',
         mission: '3つのあいさつで入国しよう！',
         phrases: ['nihao', 'xiexie', 'zaijian'],

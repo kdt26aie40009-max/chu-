@@ -52,6 +52,7 @@
           <span class="spot-name">${esc(s.name)}</span>
           ${st === 'next' ? '<span class="spot-flag">NEXT</span>' : ''}
           ${st === 'soon' ? '<span class="spot-flag is-soon">準備中</span>' : ''}
+          ${s.scene3d && st !== 'locked' && st !== 'soon' ? '<span class="spot-3d">3D</span>' : ''}
         </button>`;
     }).join('');
 
@@ -92,6 +93,8 @@
         if (st === 'soon') { toast(`${s.emoji} ${esc(s.name)}はもうすぐ行けるようになるよ！`); return; }
         if (st === 'locked') { toast(`まずは「${esc(next.emoji + ' ' + next.name)}」をクリアしよう！`); return; }
         App.Sfx.play('tap');
+        // マップ上のアイコンで、3D シーンがあるスポットは 3D へ。下部の「行く」ボタンは従来の 2D レッスン
+        if (s.scene3d && btn.classList.contains('spot')) { App.go(s.scene3d, { spotId: s.id }); return; }
         App.go('stage', { spotId: s.id });
       };
     });
