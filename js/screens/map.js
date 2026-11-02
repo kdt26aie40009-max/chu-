@@ -44,6 +44,16 @@
       return 'locked';
     };
 
+    // 3D フィールドは「ひとつ前のスポットの 3D をクリア」でも入れる（2D レッスンとは別ルート）
+    const w3d = App.Store.state.world3d || {};
+    const open3d = (s) => {
+      if (!s.scene3d || s.comingSoon) return false;
+      if (spotState(s) !== 'locked') return true;
+      const i = playable.indexOf(s);
+      const prev = playable[i - 1];
+      return !!(prev && prev.scene3d && w3d[prev.id] && w3d[prev.id].done);
+    };
+
     const spots = city.spots.map((s) => {
       const st = spotState(s);
       return `
@@ -52,7 +62,7 @@
           <span class="spot-name">${esc(s.name)}</span>
           ${st === 'next' ? '<span class="spot-flag">NEXT</span>' : ''}
           ${st === 'soon' ? '<span class="spot-flag is-soon">準備中</span>' : ''}
-          ${s.scene3d && st !== 'locked' && st !== 'soon' ? '<span class="spot-3d">3D</span>' : ''}
+          ${open3d(s) ? '<span class="spot-3d">3D</span>' : ''}
         </button>`;
     }).join('');
 
@@ -91,10 +101,10 @@
         const s = city.spots.find((x) => x.id === btn.dataset.spot);
         const st = spotState(s);
         if (st === 'soon') { toast(`${s.emoji} ${esc(s.name)}はもうすぐ行けるようになるよ！`); return; }
+        const isIcon = btn.classList.contains('spot');
+        if (isIcon && open3d(s)) { App.Sfx.play('tap'); App.go(s.scene3d, { spotId: s.id }); return; }
         if (st === 'locked') { toast(`まずは「${esc(next.emoji + ' ' + next.name)}」をクリアしよう！`); return; }
         App.Sfx.play('tap');
-        // マップ上のアイコンで、3D シーンがあるスポットは 3D へ。下部の「行く」ボタンは従来の 2D レッスン
-        if (s.scene3d && btn.classList.contains('spot')) { App.go(s.scene3d, { spotId: s.id }); return; }
         App.go('stage', { spotId: s.id });
       };
     });

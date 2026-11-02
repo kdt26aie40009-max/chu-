@@ -11,7 +11,7 @@
 
   /* ---------- 空港にいる人たちと会話 ----------
    * 配置: sit（ベンチに座る）/ stand（立ち止まる）/ path（ルートを歩き回る）
-   * script の書式（js/screens/airport3d.js の runTalk が実行する）:
+   * script の書式（js/world3d/engine.js の runTalk が実行する）:
    *   { type: 'line', zh, py, ja, hamster?, next? }                 相手のセリフ
    *   { type: 'understand', zh, py, ja, q, options: [...], answer, hint? }  聞き取り
    *   { type: 'say', zh?, py?, ja?, hamster, options: [{zh,py,ja}|'phraseId'], answer }  返事を選ぶ
@@ -429,14 +429,7 @@
     scene.add(hamster);
 
     // 空港にいる人たち（会話の中身は PEOPLE を参照）
-    const people = PEOPLE.map((def) => {
-      const model = Md.person(THREE, Object.assign({ sitting: !!def.sit }, def.look));
-      const at = def.sit || def.stand || { x: def.path[0][0], z: def.path[0][1], rot: 0 };
-      model.position.set(at.x, 0, at.z);
-      model.rotation.y = at.rot || 0;
-      scene.add(model);
-      return { def, model, wp: 1, phase: Math.random() * 6, homeRot: at.rot || 0 };
-    });
+    const people = App.World3D.spawnPeople(THREE, scene, PEOPLE);
 
     return {
       colliders,
@@ -445,9 +438,9 @@
       hamster,
       npc,
       people,
-      points: {
-        counter: { x: 0, z: -16.6 },
-      },
+      interactables: [{ id: 'desk', x: 0, z: -16.6, r: 3.2 }],
+      tags: [{ obj: npc, y: 2.35, text: '🧑‍✈️ 值机柜台（チェックイン）', maxDist: 16 }],
+      facePlayer: [npc],
       // 近づくと見つかる「発見」スポット（ハムスターがミニ豆知識を言う）
       discoveries: [
         { id: 'board', x: -15, z: 6, r: 4.5, say: '出発ボード発見！<br><b>出发</b>＝出発、<b>登机</b>＝搭乗だよ' },

@@ -46,6 +46,7 @@
       },
       {
         id: 'hotel', name: 'ホテル', emoji: '🏨', day: 1, x: 56, y: 86,
+        scene3d: 'hotel3d', // アイコンをタップすると 3D ホテルへ
         theme: 'チェックイン',
         mission: 'ホテルにチェックインしよう！',
         phrases: ['ruzhu', 'huzhao', 'haode'],
