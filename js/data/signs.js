@@ -45,6 +45,15 @@
     tv: { zh: '你好吗？', py: 'Nǐ hǎo ma?', ja: '元気？', note: '「吗」をつけると質問になるよ。ドラマの続きはまた今度！' },
 
     /* ---- 北京 ---- */
+    hutongName: { zh: '仓鼠胡同', py: 'Cāngshǔ Hútòng', ja: 'ハムスター胡同（路地の名前）', note: '青い札は路地の名前。北京には胡同が千以上あるんだって' },
+    siheyuan: { zh: '四合院', py: 'sìhéyuàn', ja: '四合院（伝統的な家）', note: '中庭を 4 つの建物が囲む、北京の昔ながらの家' },
+    monument: { zh: '人民英雄纪念碑', py: 'Rénmín Yīngxióng Jìniànbēi', ja: '人民英雄記念碑', note: '「纪念碑」＝記念碑。天安門広場のまんなかに立っているよ' },
+    jinshuiqiao: { zh: '金水桥', py: 'Jīnshuǐ Qiáo', ja: '金水橋', note: '「桥」＝橋。天安門の前の 5 本の白い橋だよ' },
+    tiananmen: { zh: '天安门', py: 'Tiān’ānmén', ja: '天安門', note: '「天を安んじる門」。北京のシンボル！' },
+    palaceMuseum: { zh: '故宫博物院', py: 'Gùgōng Bówùyuàn', ja: '故宮博物院', note: '「博物院」＝博物館。今は宮殿全体が博物館なんだ' },
+    ticketOffice: { zh: '售票处', py: 'shòupiàochù', ja: 'チケット売り場', note: '「售」＝売る、「票」＝チケット、「处」＝ところ' },
+    ticketCheck: { zh: '检票口', py: 'jiǎnpiàokǒu', ja: '改札・入場口', note: '「检」＝調べる。駅の改札もこう書くよ' },
+    taihedian: { zh: '太和殿', py: 'Tàihé Diàn', ja: '太和殿', note: '故宮でいちばん大きな建物。皇帝の大切な儀式をした場所' },
     beijing: { zh: '北京', py: 'Běijīng', ja: '北京（ペキン）', note: '「北の都」。中国の首都だよ' },
   };
 })(window.App = window.App || {});

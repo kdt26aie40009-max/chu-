@@ -20,6 +20,7 @@
  *   guide(ctx) -> {goal, say}
  *   interactLabel(id, ctx) -> string | null（null ならボタンを出さない）
  *   onInteract: {id: (ctx) => void}, onZone?: {id: fn}, onDiscover?(d, ctx)
+ *   onTalked?(def, ctx)    街の人との会話が終わったとき（successCard の前）
  */
 (function (App) {
   'use strict';
@@ -549,6 +550,7 @@
             reward(C.TALK_EXP);
           }
           game.talked.add(def.id);
+          if (cfg.onTalked) cfg.onTalked(def, ctx);
           successCard({
             emoji: def.emoji,
             title: '会話できた！',
