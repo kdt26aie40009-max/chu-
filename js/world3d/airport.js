@@ -359,7 +359,7 @@
       g.fillText('仓鼠航空 Hamster Air', w - 30, 58);
       g.textAlign = 'left';
       const rows = [
-        ['HM101', '北京 Beijing', '10:30', '准时', '#5BE38B'],
+        ['HM101', '上海 Shanghai', '10:30', '准时', '#5BE38B'],
         ['HM205', '成都 Chengdu', '11:05', '值机', '#F5B92E'],
         ['HM318', '东京 Tokyo', '11:40', '登机', '#FF8A3D'],
         ['HM422', '广州 Guangzhou', '12:15', '准时', '#5BE38B'],

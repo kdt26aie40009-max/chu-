@@ -75,6 +75,7 @@
       ctx.reward(ROOM_EXP);
     }
     ctx.game.phase = 'done';
+    App.Progress.markSpotCleared('hotel');
     ctx.successCard({
       emoji: '🛏️',
       title: '302号室に到着！',

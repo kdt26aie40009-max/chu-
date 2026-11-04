@@ -109,6 +109,16 @@
     return Object.assign({ first, base, bonus, gained, mistakes, pct: P.cityProgress(city), next: P.nextSpot(city) }, lv);
   };
 
+  // 3D でクリアしたスポットも「行った」ことにする（EXP は 3D 側で付与済みなので足さない）
+  P.markSpotCleared = (spotId) => {
+    if (P.isCleared(spotId)) return false;
+    const today = U.todayKey();
+    S().cleared[spotId] = { count: 1, firstClearedAt: today, lastClearedAt: today, bestMistakes: null, via3d: true };
+    pushLog({ kind: 'spot', spotId, exp: 0 });
+    App.Store.save();
+    return true;
+  };
+
   P.completeReview = (correct) => {
     const gained = 5 + correct * 3;
     P.markPlayed();

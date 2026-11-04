@@ -1,8 +1,8 @@
-/* 3D 小籠包の屋台（美食街）のレイアウト
+/* 3D 屋台通り（北京・王府井小吃街）のレイアウト
  * 南北にのびる屋台通り。入口の牌楼（手前 z=24）から奥（z=-27）へ歩く。
  *   通り      x: -3.9〜3.9（bounds で制限）
- *   左の屋台  糖葫芦(z=10)・臭豆腐(z=-3)・小笼包(z=-16.5, 点餐/取餐の 2 窓口)
- *   右の屋台  烤串(z=14)・奶茶(z=4)・生煎(z=-8)、奥は象棋をする広場
+ *   左の屋台  糖葫芦(z=10)・臭豆腐(z=-3)・小笼包(z=-16.5, 点餐/取餐の 2 窓口)、奥に象棋のテーブル
+ *   右の屋台  羊肉串(z=14)・涮羊肉(z=4)・炸酱面(z=-8)、突き当たりの右に北京烤鸭の店
  * 単位はメートル。屋台のカウンターは当たり判定つき。
  */
 (function (App) {
@@ -20,9 +20,9 @@
       script: [
         { type: 'say', zh: '你好！来尝尝！', py: 'Nǐ hǎo! Lái chángchang!', ja: 'いらっしゃい！食べてって！',
           hamster: 'あいさつを返そう', options: ['nihao', 'zaijian', 'xiexie'], answer: 0 },
-        { type: 'understand', zh: '烤串，一块一串！', py: 'Kǎochuàn, yí kuài yí chuàn!', ja: '串焼き、1本1元だよ！',
+        { type: 'understand', zh: '羊肉串，一块一串！', py: 'Yángròuchuàn, yí kuài yí chuàn!', ja: '羊肉の串焼き、1本1元だよ！',
           q: '1本いくら？', options: ['1元', '5元', '3元'], answer: 0, hint: '「一（yī）」＝1。「块（kuài）」は「元」のことだよ' },
-        { type: 'say', hamster: '安い！でもまずは小籠包…。またね、と言おう', options: ['zaijian', 'nihao', 'haode'], answer: 0 },
+        { type: 'say', hamster: '安い！でもまずはお店のごはん…。またね、と言おう', options: ['zaijian', 'nihao', 'haode'], answer: 0 },
       ],
     },
     {
@@ -64,7 +64,7 @@
     {
       id: 'grandpa', name: '象棋をするおじいさん', emoji: '♟️',
       look: { top: '#E8DCC8', bottom: '#3A3A3A', hair: '#D8D8D8' },
-      sit: { x: 3.25, z: -23.5, rot: -Math.PI / 2 },
+      sit: { x: -3.25, z: -23.5, rot: Math.PI / 2 },
       script: [
         { type: 'say', zh: '你好，年轻人！', py: 'Nǐ hǎo, niánqīngrén!', ja: 'やあ、若いの！', hamster: 'あいさつを返そう', options: ['nihao', 'maidan', 'huzhao'], answer: 0 },
         { type: 'understand', zh: '我每天吃一笼小笼包。', py: 'Wǒ měitiān chī yì lóng xiǎolóngbāo.', ja: 'わしは毎日、小籠包を1せいろ食べるんじゃ。',
@@ -267,28 +267,42 @@
     stall(-1, -3, 4.5, { zh: '臭豆腐', en: 'Stinky Tofu', price: '¥5', c1: '#2E7D4F', c2: '#E3F2E8', bg: '#2E5E3E' });
     cyl(0.45, 0.4, 0.15, M('#2A2A2A'), -4.6, 1.13, -3.5, 16);
     for (let k = 0; k < 6; k++) box(0.12, 0.08, 0.12, M('#3B2B1E'), -4.75 + (k % 3) * 0.15, 1.24, -3.65 + Math.floor(k / 3) * 0.2);
-    // 右：烤串
-    stall(1, 14, 4.5, { zh: '烤串', en: 'Skewers', price: '¥1', c1: '#D35400', c2: '#FDEBD0', bg: '#7A3A12' });
+    const steamMat = () => new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, opacity: 0.5, depthWrite: false });
+    const puffs = [];
+    const steam = (x, z, y0, n = 4) => {
+      for (let k = 0; k < n; k++) puffs.push({ m: sph(0.16, steamMat(), x, y0, z), x, z, y0, t: k / n });
+    };
+
+    // 右：羊肉串
+    stall(1, 14, 4.5, { zh: '羊肉串', en: 'Lamb Skewers', price: '¥1', c1: '#D35400', c2: '#FDEBD0', bg: '#7A3A12' });
     box(0.5, 0.18, 2.2, M('#2A2A2A'), 4.6, 1.15, 14);
     for (let k = 0; k < 9; k++) {
       const st = cyl(0.01, 0.01, 0.6, bamboo, 4.6, 1.28, 13.1 + k * 0.22, 4);
       st.rotation.z = Math.PI / 2;
       [-0.12, 0, 0.12].forEach((dx) => box(0.07, 0.06, 0.06, M('#8A3B1E'), 4.6 + dx, 1.28, 13.1 + k * 0.22));
     }
-    // 右：奶茶
-    stall(1, 4, 4.5, { zh: '奶茶', en: 'Milk Tea', price: '¥4', c1: '#C49A6C', c2: '#FFF5E6', bg: '#6B4A2E' });
-    for (let k = 0; k < 5; k++) {
-      cyl(0.07, 0.06, 0.22, M('#E8D2B0', { transparent: true, opacity: 0.85 }), 4.4, 1.17, 3 + k * 0.45, 10);
-      cyl(0.01, 0.01, 0.12, M('#2BB5A0'), 4.42, 1.33, 3 + k * 0.45, 4);
-    }
-    // 右：生煎
-    stall(1, -8, 5, { zh: '生煎包', en: 'Pan-fried Buns', price: '¥2', c1: '#B9770E', c2: '#FEF5E7', bg: '#7A4A12' });
-    cyl(0.6, 0.6, 0.12, M('#2A2A2A'), 4.6, 1.12, -8, 20);
-    for (let k = 0; k < 7; k++) {
-      const a = (k / 7) * Math.PI * 2;
-      const bun = sph(0.12, M('#F5E6CC'), 4.6 + Math.cos(a) * 0.35, 1.22, -8 + Math.sin(a) * 0.35);
-      bun.scale.y = 0.7;
-    }
+    // 右：涮羊肉（銅鍋のしゃぶしゃぶ）
+    stall(1, 4, 5, { zh: '涮羊肉', en: 'Copper Hot Pot', price: '¥40', c1: '#8E2F2F', c2: '#FBE3C4', bg: '#5A1E1E' });
+    const copper = M('#C87533', { metalness: 0.6, roughness: 0.35 });
+    cyl(0.44, 0.34, 0.3, copper, 4.6, 1.21, 4, 20);
+    cyl(0.5, 0.5, 0.04, copper, 4.6, 1.37, 4, 20);
+    cyl(0.1, 0.13, 0.55, copper, 4.6, 1.62, 4, 12);
+    cyl(0.4, 0.4, 0.05, M('#E8C9A0', { transparent: true, opacity: 0.8 }), 4.6, 1.33, 4, 20);
+    steam(4.6, 4, 1.95, 3);
+    [2.7, 5.3].forEach((z) => {
+      cyl(0.22, 0.2, 0.03, white, 4.55, 1.08, z, 16);
+      for (let k = 0; k < 4; k++) box(0.26, 0.015, 0.06, M(k % 2 ? '#D9534F' : '#F2B5A8'), 4.55, 1.11 + k * 0.012, z - 0.09 + k * 0.06);
+    });
+    // 右：炸酱面
+    stall(1, -8, 5, { zh: '炸酱面', en: 'Zhajiang Noodles', price: '¥18', c1: '#B9770E', c2: '#FEF5E7', bg: '#7A4A12' });
+    [-9.2, -8, -6.8].forEach((z) => {
+      cyl(0.22, 0.14, 0.14, white, 4.5, 1.13, z, 16);
+      cyl(0.19, 0.19, 0.03, M('#F2D59A'), 4.5, 1.19, z, 16);
+      sph(0.07, M('#5A3420'), 4.5, 1.22, z);
+      box(0.12, 0.02, 0.03, M('#6DB86A'), 4.43, 1.22, z + 0.08);
+    });
+    cyl(0.32, 0.3, 0.4, steel, 5.6, 1.25, -8, 16);
+    steam(5.6, -8, 1.6, 3);
 
     /* ---------- 小笼包の屋台（左奥・いちばん大きい） ---------- */
     const XZ = -16.5;
@@ -304,24 +318,19 @@
       g.font = `bold 64px ${Md.FONT}`; g.fillText('菜单 Menu', w / 2, 92);
       g.font = `bold 52px ${Md.FONT}`;
       g.fillText('小笼包  一笼 ¥5', w / 2, 190);
-      g.fillText('生煎包  一个 ¥2', w / 2, 260);
+      g.fillText('一笼  八个', w / 2, 260);
       g.font = `bold 32px ${Md.FONT}`; g.fillStyle = '#F2C14E';
-      g.fillText('（一笼＝1せいろ）', w / 2, 330);
+      g.fillText('（一笼＝1せいろ・8個入り）', w / 2, 330);
     });
     plane(2.4, 1.8, new THREE.MeshBasicMaterial({ map: menuTex }), -6.78, 2.2, -16.8, 0, Math.PI / 2);
     // せいろ（蒸籠）の山と湯気
     const steamers = [[-4.55, -18.6], [-4.55, -20.2], [-5.9, -19.4]];
-    const steamMat = () => new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, opacity: 0.5, depthWrite: false });
-    const puffs = [];
     steamers.forEach(([x, z], i) => {
       const base = i === 2 ? 0.95 : 1.06;
       for (let k = 0; k < 4; k++) cyl(0.36, 0.36, 0.16, bamboo, x, base + 0.08 + k * 0.17, z, 18);
       cyl(0.38, 0.3, 0.1, M('#C7A563'), x, base + 0.08 + 4 * 0.17, z, 18);
       if (i === 2) box(0.9, 0.95, 0.9, steel, x, 0.475, z);
-      for (let k = 0; k < 4; k++) {
-        const p = sph(0.16, steamMat(), x, base + 0.8, z);
-        puffs.push({ m: p, x, z, y0: base + 0.8, t: k / 4 });
-      }
+      steam(x, z, base + 0.8);
     });
     // 注文口の小籠包のお皿
     cyl(0.25, 0.22, 0.04, white, -4.6, 1.08, -14.6, 16);
@@ -359,17 +368,42 @@
     [
       [-5.5, 10, Math.PI / 2, { top: '#C0392B', hair: '#2B2220', hairStyle: 'long' }],
       [-5.5, -3, Math.PI / 2, { top: '#2E7D4F', hair: '#1E1A18' }],
-      [5.5, 4, -Math.PI / 2, { top: '#C49A6C', hair: '#3B2A20', hairStyle: 'long' }],
-      [5.5, -8, -Math.PI / 2, { top: '#FFFFFF', hair: '#1E1A18', cap: '#B9770E' }],
     ].forEach(([x, z, rot, look]) => {
       const p = Md.person(THREE, look);
       p.position.set(x, 0, z);
       p.rotation.y = rot;
       scene.add(p);
     });
+    // 注文できるお店の人
+    const shopPerson = (x, z, rot, look) => {
+      const p = Md.person(THREE, look);
+      p.position.set(x, 0, z);
+      p.rotation.y = rot;
+      scene.add(p);
+      return p;
+    };
+    const shuanStaff = shopPerson(5.5, 4, -Math.PI / 2, { top: '#8E2F2F', bottom: '#2B2B2B', hair: '#3B2A20', hairStyle: 'bun' });
+    const noodleChef = shopPerson(5.5, -8, -Math.PI / 2, { top: '#FFFFFF', bottom: '#2B2B2B', hair: '#1E1A18', cap: '#B9770E' });
+    const duckChef = shopPerson(2.55, -26.9, 0, { top: '#FFFFFF', bottom: '#3A3A3A', hair: '#1E1A18', cap: '#FFFFFF' });
+
+    /* ---------- 突き当たり右：北京烤鸭の店 ---------- */
+    box(2.7, 1.05, 0.8, wood, 2.55, 0.525, -25.8);
+    box(2.9, 0.06, 1.0, M('#E8DCC8'), 2.55, 1.08, -25.8);
+    rect(1.15, 3.95, -27.7, -25.35);
+    box(1.2, 1.7, 0.7, M('#8E3B2F'), 3.5, 0.85, -27.3);
+    box(0.5, 0.4, 0.05, M('#2A1A10'), 3.5, 0.7, -26.94);
+    cyl(0.015, 0.015, 2.6, steel, 2.55, 2.85, -26.4, 6).rotation.z = Math.PI / 2;
+    [1.75, 2.55, 3.35].forEach((x) => {
+      cyl(0.008, 0.008, 0.25, steel, x, 2.72, -26.4, 4);
+      const duck = sph(0.2, M('#A0522D', { roughness: 0.45 }), x, 2.35, -26.4);
+      duck.scale.set(0.9, 1.5, 0.8);
+    });
+    cyl(0.3, 0.27, 0.04, white, 2.1, 1.13, -25.7, 16);
+    for (let k = 0; k < 6; k++) box(0.14, 0.02, 0.07, M('#B5651D'), 2.0 + (k % 3) * 0.1, 1.16, -25.78 + Math.floor(k / 3) * 0.12);
+    Md.sign(THREE, scene, signOpts({ zh: '北京烤鸭', en: '¥98 · Peking Duck', bg: '#5A1E1E' }), 2.6, 2.55, 3.15, -27.5);
 
     /* ---------- 奥の広場：象棋のテーブル ---------- */
-    box(0.9, 0.7, 0.9, wood, 2.3, 0.35, -23.5, { collide: true });
+    box(0.9, 0.7, 0.9, wood, -2.3, 0.35, -23.5, { collide: true });
     const boardChess = tex(256, 256, (g, w, h) => {
       g.fillStyle = '#E8C98A'; g.fillRect(0, 0, w, h);
       g.strokeStyle = '#5A3A26'; g.lineWidth = 2;
@@ -378,18 +412,18 @@
         g.beginPath(); g.moveTo(16, 16 + k * 28); g.lineTo(w - 16, 16 + k * 28); g.stroke();
       }
     });
-    plane(0.8, 0.8, new THREE.MeshBasicMaterial({ map: boardChess }), 2.3, 0.71, -23.5, -Math.PI / 2);
+    plane(0.8, 0.8, new THREE.MeshBasicMaterial({ map: boardChess }), -2.3, 0.71, -23.5, -Math.PI / 2);
     for (let k = 0; k < 8; k++) {
-      cyl(0.045, 0.045, 0.03, M(k % 2 ? '#C0392B' : '#2A2A2A'), 2.0 + (k % 4) * 0.2, 0.73, -23.8 + Math.floor(k / 4) * 0.6, 10);
+      cyl(0.045, 0.045, 0.03, M(k % 2 ? '#C0392B' : '#2A2A2A'), -2.6 + (k % 4) * 0.2, 0.73, -23.8 + Math.floor(k / 4) * 0.6, 10);
     }
-    [3.25, 1.35].forEach((x) => { box(0.45, 0.55, 0.45, woodDark, x, 0.275, -23.5); });
-    rect(1.1, 3.5, -23.8, -23.2);
+    [-3.25, -1.35].forEach((x) => { box(0.45, 0.55, 0.45, woodDark, x, 0.275, -23.5); });
+    rect(-3.5, -1.1, -23.8, -23.2);
     const rival = Md.person(THREE, { top: '#5B6BB8', bottom: '#3A3A3A', hair: '#BBBBBB', sitting: true });
-    rival.position.set(1.35, 0, -23.5);
-    rival.rotation.y = Math.PI / 2;
+    rival.position.set(-1.35, 0, -23.5);
+    rival.rotation.y = -Math.PI / 2;
     scene.add(rival);
     // 植木鉢
-    [[-3.4, 22.6], [3.4, 22.6], [-3.4, -26.6], [3.4, -26.6]].forEach(([x, z]) => {
+    [[-3.4, 22.6], [3.4, 22.6], [-3.4, -26.6]].forEach(([x, z]) => {
       cyl(0.35, 0.28, 0.6, M('#8E5B3E'), x, 0.3, z);
       sph(0.5, M('#4E9A55'), x, 1.0, z);
       rect(x - 0.4, x + 0.4, z - 0.4, z + 0.4);
@@ -411,17 +445,24 @@
       interactables: [
         { id: 'order', x: -3.4, z: -14, r: 2.4 },
         { id: 'pickup', x: -3.4, z: -19.5, r: 2.4 },
+        { id: 'shuan', x: 3.4, z: 4, r: 2.4 },
+        { id: 'zhajiang', x: 3.4, z: -8, r: 2.4 },
+        { id: 'duck', x: 2.5, z: -24.6, r: 2.2 },
       ],
       tags: [
         { obj: auntie, y: 2.25, text: '👩‍🍳 点餐（注文）', maxDist: 18 },
         { obj: chef, y: 2.25, text: '🧑‍🍳 取餐（受け取り）', maxDist: 18 },
+        { obj: shuanStaff, y: 2.25, text: '🍲 涮羊肉', maxDist: 16 },
+        { obj: noodleChef, y: 2.25, text: '🍜 炸酱面', maxDist: 16 },
+        { obj: duckChef, y: 2.25, text: '🦆 北京烤鸭', maxDist: 18 },
       ],
       discoveries: [
-        { id: 'gate', x: 0, z: 23, r: 2.6, say: '<b>美食街</b>＝グルメ通り！<br>いろんな屋台があるね。<b>小笼包</b>はどこかな？' },
+        { id: 'gate', x: 0, z: 23, r: 2.6, say: '<b>美食街</b>＝グルメ通り！<br>北京の名物がそろってるよ。看板の値段も読んでみてね' },
         { id: 'tanghulu', x: -3.2, z: 10, r: 2.4, say: '<b>糖葫芦</b>は果物のあめがけ🍡<br>看板の <b>¥3</b> は <b>三块</b>（sān kuài）！' },
-        { id: 'naicha', x: 3.2, z: 4, r: 2.4, say: '<b>奶茶</b>＝ミルクティー🧋<br><b>¥4</b> は <b>四块</b>（sì kuài）だよ' },
+        { id: 'tongguo', x: 3.2, z: 4, r: 2.4, say: '<b>铜锅</b>（銅の鍋）！真ん中の煙突で炭を燃やして、<br>羊肉をしゃぶしゃぶするんだ。<b>¥40</b>＝<b>四十块</b>' },
         { id: 'choudoufu', x: -3.2, z: -3, r: 2.4, say: '<b>臭豆腐</b>…「臭い豆腐」！におうけど、おいしいんだって<br><b>¥5</b> は <b>五块</b>（wǔ kuài）' },
-        { id: 'shengjian', x: 3.2, z: -8, r: 2.4, say: '<b>生煎包</b>は焼き小籠包！上海名物だよ<br><b>¥2</b> は <b>两块</b>（liǎng kuài）。お金の「2」は <b>两</b> になるんだ' },
+        { id: 'zhajiang', x: 3.2, z: -8, r: 2.4, say: '<b>炸酱面</b>は北京の家庭の味🍜<br><b>¥18</b> は <b>十八块</b>（shíbā kuài）' },
+        { id: 'duck', x: 1.6, z: -23.6, r: 2.4, say: '<b>北京烤鸭</b>！窯でじっくり焼くから、皮がパリパリ🦆<br>奥の窯が見えるかな？' },
       ],
       update(dt, t) {
         puffs.forEach((p) => {

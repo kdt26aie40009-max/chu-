@@ -12,6 +12,7 @@
  *   facePlayer: [model]                         プレイヤーの方を向く人（係員など）
  *   discoveries: [{id,x,z,r,say}]               近づくとハムスターが豆知識
  *   zones: [{id,x1,x2,z1,z2}]                   入ると cfg.onZone[id] が 1 回呼ばれる
+ *   heightAt?(x, z) -> y                        地面の高さ（坂・階段。無ければ平ら）
  *   update?(dt, t, ctx)
  *
  * cfg:
@@ -166,6 +167,7 @@
       const interactables = world.interactables || [];
       const discoveries = world.discoveries || [];
       const zones = world.zones || [];
+      const ground = world.heightAt || (() => 0);
 
       const resize = () => {
         const w = el.wrap.clientWidth;
@@ -445,6 +447,7 @@
       function updatePeople(dt) {
         people.forEach((p) => {
           const m = p.model;
+          m.position.y = ground(m.position.x, m.position.z);
           const pos = { x: m.position.x, z: m.position.z };
           const dPlayer = Math.hypot(player.x - pos.x, player.z - pos.z);
           const talking = game.talkingTo === p;
@@ -516,7 +519,7 @@
           }
         }
         const bob = moving ? Math.sin(player.walk) * (s.run ? 0.06 : 0.045) : 0;
-        camera.position.set(player.x, C.EYE + bob, player.z);
+        camera.position.set(player.x, C.EYE + bob + ground(player.x, player.z), player.z);
         camera.rotation.set(player.pitch, player.yaw, 0);
 
         updatePeople(dt);
@@ -535,9 +538,9 @@
           moveWithCollision(hp, (hdx / hd) * step, (hdz / hd) * step, 0.4);
           hm.position.x = hp.x;
           hm.position.z = hp.z;
-          hm.position.y = Math.abs(Math.sin(t * 10)) * 0.14;
+          hm.position.y = ground(hp.x, hp.z) + Math.abs(Math.sin(t * 10)) * 0.14;
         } else {
-          hm.position.y = 0.04 + Math.sin(t * 2.2) * 0.04;
+          hm.position.y = ground(hp.x, hp.z) + 0.04 + Math.sin(t * 2.2) * 0.04;
         }
         turnToward(hm, Math.atan2(hdx, hdz), dt * 6);
 

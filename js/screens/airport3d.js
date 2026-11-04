@@ -38,6 +38,7 @@
         ctx.reward(CHECKIN_EXP);
       }
       ctx.game.flags.checkedIn = true;
+      App.Progress.markSpotCleared('airport');
       ctx.game.phase = ctx.game.found.size >= ctx.game.totals.found ? 'done' : 'explore';
       ctx.successCard({
         emoji: '🎫',
