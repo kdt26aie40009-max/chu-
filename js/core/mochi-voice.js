@@ -142,9 +142,9 @@
     playing = [];
   };
 
-  // セリフを読む（設定でオフなら何もしない）。読む内容が無ければ false
-  Voice.speak = (html) => {
-    if (!enabled() || !App.MOCHI_VOICE || !(window.AudioContext || window.webkitAudioContext)) return false;
+  // セリフを読む（設定でオフなら何もしない。🔊 ボタンからは force で読む）。読む内容が無ければ false
+  Voice.speak = (html, { force = false } = {}) => {
+    if ((!enabled() && !force) || !App.MOCHI_VOICE || !(window.AudioContext || window.webkitAudioContext)) return false;
     const list = units(Voice.toKana(html));
     if (!list.some((u) => u.ch)) return false;
     Voice.stop();

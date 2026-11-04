@@ -11,7 +11,7 @@
   const hamsterMsg = (s) => `
     <div class="msg msg-hamster pop-in">
       ${App.Hamster.figure({ mood: s.mood || 'normal', size: 'xs' })}
-      <div class="msg-bubble">${s.text}</div>
+      <div class="msg-bubble">${s.text}${UI.mochiBtn(s.text)}</div>
     </div>`;
 
   const npcMsg = (s, npc, hideJa) => `

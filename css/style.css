@@ -171,6 +171,12 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   content: ""; position: absolute; left: -8px; bottom: 16px;
   border: 8px solid transparent; border-right-color: #fff; border-left: 0;
 }
+/* モチの声で聞くボタン（吹き出しの文のおわりに置く） */
+.mochi-btn {
+  display: inline-grid; place-items: center; width: 30px; height: 30px; margin-left: 6px; vertical-align: middle;
+  border: 0; border-radius: 50%; padding: 0; background: var(--primary-soft); color: var(--primary-dark); font-size: 13px;
+}
+.mochi-btn.is-playing { animation: pulse .5s; }
 .hamster-says.is-compact { margin: 8px 0; align-items: center; }
 .hamster-says.is-compact .bubble { padding: 8px 12px; font-size: 14px; }
 .hamster-says.is-compact .bubble::before { bottom: auto; top: 50%; transform: translateY(-50%); }
