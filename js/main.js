@@ -19,7 +19,9 @@
     root.innerHTML = '';
     root.className = `app screen-${name}`;
     window.scrollTo(0, 0);
+    App.currentScreen = name;
     screen(root, params);
+    App.Dev.decorate(root);
   };
 
   document.addEventListener('click', (e) => {
@@ -59,5 +61,7 @@
   });
 
   App.Store.load();
+  App.Dev.init();      // 開発者モードならテスト用セーブに切り替える
+  App.Trip.migrate();  // 以前の版の 3D の進み具合を、旅のステージに引き継ぐ
   App.go('title');
 })(window.App = window.App || {});

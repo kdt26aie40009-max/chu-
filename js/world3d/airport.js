@@ -361,7 +361,7 @@
       g.fillText('仓鼠航空 Hamster Air', w - 30, 58);
       g.textAlign = 'left';
       const rows = [
-        ['HM101', '北京 Beijing', '10:30', '准时', '#5BE38B'],
+        ['HM101', '上海 Shanghai', '10:30', '准时', '#5BE38B'],
         ['HM205', '成都 Chengdu', '11:05', '值机', '#F5B92E'],
         ['HM318', '东京 Tokyo', '11:40', '登机', '#FF8A3D'],
         ['HM422', '广州 Guangzhou', '12:15', '准时', '#5BE38B'],
@@ -388,7 +388,7 @@
     read({ x: -HX + 0.44, y: 4.4, z: 6, h: 4, rotY: Math.PI / 2 }, 'departures', { en: 'Departures', bg: '#111827' });
 
     /* ---------- 吊り看板・壁の看板 ---------- */
-    read(Md.sign(THREE, scene, { zh: '欢迎来到上海', en: 'Welcome to Shanghai', bg: '#FF8A3D', accent: '#FFE3CC', sub: '#FFF1E6' }, 8, 0, 6.4, 17, 0, { hang: H - 6.4 - 1 }), 'welcome');
+    read(Md.sign(THREE, scene, { zh: '欢迎来到北京', en: 'Welcome to Beijing', bg: '#FF8A3D', accent: '#FFE3CC', sub: '#FFF1E6' }, 8, 0, 6.4, 17, 0, { hang: H - 6.4 - 1 }), 'welcome');
     read(Md.sign(THREE, scene, { zh: '值机', en: 'Check-in', arrow: '↑' }, 4.5, 0, 5.8, 5, 0, { hang: H - 5.8 - 0.56 }), 'checkinArrow');
     read(Md.sign(THREE, scene, { zh: '登机口', en: 'Gates', arrow: '←' }, 4.5, -6, 5.8, -13, 0, { hang: H - 5.8 - 0.56 }), 'gates');
     read(Md.sign(THREE, scene, { zh: '出口', en: 'Exit', arrow: '↓', bg: '#2F8F4E', accent: '#D9F5E3' }, 3.6, 0, 4.4, HZ - 0.3, Math.PI), 'exit');
