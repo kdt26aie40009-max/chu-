@@ -69,8 +69,8 @@
       script: [
         { type: 'say', zh: '你好！你也住这儿吗？', py: 'Nǐ hǎo! Nǐ yě zhù zhèr ma?', ja: 'こんにちは！あなたもここに泊まってるの？',
           hamster: '「はい」と答えよう。<b>是的</b>＝はい', options: [SHIDE, 'duoshao', 'cesuo'], answer: 0 },
-        { type: 'understand', zh: '我今天退房，要去北京。', py: 'Wǒ jīntiān tuìfáng, yào qù Běijīng.', ja: '今日チェックアウトして、北京に行くんだ。',
-          q: 'どこへ行くって？', options: ['北京', '東京', '成都'], answer: 0, hint: '「北京（Běijīng）」が聞こえたかな？' },
+        { type: 'understand', zh: '我今天退房，要去上海。', py: 'Wǒ jīntiān tuìfáng, yào qù Shànghǎi.', ja: '今日チェックアウトして、上海に行くんだ。',
+          q: 'どこへ行くって？', options: ['上海', '東京', '成都'], answer: 0, hint: '「上海（Shànghǎi）」が聞こえたかな？' },
         { type: 'say', hamster: '気をつけてね！お別れしよう', options: ['zaijian', 'haochi', 'ruzhu'], answer: 0 },
       ],
     },
@@ -421,8 +421,7 @@
       }
       // 遠くのタワー
       g.fillStyle = '#141A33'; g.fillRect(w * 0.62, h * 0.18, 10, h * 0.82);
-      g.fillStyle = '#E86F9A'; g.beginPath(); g.arc(w * 0.62 + 5, h * 0.42, 22, 0, Math.PI * 2); g.fill();
-      g.beginPath(); g.arc(w * 0.62 + 5, h * 0.7, 30, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#FFD68C'; g.fillRect(w * 0.62 - 8, h * 0.3, 26, 14); // 中央電視塔風の展望台
     });
     plane(7.6, CH - 1.5, new THREE.MeshBasicMaterial({ map: nightTex }), 98, 0.9 + (CH - 1.5) / 2, -9.0);
     [94.5, 98, 101.5].forEach((x) => box(0.08, CH - 1.5, 0.08, woodDark, x, 0.9 + (CH - 1.5) / 2, -8.98));

@@ -86,7 +86,7 @@
       ]) + ctx.hamsterLine('ふかふかのベッドだ〜！<br>今日はよく頑張ったね。ゆっくり休もう🌙', 'happy'),
       buttons: [
         { label: '🧭 部屋を見てまわる' },
-        { label: '🗺️ 上海マップへ戻る', primary: false, onClick: () => App.go('map') },
+        { label: `🗺️ ${App.currentCity().name}マップへ戻る`, primary: false, onClick: () => App.go('map') },
         { label: '📝 ホテルの中国語レッスン（2D）へ', primary: false, onClick: () => App.go('stage', { spotId: 'hotel' }) },
       ],
     });

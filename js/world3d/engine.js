@@ -65,6 +65,7 @@
   function mount(root, cfg) {
     const saved = slot(cfg.id);
     App.Store.save();
+    const backLabel = `← ${App.U.esc(App.currentCity().name)}マップへ戻る`;
 
     root.innerHTML = `
       <div class="w3d">
@@ -72,7 +73,7 @@
         <div class="w3d-tags"></div>
 
         <div class="w3d-top">
-          <button class="w3d-back" data-back>← 上海マップへ戻る</button>
+          <button class="w3d-back" data-back>${backLabel}</button>
           <div class="w3d-goal"></div>
           <button class="w3d-help-btn" data-help aria-label="操作方法">？</button>
         </div>
@@ -142,7 +143,7 @@
         el.loading.innerHTML = `
           ${App.Hamster.figure({ mood: 'think', size: 'lg' })}
           <p>3D の読み込みに失敗しちゃった…<br><small>インターネット接続を確認してね</small></p>
-          <button class="btn btn-primary" data-go="map">← 上海マップへ戻る</button>`;
+          <button class="btn btn-primary" data-go="map">${backLabel}</button>`;
       });
 
     function start(THREE) {
@@ -151,7 +152,7 @@
       try {
         renderer = new THREE.WebGLRenderer({ antialias: true });
       } catch (e) {
-        el.loading.innerHTML = '<p>この端末では 3D 表示ができないみたい…</p><button class="btn btn-primary" data-go="map">← 上海マップへ戻る</button>';
+        el.loading.innerHTML = '<p>この端末では 3D 表示ができないみたい…</p><button class="btn btn-primary" data-go="map">${backLabel}</button>';
         return;
       }
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));

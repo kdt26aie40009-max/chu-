@@ -53,7 +53,7 @@
           <div class="stat-row"><span>Lv.${lv.level}</span><span class="muted">${lv.cur} / ${lv.need}</span></div>
           ${UI.expBar(lv)}
           <div class="trip-progress">
-            <span>🗺️ 上海旅行 達成率</span><b>${result.pct}%</b>
+            <span>🗺️ ${esc(city.name)}旅行 達成率</span><b>${result.pct}%</b>
           </div>
           <div class="progress"><div class="progress-fill" style="width:${result.pct}%"></div></div>
         </section>
@@ -61,14 +61,14 @@
         <div class="result-actions">
           ${next ? `
             <p class="soft-note">今日はここまででもOK！続けるなら次は <b>${next.emoji} ${esc(next.name)}</b></p>
-            <button class="btn btn-primary btn-lg btn-block" data-next-spot>${next.emoji} ${esc(next.name)}へ行く ▶</button>` : `
-            <p class="soft-note">上海で今あそべるスポットは全部クリア！🎉</p>`}
+            <button class="btn btn-primary btn-lg btn-block" data-next-spot>🗺️ ${next.emoji} ${esc(next.name)}へ（3D / 2D を選ぶ）</button>` : `
+            <p class="soft-note">${esc(city.name)}のスポットは全部クリア！🎉</p>`}
           <button class="btn btn-sub btn-block" data-go="map">🗺️ マップへ戻る</button>
         </div>
       </div>`;
 
     App.Sfx.play('clear');
     const nb = root.querySelector('[data-next-spot]');
-    if (nb) nb.onclick = () => App.go('stage', { spotId: next.id });
+    if (nb) nb.onclick = () => App.go('map');
   };
 })(window.App = window.App || {});

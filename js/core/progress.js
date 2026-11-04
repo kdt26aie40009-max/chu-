@@ -25,14 +25,14 @@
   P.isCleared = (spotId) => !!S().cleared[spotId];
   P.playableSpots = (city) => city.spots.filter((s) => !s.comingSoon);
 
+  // 旅行先のスポットは、2D コースの requires ユニットをクリアすると行ける（一度クリアした所はいつでも）
   P.isUnlocked = (city, spot) => {
-    if (spot.comingSoon) return false;
-    const list = P.playableSpots(city);
-    const i = list.indexOf(spot);
-    return i <= 0 || P.isCleared(list[i - 1].id);
+    if (spot.comingSoon || !App.Course.travelUnlocked()) return false;
+    return P.isCleared(spot.id) || !spot.requires || App.Course.unitDone(spot.requires);
   };
 
-  P.nextSpot = (city) => P.playableSpots(city).find((s) => !P.isCleared(s.id)) || null;
+  // おすすめの次のスポット（行けて、まだクリアしていない所）
+  P.nextSpot = (city) => P.playableSpots(city).find((s) => !P.isCleared(s.id) && P.isUnlocked(city, s)) || null;
 
   P.cityProgress = (city) => {
     const list = P.playableSpots(city);

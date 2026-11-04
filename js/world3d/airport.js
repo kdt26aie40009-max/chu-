@@ -385,7 +385,7 @@
     scene.add(board);
 
     /* ---------- 吊り看板・壁の看板 ---------- */
-    Md.sign(THREE, scene, { zh: '欢迎来到上海', en: 'Welcome to Shanghai', bg: '#FF8A3D', accent: '#FFE3CC', sub: '#FFF1E6' }, 8, 0, 6.4, 17, 0, { hang: H - 6.4 - 1 });
+    Md.sign(THREE, scene, { zh: '欢迎来到北京', en: 'Welcome to Beijing', bg: '#FF8A3D', accent: '#FFE3CC', sub: '#FFF1E6' }, 8, 0, 6.4, 17, 0, { hang: H - 6.4 - 1 });
     Md.sign(THREE, scene, { zh: '值机', en: 'Check-in', arrow: '↑' }, 4.5, 0, 5.8, 5, 0, { hang: H - 5.8 - 0.56 });
     Md.sign(THREE, scene, { zh: '登机口', en: 'Gates', arrow: '←' }, 4.5, -6, 5.8, -13, 0, { hang: H - 5.8 - 0.56 });
     Md.sign(THREE, scene, { zh: '出口', en: 'Exit', arrow: '↓', bg: '#2F8F4E', accent: '#D9F5E3' }, 3.6, 0, 4.4, HZ - 0.3, Math.PI);

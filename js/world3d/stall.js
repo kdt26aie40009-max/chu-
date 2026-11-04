@@ -195,7 +195,7 @@
     plane(18, 8, new THREE.MeshStandardMaterial({ map: endTex, roughness: 0.9 }), 0, 4, -27.64);
     const endRoof = box(18.6, 0.25, 2.4, tile, 0, 8.1, -27.2);
     endRoof.rotation.x = 0.35;
-    Md.sign(THREE, scene, signOpts({ zh: '上海老街', en: 'Shanghai Old Street' }), 4.4, 0, 5.2, -27.55);
+    Md.sign(THREE, scene, signOpts({ zh: '王府井小吃街', en: 'Wangfujing Snack Street' }), 4.4, 0, 5.2, -27.55);
 
     /* ---------- 入口の牌楼（ゲート） ---------- */
     [-4.6, 4.6].forEach((x) => {

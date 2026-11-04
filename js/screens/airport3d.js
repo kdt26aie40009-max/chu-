@@ -1,5 +1,5 @@
 /* 3D 空港
- * 上海マップの ✈️ アイコン → この画面。歩いてチェックインカウンターを探し、中国語でチェックインする。
+ * 旅行マップの ✈️ → 「3Dで歩く」 → この画面。歩いてチェックインカウンターを探し、中国語でチェックインする。
  * 空港にいる一般の人にも話しかけられる（会話は js/world3d/airport.js の PEOPLE）。
  * 共通の動き（歩く・会話など）は js/world3d/engine.js。
  */
@@ -56,7 +56,7 @@
   App.screens.airport3d = (root) => App.World3D.mount(root, {
     id: 'airport',
     loading: '✈️ 空港へ移動中…',
-    helpText: 'ここは上海の空港だよ！<br>自由に歩いて、<b>チェックインカウンター</b>を探してみよう！<br>空港にいる人にも話しかけてみてね',
+    helpText: 'ここは<b>北京首都国際空港</b>だよ！<br>自由に歩いて、<b>チェックインカウンター</b>を探してみよう！<br>空港にいる人にも話しかけてみてね',
     build: (THREE, scene) => App.World3D.buildAirport(THREE, scene),
 
     guide(ctx) {

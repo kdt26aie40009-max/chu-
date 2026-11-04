@@ -653,3 +653,15 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .ls-score { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; }
 .ls-score b { display: block; font-size: 26px; color: var(--primary-dark); line-height: 1.2; }
 .ls-score span { font-size: 12px; color: var(--muted); font-weight: 700; }
+
+/* ---------- 北京マップ ---------- */
+.m-mount { fill: #DCE6C9; }
+.m-wall { fill: none; stroke: #B58A5A; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.m-ring { fill: none; stroke: #E6D3B3; stroke-width: 2.2; }
+.m-axis { stroke: #E9C9A0; stroke-width: 1.2; stroke-dasharray: 2 1.5; }
+.m-palace { fill: #E8B4A0; stroke: #C0504D; stroke-width: .6; }
+.m-square { fill: #EFE6D2; stroke: #D9C7A6; stroke-width: .5; }
+.m-road { fill: none; stroke: #E6D3B3; stroke-width: 1.4; stroke-linecap: round; }
+.map.is-locked .spot { filter: grayscale(.6); opacity: .7; }
+.spot-open .spot-pin { box-shadow: 0 4px 0 var(--primary-dark), var(--shadow); }
+.m-lake { fill: #BDE5F6; }

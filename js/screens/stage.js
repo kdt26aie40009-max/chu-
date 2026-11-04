@@ -16,7 +16,7 @@
   App.screens.stage = (root, { spotId }) => {
     const city = App.currentCity();
     const spot = city.spots.find((s) => s.id === spotId);
-    if (!spot || spot.comingSoon) { App.go('map'); return; }
+    if (!spot || !App.Progress.isUnlocked(city, spot)) { App.go('map'); return; }
 
     const P = App.Progress;
     const phrases = spot.phrases.map(App.phrase);

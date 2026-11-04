@@ -90,7 +90,7 @@
         ]) + ctx.hamsterLine('あつあつ…はふはふ…おいしい〜！🥟<br>中のスープでやけどしないようにね', 'happy'),
         buttons: [
           { label: '🧭 屋台通りを見てまわる' },
-          { label: '🗺️ 上海マップへ戻る', primary: false, onClick: () => App.go('map') },
+          { label: `🗺️ ${App.currentCity().name}マップへ戻る`, primary: false, onClick: () => App.go('map') },
           { label: '📝 屋台の中国語レッスン（2D）へ', primary: false, onClick: () => App.go('stage', { spotId: 'stall' }) },
         ],
       });
@@ -120,7 +120,7 @@
   App.screens.stall3d = (root) => App.World3D.mount(root, {
     id: 'stall',
     loading: '🥟 屋台通りへ移動中…',
-    helpText: 'いいにおい〜！ここは上海の<b>屋台通り</b>だよ🥟<br><b>小笼包</b>の屋台を探して、注文してみよう！<br>通りの人にも話しかけてみてね',
+    helpText: 'いいにおい〜！ここは北京・<b>王府井の屋台通り</b>だよ🥟<br><b>小笼包</b>の屋台を探して、注文してみよう！<br>通りの人にも話しかけてみてね',
     build(THREE, scene) {
       const w = App.World3D.buildStall(THREE, scene);
       const base = w.update;
