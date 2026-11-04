@@ -79,6 +79,7 @@
 
         <div class="w3d-label w3d-hamster-label"><div class="bubble"></div></div>
         <div class="w3d-label w3d-person-label"></div>
+        <button class="w3d-label w3d-read" hidden></button>
 
         <button class="btn btn-primary btn-lg w3d-interact" hidden></button>
 
@@ -103,6 +104,7 @@
         <div class="w3d-overlay w3d-modal" hidden>
           <div class="w3d-card w3d-talk-wrap">
             <button class="w3d-close" data-talk-close aria-label="会話をやめる">×</button>
+            <div class="w3d-talk-tools">${UI.rateToggle()}${UI.voiceNotice()}</div>
             <div class="w3d-talk"></div>
           </div>
         </div>
@@ -121,6 +123,7 @@
       hLabel: $('.w3d-hamster-label', root),
       hBubble: $('.w3d-hamster-label .bubble', root),
       pLabel: $('.w3d-person-label', root),
+      read: $('.w3d-read', root),
       interact: $('.w3d-interact', root),
       joy: $('.w3d-joy', root),
       help: $('.w3d-help', root),
@@ -165,6 +168,7 @@
       const interactables = world.interactables || [];
       const discoveries = world.discoveries || [];
       const zones = world.zones || [];
+      const readables = world.readables || [];
 
       const resize = () => {
         const w = el.wrap.clientWidth;
@@ -191,6 +195,7 @@
         totals: { found: discoveries.length, people: people.length },
       };
       let target = null; // { kind: 'spot', id } | { kind: 'person', p }
+      let reading = null; // いま画面に「🔍 読む」ボタンを出している看板
 
       const input = App.Input3D.create(renderer.domElement, { onInteract: interact, joyEl: el.joy });
       const setBusy = (v) => { game.busy = v; input.setEnabled(!v); };
@@ -230,6 +235,42 @@
           node.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`;
         }
       }
+      // 画面に見えている近くの看板をひとつ選び、その下に「🔍 〜を読む」ボタンを出す
+      const readDist = (r) => Math.min(28, 8 + r.h * 16); // 大きい看板ほど遠くから読める
+      function updateReadable(s) {
+        let best = null;
+        let bestScore = Infinity;
+        if (!game.busy) {
+          readables.forEach((r) => {
+            const dx = player.x - r.x;
+            const dz = player.z - r.z;
+            const dist = Math.hypot(dx, dz);
+            if (dist > readDist(r)) return;
+            // 看板の表側（+z を rotY だけ回した向き）から見ているときだけ
+            if (Math.sin(r.rotY) * dx + Math.cos(r.rotY) * dz <= 0) return;
+            tmp.set(r.x, r.y, r.z).project(camera);
+            if (tmp.z >= 1 || Math.abs(tmp.x) > 0.85 || Math.abs(tmp.y) > 0.95) return;
+            const score = Math.hypot(tmp.x, tmp.y) + dist / readDist(r); // 画面の真ん中に近く、近い看板を優先
+            if (score < bestScore) { bestScore = score; best = r; }
+          });
+        }
+        reading = best;
+        if (!best) { el.read.hidden = true; return; }
+        const key = !target && !(isTouch() || s.touched) ? '（E）' : '';
+        if (el.read.dataset.label !== best.id + key) {
+          el.read.dataset.label = best.id + key;
+          el.read.innerHTML = `🔍 <span class="zh">${esc(best.zh)}</span> を読む${key}`;
+        }
+        el.read.hidden = false;
+        // 看板の下のふちのすぐ下（画面からはみ出さないように寄せる）
+        tmp.set(best.x, best.y - best.h / 2, best.z).project(camera);
+        const w = el.wrap.clientWidth;
+        const h = el.wrap.clientHeight;
+        const x = clampB((tmp.x * 0.5 + 0.5) * w, 90, w - 90);
+        const y = clampB((-tmp.y * 0.5 + 0.5) * h, 70, h - 170);
+        el.read.style.transform = `translate(${x}px, ${y}px) translate(-50%, 8px)`;
+      }
+
       (world.tags || []).forEach((t) => {
         const d = document.createElement('div');
         d.className = 'w3d-label w3d-npc-label';
@@ -255,8 +296,9 @@
         const order = shuffle(options.map((o, k) => Object.assign({ k }, o)));
         container.insertAdjacentHTML('beforeend', `
           <div class="options ${zh ? 'options-zh' : ''} w3d-options">
-            ${order.map((o, i) => `<button class="option" data-k="${o.k}"><span class="opt-key">${'ABCD'[i]}</span>
-              <span class="opt-body">${zh ? `<span class="zh">${esc(o.zh)}</span>${UI.pinyin(o.py)}` : esc(o.text)}</span></button>`).join('')}
+            ${order.map((o, i) => `<div class="opt-wrap"><button class="option" data-k="${o.k}"><span class="opt-key">${'ABCD'[i]}</span>
+              <span class="opt-body">${zh ? `<span class="zh">${esc(o.zh)}</span>${UI.pinyin(o.py)}` : esc(o.text)}</span></button>
+              ${zh ? UI.speakBtn(o.zh, { cls: 'speak-sm opt-speak' }) : ''}</div>`).join('')}
           </div>
           <div class="w3d-fb"></div>`);
         container.querySelectorAll('.w3d-options .option').forEach((btn) => {
@@ -328,7 +370,7 @@
               zh: true,
               onCorrect: (o) => {
                 App.Speech.speak(o.zh);
-                t.insertAdjacentHTML('beforeend', `<div class="w3d-me">🧳 あなた：<span class="zh">${esc(o.zh)}</span>　${esc(o.ja)}</div>`);
+                t.insertAdjacentHTML('beforeend', `<div class="w3d-me">🧳 あなた：<span class="zh">${esc(o.zh)}</span>${UI.speakBtn(o.zh, { cls: 'speak-sm' })}${UI.pinyin(o.py)}<div>${esc(o.ja)}</div></div>`);
                 later(next, 1100);
               },
               wrongMsg: (o) => `「${esc(o.zh)}」は「${esc(o.ja)}」って意味だよ`,
@@ -345,6 +387,36 @@
         setBusy(false);
       }
       $('[data-talk-close]', root).onclick = () => { App.Sfx.play('tap'); closeTalk(); };
+
+      /* ---------- 看板を読む ---------- */
+      const signCard = (r) => `
+        <div class="sign-card">
+          <div class="sign-plate" style="background:${esc(r.bg)}">
+            <span class="zh">${esc(r.zh)}</span>${r.en ? `<small>${esc(r.en)}</small>` : ''}
+          </div>
+          <div class="sign-read">
+            <div class="sign-text">${UI.pinyin(r.py, { force: true, cls: 'py-lg' })}<div class="sign-ja">${esc(r.ja)}</div></div>
+            ${UI.speakBtn(r.say || r.zh, { label: '🔊 聞く', cls: 'speak-pill' })}
+          </div>
+          ${r.lines ? `<ul class="sign-lines">${r.lines.map((l) => `
+            <li><span class="zh">${esc(l.zh)}</span><span class="py">${esc(l.py)}</span><span class="sign-line-ja">${esc(l.ja)}</span>${UI.speakBtn(l.zh, { cls: 'speak-sm' })}</li>`).join('')}
+          </ul>` : ''}
+          ${r.note ? hamsterLine(r.note) : ''}
+        </div>`;
+
+      function openSign(r) {
+        App.Sfx.play('tap');
+        talkToken++;
+        setBusy(true);
+        el.interact.hidden = true;
+        el.read.hidden = true;
+        el.modal.hidden = false;
+        el.talk.parentElement.scrollTop = 0;
+        el.talk.innerHTML = `${signCard(r)}<button class="btn btn-primary btn-block" data-step>とじる</button>`;
+        $('[data-step]', el.talk).onclick = () => { App.Sfx.play('tap'); closeTalk(); };
+        App.Speech.speak(r.say || r.zh);
+      }
+      el.read.onclick = () => { if (reading && !game.busy) openSign(reading); };
 
       // 会話のあとの「できた！」カード（モーダル内に表示）
       function successCard({ emoji, title, sub = '', exp = 0, body = '', buttons = [] }) {
@@ -395,7 +467,8 @@
 
       /* ---------- 話す・調べる ---------- */
       function interact() {
-        if (game.busy || !target) return;
+        if (game.busy) return;
+        if (!target) { if (reading) openSign(reading); return; }
         App.Sfx.play('tap');
         if (target.kind === 'spot') {
           const fn = cfg.onInteract && cfg.onInteract[target.id];
@@ -608,6 +681,7 @@
           });
         }
 
+        updateReadable(s);
         updateTexts(now);
         placeLabel(el.hLabel, hm, 1.35, 30);
         (world.tags || []).forEach((tg) => placeLabel(tg.el, tg.obj, tg.y, tg.maxDist || 16));

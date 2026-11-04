@@ -20,7 +20,6 @@
       <path class="m-water" d="M0 33 C18 37 40 28 58 33 C65 35 70 36 74 37"/>
       <path class="m-river" d="M58 125 C66 108 80 96 77 80 C74 62 64 52 73 36 C80 22 90 14 100 10"/>
       <path class="m-river-in" d="M58 125 C66 108 80 96 77 80 C74 62 64 52 73 36 C80 22 90 14 100 10"/>
-      <text class="m-label" x="86" y="30">黄浦江</text>
       <polyline class="m-route" points="${route}"/>
       ${done ? `<polyline class="m-route-done" points="${done}"/>` : ''}
     </svg>`;
@@ -84,6 +83,7 @@
       <section class="map">
         ${MAP_SVG(route, done)}
         ${spots}
+        <button class="map-sign" style="left:88%;top:23%" data-sign="huangpu" aria-label="黄浦江を読む"><span class="zh">黄浦江</span>🔍</button>
       </section>
 
       <section class="map-dock">

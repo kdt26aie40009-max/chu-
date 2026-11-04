@@ -92,6 +92,8 @@
   function buildHotel(THREE, scene) {
     const Md = App.Models3D;
     const colliders = [];
+    const readables = [];
+    const read = (obj, id, extra) => readables.push(Md.readable(obj, id, extra));
     const rect = (minX, maxX, minZ, maxZ) => { const c = { minX, maxX, minZ, maxZ }; colliders.push(c); return c; };
     const M = (color, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.75, metalness: 0 }, o));
     const box = (w, h, d, mat, x, y, z, { collide = false, parent = scene, rotY = 0 } = {}) => {
@@ -234,7 +236,7 @@
 
     /* ---------- フロント ---------- */
     box(16, 4.5, 0.3, M('#5A3A26'), 0, 2.25, -15.65);
-    Md.sign(THREE, scene, signOpts({ zh: '仓鼠大酒店', en: 'Hamster Grand Hotel' }), 6, 0, 3.2, -15.45);
+    read(Md.sign(THREE, scene, signOpts({ zh: '仓鼠大酒店', en: 'Hamster Grand Hotel' }), 6, 0, 3.2, -15.45), 'hotelName');
     box(12, 1.15, 1.2, woodDark, 0, 0.575, -11);
     box(12.3, 0.08, 1.4, marble, 0, 1.19, -11);
     box(12, 0.08, 0.02, gold, 0, 0.95, -10.39);
@@ -248,7 +250,7 @@
     bell.position.set(1.2, 1.26, -10.75);
     scene.add(bell, bellBase);
     rect(-6.2, 6.2, -15.8, -10.35);
-    Md.sign(THREE, scene, signOpts({ zh: '前台', en: 'Reception' }), 3.6, 0, 4.4, -9.5, 0, { hang: LH - 4.4 - 0.45 });
+    read(Md.sign(THREE, scene, signOpts({ zh: '前台', en: 'Reception' }), 3.6, 0, 4.4, -9.5, 0, { hang: LH - 4.4 - 0.45 }), 'reception');
 
     const wang = Md.staff(THREE, { uniform: '#5A2E2E', scarf: '#D9A441' });
     wang.position.set(0, 0, -12.2);
@@ -270,13 +272,13 @@
       }
     };
     elevatorDoors(-13.72, -4.5, Math.PI / 2);
-    Md.sign(THREE, scene, signOpts({ zh: '电梯', en: 'Elevator' }), 3, -13.7, 3.75, -4.5, Math.PI / 2);
+    read(Md.sign(THREE, scene, signOpts({ zh: '电梯', en: 'Elevator' }), 3, -13.7, 3.75, -4.5, Math.PI / 2), 'elevator');
 
     /* ---------- レストラン（右の壁） ---------- */
     box(0.1, 2.8, 2.6, M('#2C1E16'), 13.75, 1.4, -4);
     box(0.12, 0.15, 3, gold, 13.73, 2.85, -4);
-    Md.sign(THREE, scene, signOpts({ zh: '餐厅', en: 'Restaurant' }), 3, 13.7, 3.75, -4, -Math.PI / 2);
-    Md.sign(THREE, scene, signOpts({ zh: '早餐 6:30–10:00', en: 'Breakfast' }), 2, 13.72, 1.6, -1.6, -Math.PI / 2);
+    read(Md.sign(THREE, scene, signOpts({ zh: '餐厅', en: 'Restaurant' }), 3, 13.7, 3.75, -4, -Math.PI / 2), 'restaurant');
+    read(Md.sign(THREE, scene, signOpts({ zh: '早餐 6:30–10:00', en: 'Breakfast' }), 2, 13.72, 1.6, -1.6, -Math.PI / 2), 'breakfast');
 
     /* ---------- ラウンジ（右手前） ---------- */
     const sofaMat = M('#2F6F6A');
@@ -383,9 +385,9 @@
 
     // エレベーター（西端）と非常口（東端）
     elevatorDoors(90.02, 0, Math.PI / 2, 1);
-    Md.sign(THREE, scene, signOpts({ zh: '电梯 3F', en: 'Elevator' }), 1.6, 90.05, 2.85, -1.4, Math.PI / 2);
+    read(Md.sign(THREE, scene, signOpts({ zh: '电梯 3F', en: 'Elevator' }), 1.6, 90.05, 2.85, -1.4, Math.PI / 2), 'elevator3');
     box(0.08, 2.4, 1.2, M('#3E6B4A'), 112, 1.2, 0);
-    Md.sign(THREE, scene, { zh: '安全出口', en: 'Emergency Exit', arrow: '→', bg: '#2F8F4E', accent: '#D9F5E3', sub: '#D9F5E3' }, 1.8, 111.95, 2.75, 0, -Math.PI / 2);
+    read(Md.sign(THREE, scene, { zh: '安全出口', en: 'Emergency Exit', arrow: '→', bg: '#2F8F4E', accent: '#D9F5E3', sub: '#D9F5E3' }, 1.8, 111.95, 2.75, 0, -Math.PI / 2), 'emergencyExit');
     // 廊下の小さな植物
     plant(111.2, -1.4, 0.7);
 
@@ -459,6 +461,7 @@
     box(0.5, 0.5, 1.8, woodDark, 101.7, 0.25, -5.4, { collide: true });
     box(0.06, 0.85, 1.5, M('#111111'), 101.95, 1.4, -5.4);
     plane(1.4, 0.78, new THREE.MeshBasicMaterial({ map: tvTex }), 101.91, 1.4, -5.4, 0, -Math.PI / 2);
+    read({ x: 101.91, y: 1.4, z: -5.4, h: 0.78, rotY: -Math.PI / 2 }, 'tv', { en: 'TV', bg: '#2F2240' });
     // 机といす
     box(0.6, 0.75, 1.2, woodMid, 94.35, 0.375, -4.2, { collide: true });
     box(0.45, 0.08, 0.45, woodMid, 95.0, 0.48, -4.2);
@@ -497,6 +500,7 @@
         { id: 'door305', x: 110, z: -1.2, r: 1.2 },
       ],
       tags: [{ obj: wang, y: 2.35, text: '🧑‍💼 前台（フロント）', maxDist: 16 }],
+      readables,
       facePlayer: [wang],
       discoveries: [
         { id: 'elevator', x: -12.3, z: -4.5, r: 3.4, say: '<b>电梯</b>＝エレベーター！<br>「梯」は、はしごって意味なんだ' },

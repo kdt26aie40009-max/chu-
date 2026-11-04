@@ -44,6 +44,8 @@
                 ${UI.speakBtn(p.zh, { label: '🔊 聞く', cls: 'speak-pill' })}
                 ${UI.speakBtn(p.zh, { slow: true, label: '🐢 ゆっくり', cls: 'speak-pill is-sub' })}
               </div>
+              ${UI.rateToggle({ cls: 'is-center' })}
+              ${UI.voiceNotice()}
               <div class="practice">
                 ${App.Speech.canRecognize
                   ? '<button class="btn btn-mic" data-mic>🎙️ 声に出して言ってみる</button><div class="mic-result"></div>'

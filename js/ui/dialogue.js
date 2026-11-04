@@ -29,7 +29,7 @@
     <div class="msg msg-me pop-in">
       <div class="msg-bubble">
         <div class="msg-name">あなた</div>
-        <div class="zh">${esc(p.zh)}</div>
+        <div class="msg-zh"><span class="zh">${esc(p.zh)}</span>${UI.speakBtn(p.zh, { cls: 'speak-sm' })}</div>
         ${UI.pinyin(p.py)}
         <div class="msg-ja">${esc(p.ja)}</div>
       </div>
@@ -57,7 +57,9 @@
 
   const Dialogue = {
     run(root, steps, { npcs = {}, pool = [], onDone, onMistake = () => {}, doneLabel = 'つづける ▶' }) {
-      root.innerHTML = '<div class="chat"><div class="chat-log"></div><div class="chat-actions"></div></div>';
+      root.innerHTML = `<div class="chat">
+        <div class="chat-tools">${UI.rateToggle()}${UI.voiceNotice()}</div>
+        <div class="chat-log"></div><div class="chat-actions"></div></div>`;
       const log = $('.chat-log', root);
       const actions = $('.chat-actions', root);
       let i = 0;
@@ -119,9 +121,10 @@
             <div class="options options-zh">
               ${opts.map((id) => {
                 const p = App.PHRASES[id];
-                return `<button class="option" data-id="${id}">
+                return `<div class="opt-wrap"><button class="option" data-id="${id}">
                   <span class="opt-body"><span class="zh">${esc(p.zh)}</span>${UI.pinyin(p.py)}
-                  <span class="opt-hint">${esc(p.ja)}</span></span></button>`;
+                  <span class="opt-hint">${esc(p.ja)}</span></span></button>
+                  ${UI.speakBtn(p.zh, { cls: 'speak-sm opt-speak' })}</div>`;
               }).join('')}
             </div>
             <button class="link-btn" data-hint>💡 ヒント（日本語を見る）</button>

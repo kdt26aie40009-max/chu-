@@ -125,6 +125,8 @@
   function buildAirport(THREE, scene) {
     const Md = App.Models3D;
     const colliders = [];
+    const readables = [];
+    const read = (obj, id, extra) => readables.push(Md.readable(obj, id, extra));
     const rect = (minX, maxX, minZ, maxZ) => colliders.push({ minX, maxX, minZ, maxZ });
     const M = (color, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.75, metalness: 0 }, o));
 
@@ -255,7 +257,7 @@
     const woodMat = M('#C9A37A');
     const darkMat = M('#2F3740', { roughness: 0.4 });
     box(26, 4.4, 0.3, navy, 0, 2.2, -21.2);
-    Md.sign(THREE, scene, { zh: '值机柜台', en: 'Check-in Counters', bg: '#1F3B57' }, 9, 0, 5.8, -21.0);
+    read(Md.sign(THREE, scene, { zh: '值机柜台', en: 'Check-in Counters', bg: '#1F3B57' }, 9, 0, 5.8, -21.0), 'checkinCounters');
     [-9, 0, 9].forEach((x, i) => {
       box(5, 1.1, 1.2, counterMat, x, 0.55, -18.6);
       box(5.2, 0.06, 1.4, woodMat, x, 1.13, -18.6);
@@ -263,7 +265,7 @@
       box(0.7, 0.45, 0.05, darkMat, x + 1.3, 1.45, -18.9);
       box(0.08, 0.25, 0.08, darkMat, x + 1.3, 1.2, -18.95);
       box(1.2, 0.12, 0.9, M('#9AA5AE', { metalness: 0.3 }), x - 1.6, 0.06, -17.5); // 荷物の秤
-      Md.sign(THREE, scene, { zh: `值机 ${'ABC'[i]}`, en: i === 1 ? 'All Flights' : 'Hamster Air', bg: '#2BB5A0', accent: '#FFFFFF' }, 3, x, 3.3, -21.0);
+      read(Md.sign(THREE, scene, { zh: `值机 ${'ABC'[i]}`, en: i === 1 ? 'All Flights' : 'Hamster Air', bg: '#2BB5A0', accent: '#FFFFFF' }, 3, x, 3.3, -21.0), `checkin${'ABC'[i]}`);
     });
     rect(-13, 13, -21.5, -18.0);
 
@@ -342,7 +344,7 @@
     cyl(1.38, 1.38, 0.06, woodMat, -9, 1.08, 15);
     cyl(1.32, 1.32, 0.16, trimMat, -9, 0.8, 15);
     cyl(0.05, 0.05, 2.8, frameMat, -9, 2.4, 15, 8);
-    Md.sign(THREE, scene, { zh: '问讯处', en: 'Information', arrow: '?', bg: '#2BB5A0', accent: '#FFFFFF' }, 2.6, -9, 3.9, 15, 0.5);
+    read(Md.sign(THREE, scene, { zh: '问讯处', en: 'Information', arrow: '?', bg: '#2BB5A0', accent: '#FFFFFF' }, 2.6, -9, 3.9, 15, 0.5), 'info');
     rect(-10.4, -7.6, 13.6, 16.4);
 
     /* ---------- 出発案内板（左の壁） ---------- */
@@ -383,21 +385,22 @@
     board.position.set(-HX + 0.44, 4.4, 6);
     board.rotation.y = Math.PI / 2;
     scene.add(board);
+    read({ x: -HX + 0.44, y: 4.4, z: 6, h: 4, rotY: Math.PI / 2 }, 'departures', { en: 'Departures', bg: '#111827' });
 
     /* ---------- 吊り看板・壁の看板 ---------- */
-    Md.sign(THREE, scene, { zh: '欢迎来到上海', en: 'Welcome to Shanghai', bg: '#FF8A3D', accent: '#FFE3CC', sub: '#FFF1E6' }, 8, 0, 6.4, 17, 0, { hang: H - 6.4 - 1 });
-    Md.sign(THREE, scene, { zh: '值机', en: 'Check-in', arrow: '↑' }, 4.5, 0, 5.8, 5, 0, { hang: H - 5.8 - 0.56 });
-    Md.sign(THREE, scene, { zh: '登机口', en: 'Gates', arrow: '←' }, 4.5, -6, 5.8, -13, 0, { hang: H - 5.8 - 0.56 });
-    Md.sign(THREE, scene, { zh: '出口', en: 'Exit', arrow: '↓', bg: '#2F8F4E', accent: '#D9F5E3' }, 3.6, 0, 4.4, HZ - 0.3, Math.PI);
+    read(Md.sign(THREE, scene, { zh: '欢迎来到上海', en: 'Welcome to Shanghai', bg: '#FF8A3D', accent: '#FFE3CC', sub: '#FFF1E6' }, 8, 0, 6.4, 17, 0, { hang: H - 6.4 - 1 }), 'welcome');
+    read(Md.sign(THREE, scene, { zh: '值机', en: 'Check-in', arrow: '↑' }, 4.5, 0, 5.8, 5, 0, { hang: H - 5.8 - 0.56 }), 'checkinArrow');
+    read(Md.sign(THREE, scene, { zh: '登机口', en: 'Gates', arrow: '←' }, 4.5, -6, 5.8, -13, 0, { hang: H - 5.8 - 0.56 }), 'gates');
+    read(Md.sign(THREE, scene, { zh: '出口', en: 'Exit', arrow: '↓', bg: '#2F8F4E', accent: '#D9F5E3' }, 3.6, 0, 4.4, HZ - 0.3, Math.PI), 'exit');
 
     // トイレ（左の壁）
     box(0.1, 2.6, 1.8, M('#3A4A5A'), -HX + 0.25, 1.3, -10);
-    Md.sign(THREE, scene, { zh: '洗手间', en: 'Restroom', bg: '#5B6B7B', accent: '#CFE3F5' }, 2.8, -HX + 0.32, 3.4, -10, Math.PI / 2);
+    read(Md.sign(THREE, scene, { zh: '洗手间', en: 'Restroom', bg: '#5B6B7B', accent: '#CFE3F5' }, 2.8, -HX + 0.32, 3.4, -10, Math.PI / 2), 'restroom');
 
     // 搭乗口（左奥）
     box(0.1, 3.2, 4, M('#1F2D3A'), -HX + 0.25, 1.6, -24);
     box(0.12, 0.25, 4.4, trimMat, -HX + 0.27, 3.3, -24);
-    Md.sign(THREE, scene, { zh: '登机口 A1–A20', en: 'Gates A1–A20', bg: '#1F4E79' }, 4.2, -HX + 0.34, 4.6, -24, Math.PI / 2);
+    read(Md.sign(THREE, scene, { zh: '登机口 A1–A20', en: 'Gates A1–A20', bg: '#1F4E79' }, 4.2, -HX + 0.34, 4.6, -24, Math.PI / 2), 'gatesA');
 
     /* ---------- 窓の外の飛行機 ---------- */
     const plane = new THREE.Group();
@@ -440,6 +443,7 @@
       people,
       interactables: [{ id: 'desk', x: 0, z: -16.6, r: 3.2 }],
       tags: [{ obj: npc, y: 2.35, text: '🧑‍✈️ 值机柜台（チェックイン）', maxDist: 16 }],
+      readables,
       facePlayer: [npc],
       // 近づくと見つかる「発見」スポット（ハムスターがミニ豆知識を言う）
       discoveries: [

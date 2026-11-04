@@ -80,7 +80,22 @@
     g.position.set(x, y, z);
     g.rotation.y = rotY;
     parent.add(g);
+    g.userData.sign = { h: height, en: opts.en || '', bg: opts.bg || '#1F4E79' };
     return g;
+  }
+
+  // 看板を「読める看板」にする（js/data/signs.js の id と結びつける）。world の readables に入れる
+  // obj が看板（sign() の返り値）でないときは { x, y, z, h, rotY } を直接わたす
+  function readable(obj, id, extra = {}) {
+    const info = App.SIGNS[id];
+    if (!info) throw new Error('unknown sign: ' + id);
+    const s = (obj.userData && obj.userData.sign) || {};
+    const at = obj.position || obj;
+    return Object.assign({
+      id, x: at.x, y: at.y, z: at.z, h: s.h || obj.h || 1,
+      rotY: obj.rotation ? obj.rotation.y : (obj.rotY || 0),
+      en: s.en || '', bg: s.bg || '#1F4E79',
+    }, info, extra);
   }
 
   /* ---------- ハムスター（2D 版と同じ配色） ---------- */
@@ -263,5 +278,5 @@
     }
   }
 
-  App.Models3D = { FONT, canvasTexture, roundRect, signTexture, sign, hamster, staff, person, animateWalk };
+  App.Models3D = { FONT, canvasTexture, roundRect, signTexture, sign, readable, hamster, staff, person, animateWalk };
 })(window.App = window.App || {});
