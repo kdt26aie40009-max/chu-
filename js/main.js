@@ -31,6 +31,16 @@
       sp.classList.add('is-playing');
       return;
     }
+    const rate = e.target.closest('[data-rate-set]');
+    if (rate) {
+      App.Speech.setRate(rate.dataset.rateSet);
+      const cur = App.Speech.rate();
+      document.querySelectorAll('[data-rate-set]').forEach((b) => {
+        b.setAttribute('aria-pressed', String(Number(b.dataset.rateSet) === cur));
+      });
+      App.Sfx.play('tap');
+      return;
+    }
     const go = e.target.closest('[data-go]');
     if (go) {
       if (go.dataset.confirm && !window.confirm(go.dataset.confirm)) return;

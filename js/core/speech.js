@@ -7,38 +7,78 @@
 
   const Speech = {};
   let voice = null;
+  let voiceCount = 0;
+  let settled = false; // 音声一覧の読み込みを待ち終えたか（0 件のまま終わる環境もある）
   let warned = false;
 
   Speech.supported = 'speechSynthesis' in window;
 
+  // 選べる読み上げ速度（設定・会話画面の切り替えボタン）
+  Speech.RATES = [0.7, 1.0];
+
   function pickVoice() {
     const vs = window.speechSynthesis.getVoices();
     voice = vs.find((v) => /zh[-_]CN/i.test(v.lang)) || vs.find((v) => /^zh/i.test(v.lang)) || null;
+    voiceCount = vs.length;
     return vs.length;
-  }
-
-  if (Speech.supported) {
-    pickVoice();
-    window.speechSynthesis.onvoiceschanged = pickVoice;
   }
 
   Speech.hasChineseVoice = () => !!voice;
   Speech.voiceName = () => (voice ? voice.name : null);
 
+  // 'unsupported' | 'loading' | 'missing' | 'ok'
+  Speech.voiceState = () => {
+    if (!Speech.supported) return 'unsupported';
+    if (voice) return 'ok';
+    return voiceCount > 0 || settled ? 'missing' : 'loading';
+  };
+
+  const NOTICE = {
+    unsupported: '⚠️ このブラウザは音声読み上げに対応していません。中国語・ピンインを見ながら進めてね（Chrome / Edge 推奨）',
+    missing: '⚠️ この端末に中国語（zh-CN）の音声が見つかりません。読み上げが正しく聞こえないことがあります（Chrome / Edge 推奨）',
+  };
+  Speech.noticeText = () => NOTICE[Speech.voiceState()] || '';
+
+  // 画面上の「中国語音声がない」お知らせ（UI.voiceNotice）を最新の状態にする
+  Speech.refreshNotices = () => {
+    const text = Speech.noticeText();
+    document.querySelectorAll('[data-voice-notice]').forEach((el) => {
+      el.textContent = text;
+      el.hidden = !text;
+    });
+  };
+
+  if (Speech.supported) {
+    pickVoice();
+    window.speechSynthesis.onvoiceschanged = () => { pickVoice(); Speech.refreshNotices(); };
+    setTimeout(() => { settled = true; pickVoice(); Speech.refreshNotices(); }, 2000);
+  }
+
+  // 0.7 / 1.0 のどちらか（古いセーブの 0.85 などは近い方に寄せる）
+  Speech.rate = () => ((App.Store.state.settings.rate || 1) < 0.85 ? 0.7 : 1.0);
+  Speech.setRate = (r) => {
+    App.Store.state.settings.rate = Number(r) < 0.85 ? 0.7 : 1.0;
+    App.Store.save();
+  };
+
   Speech.speak = (text, { slow = false } = {}) => {
-    if (!Speech.supported || !text) return false;
+    if (!text) return false;
+    if (Speech.supported) pickVoice();
+    const state = Speech.voiceState();
+    if ((state === 'unsupported' || state === 'missing') && !warned) {
+      warned = true;
+      App.U.toast(state === 'unsupported'
+        ? 'このブラウザは読み上げに対応していないみたい…<br>Chrome か Edge がおすすめだよ'
+        : '中国語の音声が見つからないみたい…<br>Chrome か Edge がおすすめだよ');
+    }
+    if (!Speech.supported) return false;
     const synth = window.speechSynthesis;
     synth.cancel();
-    const loaded = pickVoice();
-    if (!voice && loaded > 0 && !warned) {
-      warned = true;
-      App.U.toast('中国語の音声が見つからないみたい…<br>Chrome か Edge がおすすめだよ');
-    }
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'zh-CN';
     if (voice) u.voice = voice;
-    const rate = App.Store.state.settings.rate || 0.85;
-    u.rate = slow ? rate * 0.6 : rate;
+    const rate = Speech.rate();
+    u.rate = slow ? Math.max(0.5, rate * 0.6) : rate;
     synth.speak(u);
     return true;
   };

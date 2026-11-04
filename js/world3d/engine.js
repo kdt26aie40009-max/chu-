@@ -103,6 +103,7 @@
         <div class="w3d-overlay w3d-modal" hidden>
           <div class="w3d-card w3d-talk-wrap">
             <button class="w3d-close" data-talk-close aria-label="会話をやめる">×</button>
+            <div class="w3d-talk-tools">${UI.rateToggle()}${UI.voiceNotice()}</div>
             <div class="w3d-talk"></div>
           </div>
         </div>
@@ -255,8 +256,9 @@
         const order = shuffle(options.map((o, k) => Object.assign({ k }, o)));
         container.insertAdjacentHTML('beforeend', `
           <div class="options ${zh ? 'options-zh' : ''} w3d-options">
-            ${order.map((o, i) => `<button class="option" data-k="${o.k}"><span class="opt-key">${'ABCD'[i]}</span>
-              <span class="opt-body">${zh ? `<span class="zh">${esc(o.zh)}</span>${UI.pinyin(o.py)}` : esc(o.text)}</span></button>`).join('')}
+            ${order.map((o, i) => `<div class="opt-wrap"><button class="option" data-k="${o.k}"><span class="opt-key">${'ABCD'[i]}</span>
+              <span class="opt-body">${zh ? `<span class="zh">${esc(o.zh)}</span>${UI.pinyin(o.py)}` : esc(o.text)}</span></button>
+              ${zh ? UI.speakBtn(o.zh, { cls: 'speak-sm opt-speak' }) : ''}</div>`).join('')}
           </div>
           <div class="w3d-fb"></div>`);
         container.querySelectorAll('.w3d-options .option').forEach((btn) => {
@@ -328,7 +330,7 @@
               zh: true,
               onCorrect: (o) => {
                 App.Speech.speak(o.zh);
-                t.insertAdjacentHTML('beforeend', `<div class="w3d-me">🧳 あなた：<span class="zh">${esc(o.zh)}</span>　${esc(o.ja)}</div>`);
+                t.insertAdjacentHTML('beforeend', `<div class="w3d-me">🧳 あなた：<span class="zh">${esc(o.zh)}</span>${UI.speakBtn(o.zh, { cls: 'speak-sm' })}${UI.pinyin(o.py)}<div>${esc(o.ja)}</div></div>`);
                 later(next, 1100);
               },
               wrongMsg: (o) => `「${esc(o.zh)}」は「${esc(o.ja)}」って意味だよ`,
