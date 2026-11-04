@@ -5,8 +5,6 @@
   const U = App.U;
   const S = () => App.Store.state;
   const EXP_PER_LEVEL = 100;
-  const REPLAY_BONUS_RATE = 0.5;
-  const NO_MISS_BONUS = 10;
 
   const P = {};
 
@@ -20,24 +18,6 @@
     const t = U.todayKey();
     if (!S().days.includes(t)) S().days.push(t);
     S().lastPlayed = t;
-  };
-
-  P.isCleared = (spotId) => !!S().cleared[spotId];
-  P.playableSpots = (city) => city.spots.filter((s) => !s.comingSoon);
-
-  // 旅行先のスポットは、2D コースの requires ユニットをクリアすると行ける（一度クリアした所はいつでも）
-  P.isUnlocked = (city, spot) => {
-    if (spot.comingSoon || !App.Course.travelUnlocked()) return false;
-    return P.isCleared(spot.id) || !spot.requires || App.Course.unitDone(spot.requires);
-  };
-
-  // おすすめの次のスポット（行けて、まだクリアしていない所）
-  P.nextSpot = (city) => P.playableSpots(city).find((s) => !P.isCleared(s.id) && P.isUnlocked(city, s)) || null;
-
-  P.cityProgress = (city) => {
-    const list = P.playableSpots(city);
-    if (!list.length) return 0;
-    return Math.round((list.filter((s) => P.isCleared(s.id)).length / list.length) * 100);
   };
 
   P.addExp = (n) => {
@@ -76,6 +56,12 @@
     else { e.wrong++; e.strength = Math.max(0, e.strength - 1); }
     e.lastReviewed = U.todayKey();
     e.due = addDays(e.lastReviewed, INTERVAL[e.strength]);
+    // 学習の記録（成長が見えるように）
+    const st = S().stats;
+    const day = st.byDay[e.lastReviewed] || (st.byDay[e.lastReviewed] = { a: 0, c: 0 });
+    st.answered++;
+    day.a++;
+    if (ok) { st.correct++; day.c++; }
     App.Store.save();
   };
 
@@ -85,38 +71,6 @@
   const pushLog = (entry) => {
     S().log.unshift(Object.assign({ date: U.todayKey() }, entry));
     S().log = S().log.slice(0, 50);
-  };
-
-  P.completeSpot = (city, spot, { mistakes }) => {
-    const first = !P.isCleared(spot.id);
-    const base = first ? spot.exp : Math.round(spot.exp * REPLAY_BONUS_RATE);
-    const bonus = mistakes === 0 ? NO_MISS_BONUS : 0;
-    const gained = base + bonus;
-
-    P.markPlayed();
-    const lv = P.addExp(gained);
-
-    const today = U.todayKey();
-    const c = S().cleared[spot.id] || { count: 0, firstClearedAt: today, bestMistakes: null };
-    c.count++;
-    c.lastClearedAt = today;
-    c.bestMistakes = c.bestMistakes == null ? mistakes : Math.min(c.bestMistakes, mistakes);
-    S().cleared[spot.id] = c;
-
-    pushLog({ kind: 'spot', spotId: spot.id, exp: gained });
-    App.Store.save();
-
-    return Object.assign({ first, base, bonus, gained, mistakes, pct: P.cityProgress(city), next: P.nextSpot(city) }, lv);
-  };
-
-  // 3D でクリアしたスポットも「行った」ことにする（EXP は 3D 側で付与済みなので足さない）
-  P.markSpotCleared = (spotId) => {
-    if (P.isCleared(spotId)) return false;
-    const today = U.todayKey();
-    S().cleared[spotId] = { count: 1, firstClearedAt: today, lastClearedAt: today, bestMistakes: null, via3d: true };
-    pushLog({ kind: 'spot', spotId, exp: 0 });
-    App.Store.save();
-    return true;
   };
 
   P.completeReview = (correct) => {
@@ -146,8 +100,7 @@
   P.welcomeMessage = () => {
     const name = App.Hamster.name;
     const last = S().lastPlayed;
-    const city = App.currentCity().name;
-    if (!last) return `你好！ぼくは<b>${name}</b>。<br>中国語を覚えて、いっしょに${city}を旅しよう！`;
+    if (!last) return `你好！ぼくは<b>${name}</b>。<br>中国語を学んだり、中国を旅したり、いっしょに楽しもう！`;
     const gap = U.daysBetween(last, U.todayKey());
     if (gap <= 0) return 'おかえり！<br>もうちょっとだけ、やってみる？';
     if (gap === 1) return '你好！<br>昨日の続き、行ってみよう！';

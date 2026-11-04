@@ -38,7 +38,7 @@
         ctx.reward(CHECKIN_EXP);
       }
       ctx.game.flags.checkedIn = true;
-      App.Progress.markSpotCleared('airport');
+      App.Trip.clear('airport');
       ctx.game.phase = ctx.game.found.size >= ctx.game.totals.found ? 'done' : 'explore';
       ctx.successCard({
         emoji: '🎫',
@@ -48,7 +48,7 @@
           + ctx.hamsterLine('やったね！せっかくだから、<b>空港を探索</b>してみよう。<br>空港にいる<b>人にも話しかけて</b>みてね！', 'happy'),
         buttons: [
           { label: '🧭 空港探索を続ける', onClick: () => { ctx.closeTalk(); ctx.hamsterSay('いろんな人に<b>話しかけて</b>みよう！<br><b>登机口</b>（搭乗口）も探してね', 6); } },
-          { label: '📝 空港の中国語レッスン（2D）へ', primary: false, onClick: () => App.go('stage', { spotId: 'airport' }) },
+          { label: '🗺️ 旅のマップへ戻る', primary: false, onClick: () => App.go('map') },
         ],
       });
     });

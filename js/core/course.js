@@ -1,7 +1,8 @@
 /* 2D 学習コースの進行と、レッスンの問題づくり
- * 進み具合は state.course.lessons[lessonId] = { count, best, firstAt, lastAt }。
+ * 進み具合は state.course.lessons[lessonId] = { count, best, firstAt, lastAt }（3D の旅とは別に保存）。
+ * カテゴリ（基礎・単語・文法と文章・会話）はどれからでも始められ、カテゴリの中は順番に解放される。
  * 問題は「覚え度（learned[id].strength 0〜5）」に合わせて毎回つくり直す：
- *   はじめて → 覚えるカード＋やさしい問題、覚えてきた → 日→中・並べ替え・聞き取り
+ *   はじめて → 覚えるカード＋やさしい問題、覚えてきた → 日→中・並べ替え・穴埋め・ピンイン入力・聞き取り
  */
 (function (App) {
   'use strict';
@@ -16,37 +17,40 @@
 
   const C = {};
 
+  C.cats = () => App.COURSE.cats;
+  C.cat = (id) => App.COURSE.cats.find((c) => c.id === id) || null;
   C.units = () => App.COURSE.units;
   C.lessons = () => App.COURSE.units.flatMap((u) => u.lessons);
+  C.catLessons = (cat) => cat.units.flatMap((u) => u.lessons);
   C.find = (id) => C.lessons().find((l) => l.id === id) || null;
   C.unit = (id) => App.COURSE.units.find((u) => u.id === id) || null;
 
   const rec = () => S().course.lessons;
   C.isDone = (lessonId) => !!rec()[lessonId];
+  // カテゴリの中で 1 つ前のレッスンをクリアすると開く（開発者モードでは全部開く）
   C.isUnlocked = (lesson) => {
-    const list = C.lessons();
+    if (App.Dev && App.Dev.on && App.Dev.flags.allLessons) return true;
+    const list = C.catLessons(lesson.unit.cat);
     const i = list.indexOf(lesson);
     return i <= 0 || C.isDone(list[i - 1].id);
   };
-  C.current = () => C.lessons().find((l) => !C.isDone(l.id)) || null;
+  C.current = (cat) => {
+    if (cat) return C.catLessons(cat).find((l) => !C.isDone(l.id)) || null;
+    const last = S().course.lastCat && C.cat(S().course.lastCat);
+    return (last && C.current(last)) || C.cats().map((c) => C.current(c)).find(Boolean) || null;
+  };
   C.unitDone = (unitId) => {
     const u = C.unit(unitId);
     return !!u && u.lessons.every((l) => C.isDone(l.id));
   };
   C.unitProgress = (u) => ({ done: u.lessons.filter((l) => C.isDone(l.id)).length, total: u.lessons.length });
+  C.catProgress = (cat) => {
+    const list = C.catLessons(cat);
+    return { done: list.filter((l) => C.isDone(l.id)).length, total: list.length };
+  };
   C.percent = () => {
     const list = C.lessons();
     return Math.round((list.filter((l) => C.isDone(l.id)).length / list.length) * 100);
-  };
-
-  // 旅行モード（北京マップ・3D）は「旅の準備」ユニットのクリアで解放。
-  // 以前の版で旅を進めていたセーブデータはそのまま行けるようにする
-  C.TRAVEL_UNIT = 'u4';
-  C.travelUnlocked = () => {
-    if (C.unitDone(C.TRAVEL_UNIT)) return true;
-    const st = S();
-    return Object.keys(st.cleared).length > 0
-      || Object.values(st.world3d || {}).some((w) => w && w.done);
   };
 
   C.complete = (lesson, { correct, total, mistakes }) => {
@@ -55,7 +59,6 @@
     const bonus = mistakes === 0 ? NO_MISS_BONUS : 0;
     const gained = base + bonus;
     const unitWasDone = C.unitDone(lesson.unit.id);
-    const travelWas = C.travelUnlocked();
 
     App.Progress.markPlayed();
     App.Progress.learn(lesson.ids);
@@ -66,17 +69,19 @@
     r.lastAt = today;
     r.best = Math.max(r.best, total ? Math.round((correct / total) * 100) : 100);
     rec()[lesson.id] = r;
+    S().course.lastCat = lesson.unit.cat.id;
     App.Progress.log({ kind: 'lesson', lessonId: lesson.id, exp: gained });
     App.Store.save();
 
     const unitCleared = !unitWasDone && C.unitDone(lesson.unit.id);
-    const travelOpened = !travelWas && C.travelUnlocked();
-    return Object.assign({ first, base, bonus, gained, correct, total, mistakes, unitCleared, travelOpened, next: C.current() }, lv);
+    return Object.assign({ first, base, bonus, gained, correct, total, mistakes, unitCleared, next: C.current(lesson.unit.cat) }, lv);
   };
 
   /* ---------- 問題づくり ---------- */
   const isSentence = (id) => !!App.PHRASES[id].w || App.PHRASES[id].zh.length >= 4;
   const strength = (id) => (S().learned[id] ? S().learned[id].strength : -1);
+  // ピンイン入力に向く短い言葉（記号なし・3 文字まで）
+  const typable = (id) => { const p = App.PHRASES[id]; return !p.w && p.zh.length <= 3 && !/[？！。，?!.,]/.test(p.zh); };
 
   // 選択肢：同じレッスン → 同じユニット → その他 の順に、同じ種類（単語/文）から選ぶ
   C.distractors = (id, n, field) => {
@@ -90,11 +95,12 @@
       if (isSentence(k) !== kind) r += 2;
       return r + Math.random();
     };
+    // 意味（ja）や表記（zh）が同じ言葉は、正解が 2 つになるので選択肢に入れない
     const seen = new Set([answer[field]]);
     const out = [];
     for (const k of all.sort((a, b) => rank(a) - rank(b))) {
       const t = App.PHRASES[k][field];
-      if (seen.has(t)) continue;
+      if (seen.has(t) || App.PHRASES[k].ja === answer.ja || App.PHRASES[k].zh === answer.zh) continue;
       seen.add(t);
       out.push(k);
       if (out.length >= n) break;
@@ -108,6 +114,24 @@
   };
   const listenOk = () => App.Speech.supported;
 
+  // 穴埋め：文の単語を 1 つ隠して、4 つから選ぶ
+  C.cloze = (id) => {
+    const words = App.phraseWords(id);
+    if (!words || words.length < 2) return null;
+    const k = Math.floor(Math.random() * words.length);
+    const ans = words[k];
+    const pool = shuffle(Object.keys(App.PHRASES).filter((x) => App.PHRASES[x].w && x !== id).flatMap((x) => App.phraseWords(x)));
+    const seen = new Set(words.map((w) => w.zh));
+    const wrong = [];
+    for (const w of pool) {
+      if (seen.has(w.zh)) continue;
+      seen.add(w.zh);
+      wrong.push(w);
+      if (wrong.length >= 3) break;
+    }
+    return { type: 'cloze', id, k, options: shuffle([ans, ...wrong]) };
+  };
+
   // 覚え度に合わせて 1 問えらぶ
   function questionFor(id, k) {
     const s = strength(id);
@@ -115,9 +139,12 @@
     if (s <= 1) return choice(id, k % 2 && listenOk() ? 'listen' : 'zh2ja');
     if (s <= 3) {
       if (hasOrder && k % 3 === 0) return { type: 'order', id };
+      if (hasOrder && k % 3 === 1) return C.cloze(id);
+      if (!hasOrder && typable(id) && k % 3 === 2) return { type: 'pinyin', id };
       return choice(id, k % 2 && listenOk() ? 'listen' : 'ja2zh');
     }
-    if (hasOrder && k % 2 === 0) return { type: 'order', id };
+    if (hasOrder) return k % 2 ? C.cloze(id) : { type: 'order', id };
+    if (typable(id) && k % 2 === 0) return { type: 'pinyin', id };
     return choice(id, listenOk() && k % 3 === 1 ? 'listen' : 'ja2zh');
   }
 
@@ -144,20 +171,29 @@
         items.push(choice(id, k % 2 && listenOk() ? 'listen' : 'zh2ja'));
       }
     });
-    // ② 組み合わせ（言葉と意味）
+    // 会話ロールプレイ：言葉をおさらいしてから、チャット形式の会話へ
+    if (lesson.dialogue) {
+      shuffle(ids).slice(0, 3).forEach((id, k) => graded.push(questionFor(id, k)));
+      return items.concat(graded.filter(Boolean), [{ type: 'dialogue', dialogue: lesson.dialogue }]);
+    }
+    // ② 読解
+    (lesson.reads || []).forEach((r) => graded.push({ type: 'read', read: r }));
+    // ③ 組み合わせ（言葉と意味）
     if (ids.length >= 3) graded.push({ type: 'match', ids: shuffle(ids).slice(0, 4) });
-    // ③ 並べ替え（文）
-    ids.filter((id) => App.PHRASES[id].w).forEach((id) => graded.push({ type: 'order', id }));
-    // ④ 日→中・聞き取り（覚え度しだい）
+    // ④ 並べ替え・穴埋め（文）
+    ids.filter((id) => App.PHRASES[id].w).forEach((id, k) => graded.push(k % 2 && strength(id) >= 1 ? C.cloze(id) : { type: 'order', id }));
+    // ⑤ 日→中・聞き取り・ピンイン入力（覚え度しだい）
     ids.forEach((id, k) => graded.push(strength(id) < 0 ? choice(id, 'ja2zh') : questionFor(id, k + 1)));
+    const typ = ids.filter(typable);
+    if (typ.length) graded.push({ type: 'pinyin', id: shuffle(typ)[0] });
     if (listenOk()) shuffle(ids).slice(0, 2).forEach((id) => graded.push(choice(id, 'listen')));
-    // ⑤ 前に覚えた弱い言葉をすこし
+    // ⑥ 前に覚えた弱い言葉をすこし
     weakOthers(ids, 2).forEach((id, k) => graded.push(questionFor(id, k)));
-    // ⑥ 声に出す練習（マイクが使えるときだけ・採点なし）
-    if (App.Speech.canRecognize) graded.splice(1, 0, { type: 'speak', id: ids[ids.length - 1] });
+    // ⑦ 声に出す練習（マイクが使えるときだけ・採点なし）
+    if (App.Speech.canRecognize && ids.length) graded.splice(1, 0, { type: 'speak', id: ids[ids.length - 1] });
 
     const rest = MAX_GRADED - items.filter((x) => x.type === 'choice').length;
-    return items.concat(graded.slice(0, Math.max(4, rest)));
+    return items.concat(graded.filter(Boolean).slice(0, Math.max(4, rest)));
   };
 
   // 復習・まとめ：弱い言葉から
@@ -167,8 +203,12 @@
     const words = pick.filter((id) => !isSentence(id));
     if (words.length >= 3) items.push({ type: 'match', ids: words.slice(0, 4) });
     pick.forEach((id, k) => items.push(questionFor(id, k)));
-    return shuffle(items).slice(0, n);
+    return shuffle(items.filter(Boolean)).slice(0, n);
   };
+
+  // 3D の旅の「単語チェック」用：短い 4 択だけ（2〜5 問）
+  C.buildCheck = (ids) => ids.filter((id) => App.PHRASES[id]).slice(0, 5)
+    .map((id, k) => choice(id, k % 2 && listenOk() ? 'listen' : (k % 3 === 2 ? 'ja2zh' : 'zh2ja')));
 
   App.Course = C;
 })(window.App = window.App || {});

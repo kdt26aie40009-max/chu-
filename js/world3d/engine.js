@@ -66,7 +66,7 @@
   function mount(root, cfg) {
     const saved = slot(cfg.id);
     App.Store.save();
-    const backLabel = `← ${App.U.esc(App.currentCity().name)}マップへ戻る`;
+    const backLabel = '← 旅のマップへ';
 
     root.innerHTML = `
       <div class="w3d">

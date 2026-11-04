@@ -9,11 +9,11 @@
   App.screens.dictionary = (root) => {
     const learned = App.Store.state.learned;
     const units = App.Course.units();
-    const ids = units.flatMap((u) => u.lessons.filter((l) => !l.review).flatMap((l) => l.ids));
+    const ids = Array.from(new Set(units.flatMap((u) => u.lessons.filter((l) => !l.review).flatMap((l) => l.ids))));
     const count = ids.filter((id) => learned[id]).length;
 
     const groups = units.map((u) => {
-      const uIds = u.lessons.filter((l) => !l.review).flatMap((l) => l.ids);
+      const uIds = Array.from(new Set(u.lessons.filter((l) => !l.review).flatMap((l) => l.ids)));
       const n = uIds.filter((id) => learned[id]).length;
       return `
         <section class="dict-group">
@@ -22,7 +22,7 @@
             ${uIds.map((id) => {
               const p = App.PHRASES[id];
               const e = learned[id];
-              if (!e) return `<li class="is-locked"><span class="zh">？？？</span><span class="muted">${esc(App.PHRASE_LESSON[id].title)}で覚えるよ</span></li>`;
+              if (!e) return `<li class="is-locked"><span class="zh">？？？</span><span class="muted">${esc((App.PHRASE_LESSON[id] || u).title)}で覚えるよ</span></li>`;
               return `<li>
                 <div class="dict-main"><span class="zh">${esc(p.zh)}</span>${UI.pinyin(p.py, { force: true })}</div>
                 <div class="dict-sub"><span class="ja">${esc(p.ja)}</span>${UI.stars(e.strength)}</div>

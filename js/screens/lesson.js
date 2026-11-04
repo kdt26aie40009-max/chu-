@@ -14,15 +14,13 @@
 
     App.Exercise.run(root, C.build(lesson), {
       onAnswer: (id, ok, retry) => { if (!retry) P.recordAnswer(id, ok); },
-      onQuit: () => App.go('course'),
+      onQuit: () => App.go('course', { cat: lesson.unit.cat.id }),
       onDone: (score) => showResult(C.complete(lesson, score)),
     });
 
     function showResult(r) {
       const pct = r.total ? Math.round((r.correct / r.total) * 100) : 100;
-      const msg = r.travelOpened
-        ? '旅の準備ができたね！✈️<br><b>北京旅行（3D）</b>に行けるようになったよ！'
-        : r.unitCleared
+      const msg = r.unitCleared
           ? `<b>${esc(lesson.unit.title)}</b> ユニット クリア！🎉<br>覚えた言葉は旅先でも使えるよ`
           : pct === 100 ? 'ノーミス！すごい〜！' : pct >= 60 ? 'いい感じ！少しずつ覚えていこう' : '大丈夫、何回も会えば覚えられるよ！';
       const words = lesson.review ? [] : lesson.ids.map((id) => App.phrase(id)).filter((p) => p.zh);
@@ -30,7 +28,7 @@
       root.innerHTML = `
         <div class="result">
           <div class="result-head pop-in">
-            <div class="result-emoji">${r.travelOpened ? '✈️' : r.unitCleared ? '🏆' : lesson.unit.emoji}</div>
+            <div class="result-emoji">${r.unitCleared ? '🏆' : lesson.unit.emoji}</div>
             <h2>${lesson.review ? 'まとめ' : esc(lesson.title)} クリア！</h2>
             ${r.first ? '<span class="chip chip-new">NEW</span>' : '<span class="chip">おさらい完了</span>'}
           </div>
@@ -57,16 +55,16 @@
             </section>` : ''}
 
           <div class="result-actions">
-            ${r.travelOpened ? '<button class="btn btn-accent btn-lg btn-block" data-go="map">🗺️ 北京旅行へ行ってみる</button>' : ''}
             ${r.next ? `
               <p class="soft-note">今日はここまででもOK！続けるなら次は <b>${esc(r.next.title)}</b></p>
               <button class="btn btn-primary btn-lg btn-block" data-next>▶ ${esc(r.next.title)}</button>` : ''}
-            <button class="btn btn-sub btn-block" data-go="course">📘 コースへ戻る</button>
+            <button class="btn btn-sub btn-block" data-course>📘 コースへ戻る</button>
           </div>
         </div>`;
       App.Sfx.play('clear');
       const nb = $('[data-next]', root);
       if (nb) nb.onclick = () => { App.Sfx.play('tap'); App.go('lesson', { lessonId: r.next.id }); };
+      $('[data-course]', root).onclick = () => { App.Sfx.play('tap'); App.go('course', { cat: lesson.unit.cat.id }); };
     }
   };
 })(window.App = window.App || {});

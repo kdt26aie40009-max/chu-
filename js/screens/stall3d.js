@@ -109,17 +109,14 @@
   };
   const ORDER = ['xlb', 'shuan', 'zhajiang', 'duck'];
 
-  const spotOf = (id) => App.currentCity().spots.find((s) => s.id === SHOPS[id].spot);
-  const shopOpen = (id) => { const s = spotOf(id); return !!s && App.Progress.isUnlocked(App.currentCity(), s); };
+  // 3D は 2D の進み具合と関係なく、どのお店にも入れる
+  const shopOpen = () => true;
   const dishDone = (ctx, id) => !!ctx.saved.dishes[id];
-  const lockMsg = (id) => {
-    const u = App.Course.unit(spotOf(id).requires);
-    return `このお店の注文の言葉は、📘<b>UNIT ${u.id.slice(1)}「${App.U.esc(u.title)}」</b>で覚えられるよ。<br>覚えてからまた来よう！`;
-  };
+  const lockMsg = () => '';
 
   function finishDish(ctx, id) {
     ctx.saved.dishes[id] = true;
-    App.Progress.markSpotCleared(SHOPS[id].spot);
+    App.Trip.clear('market');
     const next = ORDER.find((k) => !dishDone(ctx, k) && shopOpen(k));
     ctx.game.focus = next || null;
     ctx.save();
@@ -178,7 +175,7 @@
         ]) + ctx.hamsterLine(`あつあつ…はふはふ…おいしい〜！🥟<br>${nextHint(next)}`, 'happy'),
         buttons: [
           { label: '🧭 屋台通りを見てまわる' },
-          { label: `🗺️ ${App.currentCity().name}マップへ戻る`, primary: false, onClick: () => App.go('map') },
+          { label: '🗺️ 旅のマップへ戻る', primary: false, onClick: () => App.go('map') },
         ],
       });
     });
@@ -198,7 +195,7 @@
         body: App.Fields3D.usedList(shop.used) + ctx.hamsterLine(nextHint(next), 'happy'),
         buttons: [
           { label: '🧭 屋台通りを見てまわる' },
-          { label: `🗺️ ${App.currentCity().name}マップへ戻る`, primary: false, onClick: () => App.go('map') },
+          { label: '🗺️ 旅のマップへ戻る', primary: false, onClick: () => App.go('map') },
         ],
       });
     });

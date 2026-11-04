@@ -136,6 +136,186 @@
     haohan:  { zh: '不到长城非好汉', py: 'Bú dào Chángchéng fēi hǎohàn', ja: '長城に登らずして好漢にあらず', tip: '毛沢東の詩の一節。長城に登ったらみんなこれを言うよ！', w: '不到|bú dào 长城|Chángchéng 非|fēi 好汉|hǎohàn' },
     tingbudong: { zh: '我听不懂。', py: 'Wǒ tīng bu dǒng.', ja: '聞き取れません', tip: 'わからないときは素直にこれ！', w: '我|wǒ 听|tīng 不|bu 懂|dǒng' },
     manyidian: { zh: '请说慢一点。', py: 'Qǐng shuō màn yìdiǎn.', ja: 'もう少しゆっくり話してください', tip: 'これを言えば、ゆっくり話してくれるよ。', w: '请|qǐng 说|shuō 慢|màn 一点|yìdiǎn' },
+
+    /* ================= ここから Ver.2 で追加 ================= */
+    /* ---- 発音・基本の単語・日付 ---- */
+    chi:    { zh: '吃', py: 'chī', ja: '食べる', tip: '「ch」は舌を巻いて「チー」。巻き舌の音だよ。' },
+    he:     { zh: '喝', py: 'hē', ja: '飲む', tip: '「h」はのどの奥から息を出す「ホ」と「ハ」の間の音。' },
+    qugo:   { zh: '去', py: 'qù', ja: '行く', tip: '「q」は「チ」、「ü」は「ユ」の口で「イ」。「チュイ」に近いよ。' },
+    yu:     { zh: '鱼', py: 'yú', ja: '魚', tip: '「ü」の音。口をすぼめて「イ」と言う感じ。' },
+    da:     { zh: '大', py: 'dà', ja: '大きい', tip: '日本語と同じ漢字！' },
+    xiao:   { zh: '小', py: 'xiǎo', ja: '小さい', tip: '「x」は「シ」。小籠包の「小」だね。' },
+    duo:    { zh: '多', py: 'duō', ja: '多い', tip: '「多少钱？」の「多」だよ。' },
+    shao:   { zh: '少', py: 'shǎo', ja: '少ない', tip: '「多」と「少」で「多少」＝どれくらい。' },
+    yiyue:  { zh: '一月', py: 'yīyuè', ja: '1月', tip: '数字＋「月」でそのまま。十二月まで同じ！' },
+    xingqiyi: { zh: '星期一', py: 'xīngqīyī', ja: '月曜日', tip: '「星期」＋数字。星期一＝月曜、星期二＝火曜…日曜は「星期天」。' },
+    zuotian: { zh: '昨天', py: 'zuótiān', ja: '昨日', tip: '昨天・今天・明天、セットで覚えよう。' },
+    jihao:  { zh: '今天几号？', py: 'Jīntiān jǐ hào?', ja: '今日は何日？', tip: '日付の「〜日」は「号」を使うよ。', w: '今天|jīntiān 几|jǐ 号|hào' },
+
+    /* ---- 単語：食べ物 ---- */
+    mifan:  { zh: '米饭', py: 'mǐfàn', ja: 'ごはん', tip: '炊いたお米。「饭」だけでも「ごはん・食事」。' },
+    miantiao: { zh: '面条', py: 'miàntiáo', ja: '麺', tip: '炸酱面の「面」も麺のこと！' },
+    jiaozi: { zh: '饺子', py: 'jiǎozi', ja: '餃子', tip: '北の方では水餃子が定番だよ。' },
+    jidan:  { zh: '鸡蛋', py: 'jīdàn', ja: '卵', tip: '「鸡」＝ニワトリ、「蛋」＝たまご。' },
+    pingguo: { zh: '苹果', py: 'píngguǒ', ja: 'りんご', tip: 'あのスマホの会社名も中国語だとこれ！' },
+    xigua:  { zh: '西瓜', py: 'xīguā', ja: 'スイカ', tip: '日本語と同じ漢字だね。' },
+    cha:    { zh: '茶', py: 'chá', ja: 'お茶', tip: '中国はお茶の国。種類もたくさん！' },
+    niunai: { zh: '牛奶', py: 'niúnǎi', ja: '牛乳', tip: '「牛のお乳」でそのまま。' },
+
+    /* ---- 単語：動物 ---- */
+    mao:    { zh: '猫', py: 'māo', ja: '猫', tip: '鳴き声みたいな音で「マオ」。' },
+    gou:    { zh: '狗', py: 'gǒu', ja: '犬', tip: '第3声で低く「ゴウ」。' },
+    niao:   { zh: '鸟', py: 'niǎo', ja: '鳥', tip: '北京の胡同では鳥かごを持ったおじいさんも！' },
+    cangshu: { zh: '仓鼠', py: 'cāngshǔ', ja: 'ハムスター', tip: 'ぼくのこと！「倉庫のネズミ」って意味なんだ🐹' },
+    xiongmao: { zh: '熊猫', py: 'xióngmāo', ja: 'パンダ', tip: '「クマ＋ネコ」でパンダ！' },
+    laohu:  { zh: '老虎', py: 'lǎohǔ', ja: 'トラ', tip: '「老」は年寄りじゃなくて、動物の名前につく言葉。' },
+    tuzi:   { zh: '兔子', py: 'tùzi', ja: 'ウサギ', tip: '「子」は軽く短く読むよ。' },
+    houzi:  { zh: '猴子', py: 'hóuzi', ja: 'サル', tip: '西遊記の孫悟空は「猴王」！' },
+
+    /* ---- 単語：人・家族 ---- */
+    baba:   { zh: '爸爸', py: 'bàba', ja: 'お父さん', tip: '2つめの「ba」は軽く。' },
+    mama:   { zh: '妈妈', py: 'māma', ja: 'お母さん', tip: '声調の練習で出てきた「妈」だね。' },
+    gege:   { zh: '哥哥', py: 'gēge', ja: '兄', tip: '弟は「弟弟（dìdi）」。' },
+    meimei: { zh: '妹妹', py: 'mèimei', ja: '妹', tip: '姉は「姐姐（jiějie）」。' },
+    pengyou: { zh: '朋友', py: 'péngyou', ja: '友だち', tip: '「好朋友」＝親友。' },
+    laoshi: { zh: '老师', py: 'lǎoshī', ja: '先生', tip: '学校の先生。ていねいな呼びかけにも使うよ。' },
+    haizi:  { zh: '孩子', py: 'háizi', ja: '子ども', tip: '「小孩」とも言うよ。' },
+    laoren: { zh: '老人', py: 'lǎorén', ja: 'お年寄り', tip: '話しかけるときは「大爷（おじいさん）」「大妈（おばあさん）」も使うよ。' },
+
+    /* ---- 単語：学校 ---- */
+    xuexiao: { zh: '学校', py: 'xuéxiào', ja: '学校', tip: '日本語と同じ漢字！' },
+    shu:    { zh: '书', py: 'shū', ja: '本', tip: '「書」の簡体字。' },
+    bi:     { zh: '笔', py: 'bǐ', ja: 'ペン', tip: '書くもの全般。鉛筆は「铅笔」。' },
+    kaoshi: { zh: '考试', py: 'kǎoshì', ja: '試験', tip: '「考える＋試す」。' },
+    shangke: { zh: '上课', py: 'shàngkè', ja: '授業を受ける', tip: '「上」は始める、「下课」で授業が終わる。' },
+    zuoye:  { zh: '作业', py: 'zuòyè', ja: '宿題', tip: '「做作业」＝宿題をする。' },
+    tongxue: { zh: '同学', py: 'tóngxué', ja: 'クラスメート', tip: '「同じ学び」でクラスメート。' },
+    hanyu:  { zh: '汉语', py: 'Hànyǔ', ja: '中国語', tip: '「中文」とも言うよ。' },
+
+    /* ---- 単語：仕事 ---- */
+    gongzuo: { zh: '工作', py: 'gōngzuò', ja: '仕事', tip: '「工作」は動詞「働く」にもなるよ。' },
+    gongsi: { zh: '公司', py: 'gōngsī', ja: '会社', tip: '「司」は「つかさどる」。' },
+    yisheng: { zh: '医生', py: 'yīshēng', ja: '医者', tip: '日本語の「医生」とは意味が違うので注意！' },
+    jingcha: { zh: '警察', py: 'jǐngchá', ja: '警察', tip: '日本語と同じ漢字！' },
+    fuwuyuan: { zh: '服务员', py: 'fúwùyuán', ja: '店員さん', tip: 'お店で「服务员！」と呼ぶと来てくれるよ。' },
+    siji:   { zh: '司机', py: 'sījī', ja: '運転手', tip: 'タクシーの運転手さんは「师傅」と呼ぶことも。' },
+    shangban: { zh: '上班', py: 'shàngbān', ja: '出勤する', tip: '「上课」と同じ「上」！' },
+    xiaban: { zh: '下班', py: 'xiàbān', ja: '仕事が終わる', tip: '「下班了！」＝お仕事おわり！' },
+
+    /* ---- 単語：趣味・武術 ---- */
+    kanshu: { zh: '看书', py: 'kàn shū', ja: '本を読む', tip: '「看」＝見る・読む。' },
+    tingyinyue: { zh: '听音乐', py: 'tīng yīnyuè', ja: '音楽を聴く', tip: '「听」＝聞く。' },
+    changge: { zh: '唱歌', py: 'chàng gē', ja: '歌う', tip: 'カラオケは「卡拉OK」！' },
+    tiaowu: { zh: '跳舞', py: 'tiào wǔ', ja: '踊る', tip: '広場で踊るおばさんたちは「广场舞」。' },
+    youyong: { zh: '游泳', py: 'yóuyǒng', ja: '泳ぐ', tip: '「游」も「泳」も泳ぐこと。' },
+    lanqiu: { zh: '打篮球', py: 'dǎ lánqiú', ja: 'バスケをする', tip: '球技は「打」を使うよ。' },
+    lvyou:  { zh: '旅游', py: 'lǚyóu', ja: '旅行する', tip: '今のぼくたちだね！' },
+    youxi:  { zh: '玩游戏', py: 'wán yóuxì', ja: 'ゲームをする', tip: '「玩」＝遊ぶ。' },
+    gongfu: { zh: '功夫', py: 'gōngfu', ja: 'カンフー', tip: 'もとは「時間をかけて身につけた技」って意味なんだ。' },
+    wushu:  { zh: '武术', py: 'wǔshù', ja: '武術', tip: '少林寺は武術の聖地！' },
+    shifu:  { zh: '师父', py: 'shīfu', ja: '師匠', tip: '武術やお寺の先生を呼ぶときに使うよ。' },
+    bisai:  { zh: '比赛', py: 'bǐsài', ja: '試合・大会', tip: '武術大会は「武术比赛」。' },
+    tiao:   { zh: '跳', py: 'tiào', ja: '跳ぶ', tip: '試合で「跳！」と聞こえたらジャンプ！' },
+    dun:    { zh: '蹲', py: 'dūn', ja: 'しゃがむ', tip: '「蹲！」で低くしゃがんでよけよう。' },
+    quan:   { zh: '拳', py: 'quán', ja: '拳（パンチ）', tip: '少林拳の「拳」。' },
+    tui:    { zh: '腿', py: 'tuǐ', ja: '蹴り（足）', tip: '「腿」は足のこと。武術では蹴り技。' },
+    amituofo: { zh: '阿弥陀佛', py: 'Ēmítuófó', ja: '（お坊さんのあいさつ）', tip: '少林寺のお坊さんは手を合わせてこう言うよ。' },
+    baoquan: { zh: '抱拳礼', py: 'bàoquán lǐ', ja: '拳をつつむ礼', tip: '右の拳を左の手のひらでつつむ、武術のあいさつ。' },
+
+    /* ---- 単語：日常生活 ---- */
+    qichuang: { zh: '起床', py: 'qǐchuáng', ja: '起きる', tip: '「床（ベッド）から起きる」。' },
+    shuijiao: { zh: '睡觉', py: 'shuìjiào', ja: '寝る', tip: '「晚安」と一緒に覚えよう。' },
+    xizao:  { zh: '洗澡', py: 'xǐzǎo', ja: 'お風呂に入る', tip: 'シャワーも「洗澡」。' },
+    chifan: { zh: '吃饭', py: 'chī fàn', ja: 'ご飯を食べる', tip: '「吃饭了吗？」はあいさつにもなるよ。' },
+    shouji: { zh: '手机', py: 'shǒujī', ja: '携帯電話', tip: '「手の機械」でスマホ。' },
+    qian:   { zh: '钱', py: 'qián', ja: 'お金', tip: '「多少钱」の「钱」！' },
+    yifu:   { zh: '衣服', py: 'yīfu', ja: '服', tip: '「服」は軽く読むよ。' },
+    jia:    { zh: '家', py: 'jiā', ja: '家', tip: '「回家」＝家に帰る。' },
+
+    /* ---- 単語：場所・交通 ---- */
+    yinhang: { zh: '银行', py: 'yínháng', ja: '銀行', tip: '「行」はここでは「háng」と読むよ。' },
+    yiyuan: { zh: '医院', py: 'yīyuàn', ja: '病院', tip: '「医」＋「院」。' },
+    chaoshi: { zh: '超市', py: 'chāoshì', ja: 'スーパー', tip: '「超级市场」の略。' },
+    gongyuan: { zh: '公园', py: 'gōngyuán', ja: '公園', tip: '朝の公園は太極拳をする人でいっぱい！' },
+    huochezhan: { zh: '火车站', py: 'huǒchēzhàn', ja: '駅（鉄道）', tip: '「火车」＝汽車・列車。高速鉄道は「高铁」。' },
+    jichang: { zh: '机场', py: 'jīchǎng', ja: '空港', tip: '「飞机」の「机」＋「场」。' },
+    chuzuche: { zh: '出租车', py: 'chūzūchē', ja: 'タクシー', tip: '「打车」＝タクシーに乗る。' },
+    gongjiao: { zh: '公交车', py: 'gōngjiāochē', ja: 'バス', tip: '路線バスのこと。' },
+    hutong: { zh: '胡同', py: 'hútòng', ja: '胡同（路地）', tip: '北京の古い路地。昔ながらの暮らしが残っているよ。' },
+    gaotie: { zh: '高铁', py: 'gāotiě', ja: '高速鉄道', tip: '中国の新幹線！北京から少林寺のある河南省まで約2時間半。' },
+
+    /* ---- 文法：語順 ---- */
+    wochimifan: { zh: '我吃米饭。', py: 'Wǒ chī mǐfàn.', ja: '私はごはんを食べます', tip: '「私・食べる・ごはん」。動詞が目的語の前！', w: '我|wǒ 吃|chī 米饭|mǐfàn' },
+    tahecha: { zh: '他喝茶。', py: 'Tā hē chá.', ja: '彼はお茶を飲みます', tip: '主語・動詞・目的語（S＋V＋O）。英語と同じ順番。', w: '他|tā 喝|hē 茶|chá' },
+    woxuexi: { zh: '我学习汉语。', py: 'Wǒ xuéxí Hànyǔ.', ja: '私は中国語を勉強します', tip: '「学习」＝勉強する。', w: '我|wǒ 学习|xuéxí 汉语|Hànyǔ' },
+    nikanshu: { zh: '你看书。', py: 'Nǐ kàn shū.', ja: 'あなたは本を読みます', w: '你|nǐ 看|kàn 书|shū' },
+    wojintianqu: { zh: '我今天去北京。', py: 'Wǒ jīntiān qù Běijīng.', ja: '私は今日北京へ行きます', tip: '「いつ」は動詞の前に置くよ。', w: '我|wǒ 今天|jīntiān 去|qù 北京|Běijīng' },
+    wozaijia: { zh: '我在家吃饭。', py: 'Wǒ zài jiā chī fàn.', ja: '私は家でご飯を食べます', tip: '「どこで」も動詞の前。「在＋場所」。', w: '我|wǒ 在|zài 家|jiā 吃饭|chī fàn' },
+    tamingtian: { zh: '他明天上班。', py: 'Tā míngtiān shàngbān.', ja: '彼は明日出勤します', w: '他|tā 明天|míngtiān 上班|shàngbān' },
+
+    /* ---- 文法：疑問文 ---- */
+    nishixuesheng: { zh: '你是学生吗？', py: 'Nǐ shì xuésheng ma?', ja: 'あなたは学生ですか？', tip: '文の最後に「吗」。', w: '你|nǐ 是|shì 学生|xuésheng 吗|ma' },
+    nixihuanmao: { zh: '你喜欢猫吗？', py: 'Nǐ xǐhuan māo ma?', ja: '猫は好きですか？', w: '你|nǐ 喜欢|xǐhuan 猫|māo 吗|ma' },
+    nichishenme: { zh: '你吃什么？', py: 'Nǐ chī shénme?', ja: '何を食べますか？', tip: '「什么」＝なに。答えの位置にそのまま入れる！', w: '你|nǐ 吃|chī 什么|shénme' },
+    tashishei: { zh: '他是谁？', py: 'Tā shì shéi?', ja: '彼は誰ですか？', tip: '「谁」＝だれ。', w: '他|tā 是|shì 谁|shéi' },
+    niqunar: { zh: '你去哪儿？', py: 'Nǐ qù nǎr?', ja: 'どこへ行くの？', tip: '「哪儿」は北京っぽい言い方。「哪里」と同じ意味。', w: '你|nǐ 去|qù 哪儿|nǎr' },
+    jigegege: { zh: '你有几个哥哥？', py: 'Nǐ yǒu jǐ ge gēge?', ja: 'お兄さんは何人いますか？', tip: '「几」＝いくつ（10より少ない数を聞く）。', w: '你|nǐ 有|yǒu 几个|jǐ ge 哥哥|gēge' },
+    shibushi: { zh: '你是不是日本人？', py: 'Nǐ shì bu shì Rìběn rén?', ja: 'あなたは日本人ですか？（はい・いいえ）', tip: '「是不是」のように肯定＋否定を並べても質問になるよ。', w: '你|nǐ 是不是|shì bu shì 日本人|Rìběn rén' },
+    haobuhao: { zh: '好不好？', py: 'Hǎo bu hǎo?', ja: 'いい？／どう？', tip: '誘うときによく使う！' },
+
+    /* ---- 文法：否定文 ---- */
+    wobuchila: { zh: '我不吃辣。', py: 'Wǒ bù chī là.', ja: '私は辛いものを食べません', tip: '「不」＝しない（意志・習慣）。', w: '我|wǒ 不|bù 吃|chī 辣|là' },
+    tabuqu: { zh: '他不去。', py: 'Tā bú qù.', ja: '彼は行きません', tip: '第4声の前なので「bú」。', w: '他|tā 不|bú 去|qù' },
+    womeiyouqian: { zh: '我没有钱。', py: 'Wǒ méiyǒu qián.', ja: 'お金がありません', tip: '「有」の否定は「没有」。「不有」とは言わないよ。', w: '我|wǒ 没有|méiyǒu 钱|qián' },
+    tameilai: { zh: '他没来。', py: 'Tā méi lái.', ja: '彼は来なかった', tip: '「没」＝しなかった（過去の否定）。', w: '他|tā 没|méi 来|lái' },
+
+    /* ---- 文法：形容詞 ---- */
+    henda:  { zh: '很大', py: 'hěn dà', ja: '大きい', tip: '形容詞の前に「很」をつけるのが基本。' },
+    hengui: { zh: '很贵', py: 'hěn guì', ja: '（値段が）高い', tip: '「太贵了」の「贵」。' },
+    piaoliang: { zh: '很漂亮', py: 'hěn piàoliang', ja: 'きれい', tip: '人にも景色にも使えるよ。' },
+    henmang: { zh: '很忙', py: 'hěn máng', ja: '忙しい', tip: '「你忙吗？」＝忙しい？' },
+    zhegehaochi: { zh: '这个很好吃。', py: 'Zhège hěn hǎochī.', ja: 'これはおいしい', tip: '形容詞の文には「是」がいらない！', w: '这个|zhège 很|hěn 好吃|hǎochī' },
+    jintianre: { zh: '今天很热。', py: 'Jīntiān hěn rè.', ja: '今日は暑い', w: '今天|jīntiān 很|hěn 热|rè' },
+    tabiwogao: { zh: '他比我高。', py: 'Tā bǐ wǒ gāo.', ja: '彼は私より背が高い', tip: '「A 比 B ＋形容詞」で比べる。', w: '他|tā 比|bǐ 我|wǒ 高|gāo' },
+
+    /* ---- 文法：時制・アスペクト ---- */
+    wochile: { zh: '我吃了。', py: 'Wǒ chī le.', ja: '食べました', tip: '動詞の後ろの「了」＝〜した（完了）。', w: '我|wǒ 吃|chī 了|le' },
+    womaishu: { zh: '我买了一本书。', py: 'Wǒ mǎi le yì běn shū.', ja: '本を1冊買いました', tip: '本は「本」で数えるよ。', w: '我|wǒ 买了|mǎi le 一本|yì běn 书|shū' },
+    woquguo: { zh: '我去过北京。', py: 'Wǒ qù guo Běijīng.', ja: '北京に行ったことがあります', tip: '「过」＝〜したことがある（経験）。', w: '我|wǒ 去过|qù guo 北京|Běijīng' },
+    wochiguo: { zh: '我吃过烤鸭。', py: 'Wǒ chī guo kǎoyā.', ja: '北京ダックを食べたことがあります', w: '我|wǒ 吃过|chī guo 烤鸭|kǎoyā' },
+    wozaikan: { zh: '我在看书。', py: 'Wǒ zài kàn shū.', ja: '本を読んでいるところです', tip: '動詞の前の「在」＝〜しているところ（進行）。', w: '我|wǒ 在|zài 看|kàn 书|shū' },
+    woyaoquzg: { zh: '我要去中国。', py: 'Wǒ yào qù Zhōngguó.', ja: '中国へ行くつもりです', tip: '「要」＝〜するつもり・〜したい（これから）。', w: '我|wǒ 要|yào 去|qù 中国|Zhōngguó' },
+    xiayu:  { zh: '明天要下雨。', py: 'Míngtiān yào xià yǔ.', ja: '明日は雨が降りそうです', tip: '「要」は「〜しそう」にもなるよ。', w: '明天|míngtiān 要|yào 下雨|xià yǔ' },
+
+    /* ---- 読解 ---- */
+    jinnian: { zh: '今年', py: 'jīnnián', ja: '今年', tip: '今天・今年。「今」が付けば「この」。' },
+    sui:    { zh: '岁', py: 'suì', ja: '〜歳', tip: '「你几岁？」＝何歳？（子どもに聞くとき）' },
+    re:     { zh: '热', py: 'rè', ja: '暑い・熱い', tip: '寒いは「冷（lěng）」。' },
+    bing:   { zh: '冰', py: 'bīng', ja: '氷・冷たい', tip: '「冰水」＝冷たい水。' },
+    xiawu:  { zh: '下午', py: 'xiàwǔ', ja: '午後', tip: '午前は「上午」。' },
+    menkou: { zh: '门口', py: 'ménkǒu', ja: '入口・門の前', tip: '待ち合わせによく使う言葉。' },
+    mang:   { zh: '忙', py: 'máng', ja: '忙しい', tip: '日本語と同じ漢字！' },
+    buneng: { zh: '不能', py: 'bù néng', ja: '〜できない', tip: '「能」＝できる。' },
+
+    /* ---- 会話：友だち ---- */
+    ganshenme: { zh: '你在干什么？', py: 'Nǐ zài gàn shénme?', ja: '何してるの？', tip: '友だちどうしの気軽な言い方。', w: '你|nǐ 在|zài 干|gàn 什么|shénme' },
+    yiqiqu: { zh: '一起去吧！', py: 'Yìqǐ qù ba!', ja: '一緒に行こう！', tip: '文の最後の「吧」＝〜しよう！', w: '一起|yìqǐ 去|qù 吧|ba' },
+    taihaole: { zh: '太好了！', py: 'Tài hǎo le!', ja: 'やった！よかった！', tip: 'うれしいときのひとこと。' },
+    zhendema: { zh: '真的吗？', py: 'Zhēn de ma?', ja: '本当？', tip: 'おどろいたときに。' },
+    woyeshi: { zh: '我也是。', py: 'Wǒ yě shì.', ja: '私もです', tip: '「也」＝〜も。' },
+    meiwenti: { zh: '没问题！', py: 'Méi wèntí!', ja: '問題ない！OK！', tip: '頼まれごとへの気持ちいい返事。' },
+    xiacijian: { zh: '下次见！', py: 'Xià cì jiàn!', ja: 'また今度！', tip: '「下次」＝次回。' },
+    jiayou: { zh: '加油！', py: 'Jiāyóu!', ja: 'がんばれ！', tip: 'もとは「油を足す」。応援の定番！' },
+
+    /* ---- 会話：電話・メッセージ ---- */
+    wei:    { zh: '喂？', py: 'Wéi?', ja: 'もしもし', tip: '電話では第2声で「ウェイ？」と上げるよ。' },
+    naweisi: { zh: '请问，您是哪位？', py: 'Qǐngwèn, nín shì nǎ wèi?', ja: 'どちら様ですか？', tip: '「哪位」＝どなた（ていねい）。', w: '请问|qǐngwèn 您|nín 是|shì 哪位|nǎ wèi' },
+    zhaowang: { zh: '我找王老师。', py: 'Wǒ zhǎo Wáng lǎoshī.', ja: '王先生をお願いします', tip: '「找」＝さがす・たずねる。電話の取り次ぎで使うよ。', w: '我|wǒ 找|zhǎo 王老师|Wáng lǎoshī' },
+    dengyixia: { zh: '请等一下。', py: 'Qǐng děng yíxià.', ja: '少々お待ちください', tip: '屋台でも電話でも使えるよ。', w: '请|qǐng 等|děng 一下|yíxià' },
+    faweixin: { zh: '我给你发微信。', py: 'Wǒ gěi nǐ fā Wēixìn.', ja: 'WeChat を送るね', tip: '中国ではメッセージは WeChat（微信）が定番。', w: '我|wǒ 给|gěi 你|nǐ 发|fā 微信|Wēixìn' },
+    shoudao: { zh: '收到！', py: 'Shōudào!', ja: '了解！（受け取ったよ）', tip: 'メッセージの返事でよく使う！' },
+    haoma:  { zh: '你的电话号码是多少？', py: 'Nǐ de diànhuà hàomǎ shì duōshao?', ja: '電話番号は何番？', tip: '番号を聞くときも「多少」。', w: '你的|nǐ de 电话|diànhuà 号码|hàomǎ 是|shì 多少|duōshao' },
+    huitouliao: { zh: '回头聊！', py: 'Huítóu liáo!', ja: 'またあとでね！', tip: '「回头」＝あとで、「聊」＝おしゃべりする。' },
   };
 
   App.phrase = (id) => Object.assign({ id }, App.PHRASES[id]);

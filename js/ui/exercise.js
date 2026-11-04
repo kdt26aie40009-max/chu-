@@ -7,6 +7,10 @@
  *   { type: 'match', ids }                       言葉と意味の組み合わせ
  *   { type: 'order', id }                        並べ替え（日本語 → 中国語の文を組み立てる）
  *   { type: 'speak', id }                        声に出す（採点なし・スキップ可）
+ *   { type: 'cloze', id, k, options }            穴埋め（文の k 番目の単語を選ぶ）
+ *   { type: 'pinyin', id }                       ピンイン入力（声調記号は無くても OK）
+ *   { type: 'read', read }                       読解（中国語の短い文章 → 質問に日本語で答える）
+ *   { type: 'dialogue', dialogue }               会話ロールプレイ（js/data/dialogues.js・採点なし）
  * 採点する問題（choice / match / order）で間違えたら、最後にもう一回だけ出る。
  */
 (function (App) {
@@ -14,7 +18,17 @@
 
   const { esc, shuffle, $, $$ } = App.U;
   const UI = App.UI;
-  const GRADED = ['choice', 'match', 'order'];
+  const GRADED = ['choice', 'match', 'order', 'cloze', 'pinyin', 'read'];
+
+  // ピンインの比較：声調記号・数字・空白・記号を取り、ü は v / u でも OK
+  const normPy = (s) => String(s).toLowerCase().normalize('NFD')
+    .replace(/u\u0308/g, 'v').replace(/ü/g, 'v')
+    .replace(/[\u0300-\u036f]/g, '').replace(/[0-9\s'’·.,!?？！。，-]/g, '');
+  const pyMatch = (input, py) => {
+    const a = normPy(input);
+    const b = normPy(py);
+    return !!a && (a === b || a === b.replace(/v/g, 'u'));
+  };
 
   const PRAISE = ['正解！その調子！', 'すごい！ばっちり！', '正解〜！覚えてきたね！', 'いいね！🎉'];
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -34,6 +48,7 @@
             <div class="ex-bar"><div class="ex-bar-fill"></div></div>
             <span class="ex-count"></span>
           </div>
+          ${App.Dev.skipBtn('このレッスンをスキップ', 'data-dev-skip-all')}
           <div class="ex-body"></div>
           <div class="ex-foot"></div>
         </div>`;
@@ -56,6 +71,10 @@
         $('[data-cancel]', foot).onclick = () => { App.Sfx.play('tap'); foot.replaceChildren(...kept); };
         $('[data-yes]', foot).onclick = () => { App.Sfx.play('tap'); onQuit(); };
       };
+
+      // 開発者モード：全問正解したことにして終える
+      const devSkip = $('[data-dev-skip-all]', root);
+      if (devSkip) devSkip.onclick = () => { queue.length = 0; onDone({ correct: total, total, mistakes: 0 }); };
 
       const progress = () => {
         bar.style.width = `${total ? (finished / total) * 100 : 100}%`;
@@ -106,7 +125,7 @@
         foot.innerHTML = '';
         body.innerHTML = '';
         if (q.retry) body.insertAdjacentHTML('beforeend', '<span class="chip chip-retry ex-retry">もう一回！</span>');
-        ({ tutorial, note, teach, choice, match, order, speak })[q.type](q);
+        ({ tutorial, note, teach, choice, match, order, speak, cloze, pinyin, read, dialogue })[q.type](q);
       }
 
       /* ---------- 説明 ---------- */
@@ -116,7 +135,7 @@
           `你好！ぼくは<b>${name}</b>。<br>これから中国語を少しずつ覚えていこう！`,
           '1回のレッスンは<b>約5分</b>。<br>🔊を押すと何度でも音声が聞けるよ',
           '間違えても大丈夫！<br>間違えた問題は<b>最後にもう一回</b>出るから、そこで覚えよう',
-          '毎日じゃなくてOK。<br>覚えた言葉は<b>北京旅行</b>で実際に使えるよ✈️',
+          '毎日じゃなくてOK。<br>3D の<b>中国旅行</b>でも、覚えた言葉が役に立つよ✈️',
         ];
         let k = 0;
         const show = () => {
@@ -126,11 +145,14 @@
               <div class="bubble bubble-up">${pages[k]}</div>
               <div class="dots">${pages.map((_, j) => `<span class="dot${j < k ? ' is-done' : ''}${j === k ? ' is-cur' : ''}"></span>`).join('')}</div>
             </div>`;
-          foot.innerHTML = `<button class="btn btn-primary btn-lg btn-block" data-next>${k < pages.length - 1 ? 'つぎへ ▶' : 'はじめる ▶'}</button>`;
+          foot.innerHTML = `<button class="btn btn-primary btn-lg btn-block" data-next>${k < pages.length - 1 ? 'つぎへ ▶' : 'はじめる ▶'}</button>
+            ${k < pages.length - 1 ? '<button class="link-btn ex-skip" data-skip>説明をスキップ</button>' : ''}`;
           $('[data-next]', foot).onclick = () => {
             App.Sfx.play('tap');
             if (++k < pages.length) show(); else next();
           };
+          const sk = $('[data-skip]', foot);
+          if (sk) sk.onclick = () => { App.Sfx.play('tap'); next(); };
         };
         show();
       }
@@ -158,6 +180,7 @@
               ${UI.speakBtn(p.zh, { label: '🔊 聞く', cls: 'speak-pill' })}
               ${UI.speakBtn(p.zh, { slow: true, label: '🐢 ゆっくり', cls: 'speak-pill is-sub' })}
             </div>
+            ${UI.rateToggle({ cls: 'is-center' })}${UI.voiceNotice()}
           </div>
           ${UI.hamsterSays(p.tip || 'この言葉を覚えよう！', { size: 'sm' })}`);
         App.Progress.learn([q.id]);
@@ -291,6 +314,109 @@
           judged(q, ok, p);
         };
         draw();
+      }
+
+      /* ---------- 穴埋め ---------- */
+      function cloze(q) {
+        const p = App.PHRASES[q.id];
+        const words = App.phraseWords(q.id);
+        const ans = words[q.k];
+        body.insertAdjacentHTML('beforeend', `
+          <div class="ex-title">空いているところに入る言葉は？</div>
+          <div class="card q-card pop-in">
+            <div class="ex-cloze">${words.map((w, i) => (i === q.k
+              ? '<span class="ex-blank">？</span>'
+              : `<span class="ex-cw"><span class="zh">${esc(w.zh)}</span>${UI.pinyin(w.py)}</span>`)).join('')}</div>
+            <div class="ex-q-sub">${esc(p.ja)}</div>
+          </div>
+          <div class="options options-zh">
+            ${q.options.map((o, k) => `<button class="option" data-zh="${esc(o.zh)}"><span class="opt-key">${k + 1}</span>
+              <span class="opt-body"><span class="zh">${esc(o.zh)}</span>${UI.pinyin(o.py)}</span></button>`).join('')}
+          </div>`);
+        $$('.option', body).forEach((btn) => {
+          btn.onclick = () => {
+            const ok = btn.dataset.zh === ans.zh;
+            $$('.option', body).forEach((b) => {
+              b.disabled = true;
+              if (b.dataset.zh === ans.zh) b.classList.add('is-correct');
+            });
+            if (!ok) btn.classList.add('is-wrong', 'shake');
+            $('.ex-blank', body).outerHTML = `<span class="ex-cw is-fill"><span class="zh">${esc(ans.zh)}</span>${UI.pinyin(ans.py)}</span>`;
+            onAnswer(q.id, ok, q.retry);
+            judged(q, ok, p);
+          };
+        });
+      }
+
+      /* ---------- ピンイン入力 ---------- */
+      function pinyin(q) {
+        const p = App.PHRASES[q.id];
+        body.insertAdjacentHTML('beforeend', `
+          <div class="ex-title">ピンインを入力しよう</div>
+          <div class="card q-card pop-in">
+            <div class="q-zh"><span class="zh zh-lg">${esc(p.zh)}</span>${UI.speakBtn(p.zh)}</div>
+            <div class="ex-q-sub">${esc(p.ja)}</div>
+          </div>
+          <input class="ex-input" type="text" inputmode="latin" autocomplete="off" autocapitalize="off" spellcheck="false"
+            placeholder="例：nihao（声調はなくてOK）" aria-label="ピンイン">
+          <p class="muted small ex-help">声調記号は入れなくて大丈夫。ü は v で入力できるよ</p>`);
+        const input = $('.ex-input', body);
+        foot.innerHTML = '<button class="btn btn-primary btn-lg btn-block" data-check disabled>チェック</button>';
+        const check = $('[data-check]', foot);
+        input.oninput = () => { check.disabled = !input.value.trim(); };
+        const submit = () => {
+          if (check.disabled) return;
+          const ok = pyMatch(input.value, p.py);
+          input.disabled = true;
+          input.classList.add(ok ? 'is-ok' : 'is-ng');
+          onAnswer(q.id, ok, q.retry);
+          judged(q, ok, p, { note: ok ? '' : `<br>あなたの答え：${esc(input.value)}` });
+        };
+        check.onclick = submit;
+        input.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
+        setTimeout(() => { if (root.isConnected) input.focus(); }, 200);
+      }
+
+      /* ---------- 読解 ---------- */
+      function read(q) {
+        const r = q.read;
+        const order = shuffle(r.options.map((text, k) => ({ text, k })));
+        body.insertAdjacentHTML('beforeend', `
+          <div class="ex-title">📖 読んで答えよう</div>
+          <div class="card ex-read pop-in">
+            <div class="ex-read-zh"><span class="zh">${esc(r.zh)}</span>${UI.speakBtn(r.zh, { cls: 'speak-sm' })}</div>
+            ${UI.pinyin(r.py)}
+            <div class="ex-read-ja is-hidden">${esc(r.ja)}</div>
+          </div>
+          <div class="ex-q-ja">${esc(r.q)}</div>
+          <div class="options options-1">
+            ${order.map((o, i) => `<button class="option" data-k="${o.k}"><span class="opt-key">${i + 1}</span><span class="opt-body">${esc(o.text)}</span></button>`).join('')}
+          </div>`);
+        $$('.option', body).forEach((btn) => {
+          btn.onclick = () => {
+            const ok = Number(btn.dataset.k) === (r.answer || 0);
+            $$('.option', body).forEach((b) => {
+              b.disabled = true;
+              if (Number(b.dataset.k) === (r.answer || 0)) b.classList.add('is-correct');
+            });
+            if (!ok) btn.classList.add('is-wrong', 'shake');
+            $('.ex-read-ja', body).classList.remove('is-hidden');
+            judged(q, ok, null, { note: `<br><small>${esc(r.ja)}</small>` });
+          };
+        });
+      }
+
+      /* ---------- 会話ロールプレイ ---------- */
+      function dialogue(q) {
+        const d = App.DIALOGUES[q.dialogue];
+        body.insertAdjacentHTML('beforeend', `<div class="ex-title">💬 ${esc(d.name)}で会話してみよう</div><div class="ex-chat"></div>`);
+        App.Dialogue.run($('.ex-chat', body), (d.intro || []).concat(d.scene), {
+          npcs: d.npcs,
+          pool: d.phrases || [],
+          doneLabel: 'できた！ つぎへ ▶',
+          onMistake: () => { mistakes++; },
+          onDone: () => next(),
+        });
       }
 
       /* ---------- 声に出す ---------- */

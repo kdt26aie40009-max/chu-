@@ -68,7 +68,7 @@
         ctx.saved.done = true;
         ctx.reward(TOP_EXP);
       }
-      App.Progress.markSpotCleared('greatwall');
+      App.Trip.clear('greatwall');
       ctx.game.phase = 'done';
       ctx.successCard({
         emoji: '🏆',
@@ -79,11 +79,11 @@
           ['不到长城非好汉', 'Bú dào Chángchéng fēi hǎohàn', '長城に登らずして好漢にあらず'],
           ['太美了', 'Tài měi le', 'きれい！'],
           ['好累啊', 'Hǎo lèi a', '疲れた〜！'],
-        ]) + ctx.hamsterLine('ここまで来られたのは、2D でコツコツ覚えたからだね。<br>北京の旅、ほんとうにおつかれさま🎉', 'happy'),
+        ]) + ctx.hamsterLine('山の向こうまで続く長城…ここまで登ってきたね！<br>北京の旅、ほんとうにおつかれさま🎉', 'happy'),
         buttons: [
           { label: '🧭 景色をながめる' },
-          { label: `🗺️ ${App.currentCity().name}マップへ戻る`, primary: false, onClick: () => App.go('map') },
-          { label: '📘 コースで復習する', primary: false, onClick: () => App.go('course') },
+          { label: '🗺️ 旅のマップへ戻る', primary: false, onClick: () => App.go('map') },
+          { label: '📘 2D で中国語を学ぶ', primary: false, onClick: () => App.go('course') },
         ],
       });
     });
