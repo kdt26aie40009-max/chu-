@@ -6,8 +6,10 @@
   'use strict';
 
   const Voice = {};
-  const RATE = 1.25;   // 再生速度（少し速く・高くしてハムスターっぽく）
+  const RATE = 1.08;   // 再生速度＝声の高さ（1 より大きいほど高い。テンポは STEP で決まる）
   const STEP = 0.2;    // 1 音ごとに進める秒数（前の音と少し重ねて、なめらかにつなぐ）
+  const FADE_IN = 0.03;   // 音の出だしをふわっと立ち上げる秒数
+  const CROSS = 0.09;     // 次の音と重ねながら前の音を消していく秒数
   const PAUSE = { '、': 0.18, '，': 0.18, '。': 0.32, '！': 0.32, '？': 0.32, '!': 0.32, '?': 0.32, '…': 0.3, ' ': 0.12, '　': 0.12 };
   const PLAIN = {
     が: 'か', ぎ: 'き', ぐ: 'く', げ: 'け', ご: 'こ', ざ: 'さ', じ: 'し', ず: 'す', ぜ: 'せ', ぞ: 'そ',
@@ -21,6 +23,7 @@
   const LATIN = { OK: 'おーけー', EXP: 'いーえっくすぴー', Lv: 'れべる', NEXT: 'ねくすと' };
 
   let ctx = null;
+  let out = null;
   let buffers = null;
   let loading = null;
   let playing = [];
@@ -108,7 +111,20 @@
   }
 
   function audioCtx() {
-    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      // 高い音のザラつきを少し抑え（ローパス）、音量の差をならして（コンプレッサー）なめらかに聞こえるようにする
+      const soften = ctx.createBiquadFilter();
+      soften.type = 'lowpass';
+      soften.frequency.value = 5200;
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -20;
+      comp.ratio.value = 4;
+      comp.attack.value = 0.005;
+      comp.release.value = 0.12;
+      soften.connect(comp).connect(ctx.destination);
+      out = soften;
+    }
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
   }
@@ -166,12 +182,15 @@
         src.buffer = b;
         src.playbackRate.value = RATE;
         const gain = c.createGain();
-        src.connect(gain).connect(c.destination);
-        // 前の音は、次の音が始まるところで短くフェードアウトさせる
+        src.connect(gain).connect(out);
+        // 出だしはふわっと立ち上げる
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(1, t + FADE_IN);
+        // 前の音は、次の音と重ねながらゆっくり消す（クロスフェード）
         if (prev) {
           prev.gain.gain.setValueAtTime(1, t);
-          prev.gain.gain.linearRampToValueAtTime(0, t + 0.05);
-          prev.src.stop(t + 0.06);
+          prev.gain.gain.linearRampToValueAtTime(0, t + CROSS);
+          prev.src.stop(t + CROSS + 0.01);
         }
         src.start(t);
         const item = { src, gain };
