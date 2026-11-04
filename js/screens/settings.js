@@ -43,6 +43,10 @@
             <span>効果音</span>
             <input type="checkbox" class="switch" data-sfx ${s.sfx ? 'checked' : ''}>
           </label>
+          <label class="setting-row switch-row">
+            <span>3D の出発前に単語チェック<small class="muted">（オフにすると、いきなり本番で力試し）</small></span>
+            <input type="checkbox" class="switch" data-wordcheck ${s.wordCheck !== false ? 'checked' : ''}>
+          </label>
         </section>
 
         <section class="card setting">
@@ -50,7 +54,8 @@
           <p class="muted small">進み具合はこのブラウザに保存されます。</p>
           <button class="btn btn-danger btn-block" data-reset>データをリセット</button>
         </section>
-      </main>`;
+      </main>
+      ${UI.tabbar('settings')}`;
 
     const save = () => App.Store.save();
     $('[data-test]', root).onclick = () => {
@@ -64,6 +69,7 @@
       if (s.hamsterVoice) App.MochiVoice.speak('ぼくの声だよ！');
       else App.MochiVoice.stop();
     };
+    $('[data-wordcheck]', root).onchange = (e) => { s.wordCheck = e.target.checked; save(); };
     $('[data-sfx]', root).onchange = (e) => { s.sfx = e.target.checked; save(); if (s.sfx) App.Sfx.play('correct'); };
     $('[data-reset]', root).onclick = () => {
       if (!confirm('本当にリセットする？（経験値・覚えた言葉がすべて消えます）')) return;

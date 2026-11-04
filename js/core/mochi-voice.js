@@ -39,12 +39,14 @@
   }
 
   // セリフに混ざっている中国語（フレーズ・看板）は日本語の声では読まないので外す
+  // （「北京」のように日本語でも読める言葉は、読みの辞書にあれば日本語で読む）
   function chineseWords() {
     if (!chinese) {
+      const dict = App.KANA_DICT || {};
       const list = [];
       Object.values(App.PHRASES || {}).forEach((p) => list.push(p.zh));
       Object.values(App.SIGNS || {}).forEach((s) => list.push(s.zh));
-      chinese = Array.from(new Set(list.map((z) => z.replace(/[？！，。?!,.\s]/g, '')).filter((z) => z.length > 0)))
+      chinese = Array.from(new Set(list.map((z) => z.replace(/[？！，。?!,.\s]/g, '')).filter((z) => z.length > 0 && !dict[z])))
         .sort((a, b) => b.length - a.length);
     }
     return chinese;
