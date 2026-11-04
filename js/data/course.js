@@ -118,6 +118,10 @@
               id: 'v6-4', title: '武術の動き', ids: ['tiao', 'dun', 'quan', 'tui'],
               notes: ['少林寺の武術大会では、掛け声を聞いて動くよ！<br><span class="zh">跳</span>＝跳ぶ、<span class="zh">蹲</span>＝しゃがむ<br><span class="zh">拳</span>＝パンチ、<span class="zh">腿</span>＝キック'],
             },
+            {
+              id: 'v6-5', title: '少林寺のあいさつ', ids: ['amituofo', 'baoquan', 'shifu', 'gongfu'],
+              notes: ['お坊さんには手を合わせて <span class="zh">阿弥陀佛</span>。<br>武術の礼は <span class="zh">抱拳礼</span>（右の拳を左の手のひらでつつむ）'],
+            },
           ],
         },
         {

@@ -83,6 +83,23 @@
         { type: 'say', hamster: '同じ気持ちを伝えよう', options: ['taimei', 'taigui', 'buyaola'], answer: 0 },
       ],
     },
+    {
+      id: 'hikers', name: '登山サークルの大学生', emoji: '🥾',
+      look: { top: '#27AE60', bottom: '#2F3740', hair: '#1E1A18', cap: '#27AE60', backpack: '#F5B92E' },
+      stand: { x: -1.6, z: -58, rot: Math.PI / 2 },
+      script: [
+        { type: 'line', zh: '你好！快到顶了，加油！', py: 'Nǐ hǎo! Kuài dào dǐng le, jiāyóu!', ja: 'こんにちは！もうすぐてっぺんだよ、がんばって！' },
+        { type: 'say', hamster: 'お礼を言おう', options: ['xiexie', 'zaijian', 'maidan'], answer: 0 },
+      ],
+    },
+    {
+      id: 'painter', name: '景色を描くおじさん', emoji: '🖌️',
+      look: { top: '#8E5BB8', bottom: '#3E3A36', hair: '#BBBBBB', cap: '#F4EFE6' },
+      stand: { x: 1.6, z: -40, rot: -Math.PI / 2 },
+      script: [
+        { type: 'line', zh: '嗯，今天的长城很美。', py: 'Ńg, jīntiān de Chángchéng hěn měi.', ja: 'うむ、今日の長城は美しい。', hamster: '絵を描いてる…じゃましないように' },
+      ],
+    },
   ];
 
   function buildGreatWall(THREE, scene) {
