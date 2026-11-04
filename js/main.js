@@ -40,5 +40,10 @@
   });
 
   App.Store.load();
+  // 以前の版で 3D だけクリアした場所も、マップでは「行った」ことにする
+  ['airport', 'hotel', 'stall'].forEach((id) => {
+    const w = (App.Store.state.world3d || {})[id];
+    if (w && w.done) App.Progress.markSpotCleared(id);
+  });
   App.go('title');
 })(window.App = window.App || {});
