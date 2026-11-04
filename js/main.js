@@ -31,6 +31,15 @@
       sp.classList.add('is-playing');
       return;
     }
+    // 町の表示（js/data/signs.js）：読み上げて、意味をトーストで出す
+    const sign = e.target.closest('[data-sign]');
+    if (sign && App.SIGNS[sign.dataset.sign]) {
+      const s = App.SIGNS[sign.dataset.sign];
+      const { esc } = App.U;
+      App.Speech.speak(s.say || s.zh);
+      App.U.toast(`<span class="zh">${esc(s.zh)}</span>　${esc(s.py)}<br>${esc(s.ja)}`);
+      return;
+    }
     const rate = e.target.closest('[data-rate-set]');
     if (rate) {
       App.Speech.setRate(rate.dataset.rateSet);
