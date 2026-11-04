@@ -22,18 +22,6 @@
     S().lastPlayed = t;
   };
 
-  // 連続日数（表示用。途切れてもペナルティは無い）
-  P.streak = () => {
-    const days = S().days.slice().sort();
-    if (!days.length) return 0;
-    let streak = 1;
-    for (let i = days.length - 1; i > 0; i--) {
-      if (U.daysBetween(days[i - 1], days[i]) === 1) streak++;
-      else break;
-    }
-    return U.daysBetween(days[days.length - 1], U.todayKey()) <= 1 ? streak : 0;
-  };
-
   P.isCleared = (spotId) => !!S().cleared[spotId];
   P.playableSpots = (city) => city.spots.filter((s) => !s.comingSoon);
 
@@ -62,11 +50,20 @@
   P.learnedCount = () => Object.keys(S().learned).filter((id) => App.PHRASES[id]).length;
   P.isLearned = (id) => !!S().learned[id];
 
+  // 間隔反復：覚え度が高いほど次の復習まで間をあける（日数）。
+  // 毎日遊ばなくても「たまっている分を少しずつ」出すだけで、ペナルティは無い
+  const INTERVAL = [0, 1, 2, 4, 7, 14];
+  const addDays = (key, n) => {
+    const d = new Date(key + 'T00:00:00');
+    d.setDate(d.getDate() + n);
+    return U.todayKey(d);
+  };
+
   P.learn = (ids) => {
     const now = U.todayKey();
     ids.forEach((id) => {
       if (!S().learned[id]) {
-        S().learned[id] = { strength: 1, correct: 0, wrong: 0, learnedAt: now, lastReviewed: now };
+        S().learned[id] = { strength: 1, correct: 0, wrong: 0, learnedAt: now, lastReviewed: now, due: addDays(now, INTERVAL[1]) };
       }
     });
     App.Store.save();
@@ -78,8 +75,12 @@
     if (ok) { e.correct++; e.strength = Math.min(5, e.strength + 1); }
     else { e.wrong++; e.strength = Math.max(0, e.strength - 1); }
     e.lastReviewed = U.todayKey();
+    e.due = addDays(e.lastReviewed, INTERVAL[e.strength]);
     App.Store.save();
   };
+
+  const isDue = (e) => !e.due || e.due <= U.todayKey();
+  P.dueCount = () => Object.entries(S().learned).filter(([id, e]) => App.PHRASES[id] && isDue(e)).length;
 
   const pushLog = (entry) => {
     S().log.unshift(Object.assign({ date: U.todayKey() }, entry));
@@ -117,27 +118,28 @@
     return Object.assign({ gained }, lv);
   };
 
-  // 覚えが弱い＆しばらく見ていない言葉を優先
+  P.log = pushLog;
+
+  // 復習の時期が来た言葉 → 覚えが弱い言葉 → しばらく見ていない言葉 の順
   P.reviewCandidates = (n) =>
     Object.entries(S().learned)
       .filter(([id]) => App.PHRASES[id])
-      .sort((a, b) => a[1].strength - b[1].strength || String(a[1].lastReviewed || '').localeCompare(String(b[1].lastReviewed || '')))
+      .sort((a, b) => (isDue(b[1]) - isDue(a[1]))
+        || a[1].strength - b[1].strength
+        || String(a[1].lastReviewed || '').localeCompare(String(b[1].lastReviewed || '')))
       .slice(0, n)
       .map(([id]) => id);
 
-  P.needsReview = () => {
-    const today = U.todayKey();
-    const entries = Object.values(S().learned);
-    return entries.length >= 3 && entries.some((e) => e.lastReviewed !== today);
-  };
+  P.needsReview = () => Object.keys(S().learned).length >= 3 && P.dueCount() > 0;
 
   // 起動時のハムスターのひとこと（休んでも責めない）
   P.welcomeMessage = () => {
     const name = App.Hamster.name;
     const last = S().lastPlayed;
-    if (!last) return `你好！ぼくは<b>${name}</b>。<br>いっしょに上海を旅しよう！`;
+    const city = App.currentCity().name;
+    if (!last) return `你好！ぼくは<b>${name}</b>。<br>中国語を覚えて、いっしょに${city}を旅しよう！`;
     const gap = U.daysBetween(last, U.todayKey());
-    if (gap <= 0) return 'おかえり！<br>もうちょっと上海を歩いてみる？';
+    if (gap <= 0) return 'おかえり！<br>もうちょっとだけ、やってみる？';
     if (gap === 1) return '你好！<br>昨日の続き、行ってみよう！';
     return '久しぶり！また会えてうれしいよ〜<br>マイペースで旅しよう🐹';
   };

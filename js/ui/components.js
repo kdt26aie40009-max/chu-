@@ -42,6 +42,20 @@
         </div>`;
     },
 
+    // 画面下のタブ（学ぶ ⇄ 旅する をすぐ切り替えられる）
+    tabbar(active) {
+      const tabs = [
+        ['course', '📘', '学ぶ'],
+        ['map', '🗺️', '旅する'],
+        ['dictionary', '📖', '図鑑'],
+        ['journal', '📔', '記録'],
+        ['settings', '⚙️', '設定'],
+      ];
+      return `<nav class="tabbar">${tabs.map(([go, icon, label]) =>
+        `<button class="tab${go === active ? ' is-cur' : ''}" data-go="${go}"${go === active ? ' aria-current="page"' : ''}>
+          <span>${icon}</span>${label}${go === 'course' && App.Progress.needsReview() ? '<i class="tab-dot"></i>' : ''}</button>`).join('')}</nav>`;
+    },
+
     stars(n, max = 5) {
       return `<span class="stars" aria-label="覚え度 ${n}/${max}">${'★'.repeat(n)}<i>${'★'.repeat(max - n)}</i></span>`;
     },

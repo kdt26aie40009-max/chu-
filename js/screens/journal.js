@@ -1,4 +1,4 @@
-/* 旅行記：記録・訪れた場所 */
+/* 旅行記：学習と旅の記録（連続日数は出さない。自分のペースでOK） */
 (function (App) {
   'use strict';
   App.screens = App.screens || {};
@@ -9,9 +9,9 @@
   App.screens.journal = (root) => {
     const city = App.currentCity();
     const P = App.Progress;
+    const C = App.Course;
     const st = App.Store.state;
     const lv = P.level();
-    const streak = P.streak();
 
     const days = {};
     city.spots.forEach((s) => { (days[s.day] = days[s.day] || []).push(s); });
@@ -30,9 +30,21 @@
         </ul>
       </div>`).join('');
 
+    const units = C.units().map((u) => {
+      const pr = C.unitProgress(u);
+      return `<li class="${pr.done === pr.total ? 'is-done' : ''}"><span>${u.emoji} ${esc(u.title)}</span>
+        <span class="${pr.done === pr.total ? 'ok' : 'muted'}">${pr.done === pr.total ? '✓ クリア' : `${pr.done}/${pr.total}`}</span></li>`;
+    }).join('');
+
     const logs = st.log.slice(0, 10).map((l) => {
-      const s = l.spotId && city.spots.find((x) => x.id === l.spotId);
-      const what = l.kind === 'review' ? '📚 復習' : `${s ? s.emoji + ' ' + esc(s.name) : ''} クリア`;
+      let what = '📚 復習';
+      if (l.kind === 'spot') {
+        const s = city.spots.find((x) => x.id === l.spotId);
+        what = `${s ? s.emoji + ' ' + esc(s.name) : '旅'} クリア`;
+      } else if (l.kind === 'lesson') {
+        const le = C.find(l.lessonId);
+        what = `📘 ${le ? esc(le.title) : 'レッスン'}`;
+      }
       return `<li><span class="muted">${formatDate(l.date)}</span><span>${what}</span><b>+${l.exp}</b></li>`;
     }).join('');
 
@@ -42,22 +54,28 @@
         <div class="jr-stats">
           <div class="card"><b>Lv.${lv.level}</b><span>レベル</span></div>
           <div class="card"><b>${st.exp}</b><span>総EXP</span></div>
-          <div class="card"><b>${st.days.length}</b><span>旅した日</span></div>
-          <div class="card"><b>${streak}</b><span>連続日数</span></div>
+          <div class="card"><b>${st.days.length}</b><span>学んだ日</span></div>
           <div class="card"><b>${P.learnedCount()}</b><span>覚えた言葉</span></div>
-          <div class="card"><b>${P.cityProgress(city)}%</b><span>上海達成率</span></div>
+          <div class="card"><b>${C.percent()}%</b><span>コース</span></div>
+          <div class="card"><b>${P.cityProgress(city)}%</b><span>${esc(city.name)}旅行</span></div>
         </div>
-        <p class="soft-note">連続じゃなくても大丈夫。旅は自分のペースで🐹</p>
+        <p class="soft-note">毎日じゃなくても大丈夫。旅は自分のペースで🐹</p>
 
         <section class="card">
-          <h3>🗺️ 上海のあしあと</h3>
+          <h3>📘 コースの進み具合</h3>
+          <ul class="jr-log">${units}</ul>
+        </section>
+
+        <section class="card">
+          <h3>🗺️ ${esc(city.name)}のあしあと</h3>
           ${footprints}
         </section>
 
         <section class="card">
           <h3>📝 最近の記録</h3>
-          ${logs ? `<ul class="jr-log">${logs}</ul>` : '<p class="muted">まだ記録がないよ。旅に出よう！</p>'}
+          ${logs ? `<ul class="jr-log">${logs}</ul>` : '<p class="muted">まだ記録がないよ。レッスンをやってみよう！</p>'}
         </section>
-      </main>`;
+      </main>
+      ${UI.tabbar('journal')}`;
   };
 })(window.App = window.App || {});

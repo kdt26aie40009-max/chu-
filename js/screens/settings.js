@@ -46,7 +46,8 @@
           <p class="muted small">進み具合はこのブラウザに保存されます。</p>
           <button class="btn btn-danger btn-block" data-reset>データをリセット</button>
         </section>
-      </main>`;
+      </main>
+      ${UI.tabbar('settings')}`;
 
     const save = () => App.Store.save();
     $('[data-rate]', root).oninput = (e) => {

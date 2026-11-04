@@ -94,7 +94,8 @@
             ? `<button class="btn ${P.needsReview() ? 'btn-accent' : 'btn-sub'} btn-block" data-go="review">📚 覚えた言葉をちょっと復習${P.needsReview() ? '<span class="dot-new"></span>' : ''}</button>`
             : ''}
         </div>
-      </section>`;
+      </section>
+      ${UI.tabbar('map')}`;
 
     root.querySelectorAll('[data-spot]').forEach((btn) => {
       btn.onclick = () => {

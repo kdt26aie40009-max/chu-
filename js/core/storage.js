@@ -11,9 +11,10 @@
     learned: {},   // phraseId -> { strength(0-5), correct, wrong, learnedAt, lastReviewed }
     days: [],      // 遊んだ日 'YYYY-MM-DD'
     lastPlayed: null,
-    log: [],       // { date, kind: 'spot'|'review', spotId?, exp }
+    log: [],       // { date, kind: 'spot'|'lesson'|'review', spotId?, lessonId?, exp }
+    course: { lessons: {} }, // 2D 学習コース lessonId -> { count, best, firstAt, lastAt }
     settings: { rate: 0.85, showPinyin: true, sfx: true },
-    world3d: {},   // 3D 探索の進み具合（例: airportCheckedIn）
+    world3d: {},   // 3D 探索の進み具合 world3d[fieldId] = { done, talked, ... }
   });
 
   const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
