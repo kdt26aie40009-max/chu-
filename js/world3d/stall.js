@@ -1,7 +1,7 @@
-/* 3D 屋台通り（北京・王府井小吃街）のレイアウト
+/* 3D 北京の商店街（王府井小吃街）のレイアウト
  * 南北にのびる屋台通り。入口の牌楼（手前 z=24）から奥（z=-27）へ歩く。
  *   通り      x: -3.9〜3.9（bounds で制限）
- *   左の屋台  糖葫芦(z=10)・臭豆腐(z=-3)・小笼包(z=-16.5, 点餐/取餐の 2 窓口)、奥に象棋のテーブル
+ *   左の屋台  纪念品＝お土産(z=17.5)・糖葫芦(z=10)・臭豆腐(z=-3)・小笼包(z=-16.5, 点餐/取餐の 2 窓口)、奥に象棋のテーブル
  *   右の屋台  羊肉串(z=14)・涮羊肉(z=4)・炸酱面(z=-8)、突き当たりの右に北京烤鸭の店
  * 単位はメートル。屋台のカウンターは当たり判定つき。
  */
@@ -71,6 +71,74 @@
           q: '毎日何せいろ食べる？', options: ['1せいろ', '5せいろ', '3せいろ'], answer: 0, hint: '「一笼（yì lóng）」＝1せいろ。「笼」はせいろのことだよ' },
         { type: 'say', hamster: '「すごい！」は<b>真厉害！</b>', options: [{ zh: '真厉害！', py: 'Zhēn lìhai!', ja: 'すごい！' }, 'cesuo', 'ruzhu'], answer: 0 },
         { type: 'line', zh: '哈哈！这家的小笼包最好吃！', py: 'Hāha! Zhè jiā de xiǎolóngbāo zuì hǎochī!', ja: 'はっはっは！ここの小籠包がいちばんうまいぞ！' },
+      ],
+    },
+    /* ---- ここから：街の人（あいさつ・雑談だけの人も） ---- */
+    {
+      id: 'student', name: '北京の大学生', emoji: '🎓',
+      look: { top: '#5B8DB8', bottom: '#2F3740', hair: '#1E1A18', backpack: '#E86F9A' },
+      stand: { x: 2.6, z: 18.5, rot: -Math.PI / 2 },
+      script: [
+        { type: 'say', zh: '你好！你是来旅游的吗？', py: 'Nǐ hǎo! Nǐ shì lái lǚyóu de ma?', ja: 'こんにちは！旅行で来たの？',
+          hamster: '「はい」と答えよう', options: ['shide', 'buyao', 'meiwenti'], answer: 0 },
+        { type: 'understand', zh: '我是大学生，在学日语！', py: 'Wǒ shì dàxuéshēng, zài xué Rìyǔ!', ja: '私は大学生で、日本語を勉強してるの！',
+          q: 'この人は何を勉強している？', options: ['日本語', '英語', '数学'], answer: 0, hint: '「日语（Rìyǔ）」＝日本語' },
+        { type: 'say', hamster: '「知り合えてうれしい」と伝えよう', options: ['renshi', 'duibuqi', 'tingbudong'], answer: 0 },
+        { type: 'line', zh: '我也很高兴！加油学中文！', py: 'Wǒ yě hěn gāoxìng! Jiāyóu xué Zhōngwén!', ja: '私もうれしい！中国語がんばってね！' },
+      ],
+    },
+    {
+      id: 'grandma', name: '散歩中のおばあちゃん', emoji: '👵',
+      look: { top: '#8E5BB8', bottom: '#3E3A36', hair: '#D9D9D9', hairStyle: 'bun' },
+      stand: { x: -2.6, z: 1.5, rot: Math.PI * 0.6 },
+      script: [
+        { type: 'understand', zh: '小朋友，吃饭了吗？', py: 'Xiǎo péngyou, chī fàn le ma?', ja: 'あら、ごはん食べた？',
+          q: '何を聞かれた？', options: ['ごはんを食べたか', 'どこから来たか', '何歳か'], answer: 0,
+          hint: '「吃饭了吗？」は北京のおばあちゃんの定番あいさつ。「元気？」くらいの意味だよ' },
+        { type: 'say', hamster: '「食べました」と答えよう（文法で習った「了」！）', options: ['wochile', 'womeiyouqian', 'tabuqu'], answer: 0 },
+        { type: 'line', zh: '好好好！多吃点儿！', py: 'Hǎo hǎo hǎo! Duō chī diǎnr!', ja: 'よしよし！たくさん食べなさいね！', hamster: 'やさしいおばあちゃんだ〜' },
+      ],
+    },
+    {
+      id: 'guide', name: '旅行ガイドさん', emoji: '🚩',
+      look: { top: '#F5B92E', bottom: '#2B2B2B', hair: '#3B2A20', cap: '#E05A3A' },
+      stand: { x: 2.4, z: -2.5, rot: -Math.PI * 0.4 },
+      script: [
+        { type: 'line', zh: '大家好！这条街叫王府井。', py: 'Dàjiā hǎo! Zhè tiáo jiē jiào Wángfǔjǐng.', ja: 'みなさんこんにちは！この通りは王府井といいます。',
+          hamster: '観光ガイドさんだ！ちょっと聞いていこう' },
+        { type: 'understand', zh: '北京烤鸭、涮羊肉、炸酱面，这里都有！', py: 'Běijīng kǎoyā, shuàn yángròu, zhájiàngmiàn, zhèlǐ dōu yǒu!', ja: '北京ダック、涮羊肉、ジャージャー麺、ここには全部あります！',
+          q: 'ここにはどの料理がある？', options: ['北京ダック・涮羊肉・ジャージャー麺', '寿司・ラーメン・天ぷら', 'ピザ・パスタ'], answer: 0 },
+        { type: 'say', hamster: 'お礼を言おう', options: ['xiexie', 'zaijian', 'wei'], answer: 0 },
+      ],
+    },
+    {
+      id: 'courier', name: '配達のお兄さん', emoji: '🛵',
+      look: { top: '#2F8F4E', bottom: '#2F3740', hair: '#1E1A18', cap: '#2F8F4E', bag: '#2F8F4E' },
+      path: [[-0.6, 21], [-0.6, -6], [0.8, -6], [0.8, 21]],
+      script: [
+        { type: 'line', zh: '借过借过！不好意思！', py: 'Jièguò jièguò! Bù hǎoyìsi!', ja: 'ちょっと通して！すみません！',
+          hamster: '「借过」＝通ります。急いでるみたい！' },
+      ],
+    },
+    {
+      id: 'girl', name: '風船を持った女の子', emoji: '🎈',
+      look: { top: '#FF9EAA', bottom: '#F4EFE6', hair: '#2B2220', hairStyle: 'long', scale: 0.58 },
+      stand: { x: 2.8, z: 9, rot: -Math.PI / 2 },
+      script: [
+        { type: 'say', zh: '你好！', py: 'Nǐ hǎo!', ja: 'こんにちは！', hamster: 'あいさつを返そう', options: ['nihao', 'zaijian', 'maidan'], answer: 0 },
+        { type: 'line', zh: '仓鼠！拜拜！', py: 'Cāngshǔ! Báibái!', ja: 'ハムスターだ！バイバイ！', hamster: '「仓鼠」はぼくのこと🐹' },
+      ],
+    },
+    {
+      id: 'dad', name: '家族旅行のお父さん', emoji: '👨‍👧',
+      look: { top: '#3A4A5A', bottom: '#4A5560', hair: '#1E1A18', camera: true },
+      stand: { x: -2.5, z: 13.8, rot: Math.PI / 2 },
+      script: [
+        { type: 'understand', zh: '请问，这个糖葫芦多少钱？', py: 'Qǐngwèn, zhège tánghúlu duōshao qián?', ja: 'すみません、この糖葫芦はいくらですか？',
+          q: '何を聞かれた？', options: ['糖葫芦の値段', 'トイレの場所', '今の時間'], answer: 0 },
+        { type: 'say', hamster: '看板に ¥3 って書いてあったね。「三块」と教えてあげよう',
+          options: [{ zh: '三块。', py: 'Sān kuài.', ja: '3元です' }, { zh: '十三块。', py: 'Shísān kuài.', ja: '13元です' }, 'tingbudong'], answer: 0 },
+        { type: 'line', zh: '谢谢你！真便宜！', py: 'Xièxie nǐ! Zhēn piányi!', ja: 'ありがとう！安いね！' },
       ],
     },
   ];
@@ -255,6 +323,28 @@
       Md.sign(THREE, scene, signOpts({ zh, en: price ? `${price} · ${en}` : en, bg }), Math.min(3.4, len * 0.7), s * 4.1, 3.9, z, -s * Math.PI / 2);
     }
 
+    // 左：お土産（纪念品）
+    stall(-1, 17.5, 5, { zh: '纪念品', en: 'Souvenirs', c1: '#2F6FA8', c2: '#E8F1FA', bg: '#1F3B57' });
+    const pandaMat = M('#FFFFFF');
+    const pandaDark = M('#222222');
+    [16.2, 17.2].forEach((z) => {
+      sph(0.16, pandaMat, -4.6, 1.22, z);
+      sph(0.11, pandaMat, -4.6, 1.42, z);
+      [-1, 1].forEach((e) => sph(0.04, pandaDark, -4.6, 1.52, z + e * 0.08));
+      [-1, 1].forEach((e) => sph(0.03, pandaDark, -4.52, 1.44, z + e * 0.04));
+    });
+    for (let k = 0; k < 3; k++) {
+      const fan = cyl(0.22, 0.22, 0.02, M(['#C0392B', '#F5B92E', '#2BB5A0'][k]), -4.7, 1.25, 18.3 + k * 0.4, 16);
+      fan.rotation.z = Math.PI / 2;
+    }
+    [[-5.9, 16.6, '#C0392B'], [-5.9, 18.4, '#2F6FA8']].forEach(([x, z, c]) => {
+      const mask = sph(0.2, M(c), x, 2.0, z);
+      mask.scale.set(0.4, 1.2, 1);
+    });
+    const souvenirStaff = Md.person(THREE, { top: '#1F3B57', bottom: '#2B2B2B', hair: '#1E1A18' });
+    souvenirStaff.position.set(-5.5, 0, 17.5);
+    souvenirStaff.rotation.y = Math.PI / 2;
+    scene.add(souvenirStaff);
     // 左：糖葫芦
     stall(-1, 10, 4.5, { zh: '糖葫芦', en: 'Candied Fruit', price: '¥3', c1: '#C0392B', c2: '#FADBD8' });
     for (let k = 0; k < 6; k++) {
@@ -448,6 +538,8 @@
         { id: 'shuan', x: 3.4, z: 4, r: 2.4 },
         { id: 'zhajiang', x: 3.4, z: -8, r: 2.4 },
         { id: 'duck', x: 2.5, z: -24.6, r: 2.2 },
+        { id: 'souvenir', x: -3.4, z: 17.5, r: 2.4 },
+        { id: 'tanghulu', x: -3.4, z: 10, r: 2.2 },
       ],
       tags: [
         { obj: auntie, y: 2.25, text: '👩‍🍳 点餐（注文）', maxDist: 18 },
@@ -455,6 +547,7 @@
         { obj: shuanStaff, y: 2.25, text: '🍲 涮羊肉', maxDist: 16 },
         { obj: noodleChef, y: 2.25, text: '🍜 炸酱面', maxDist: 16 },
         { obj: duckChef, y: 2.25, text: '🦆 北京烤鸭', maxDist: 18 },
+        { obj: souvenirStaff, y: 2.25, text: '🎁 お土産', maxDist: 16 },
       ],
       discoveries: [
         { id: 'gate', x: 0, z: 23, r: 2.6, say: '<b>美食街</b>＝グルメ通り！<br>北京の名物がそろってるよ。看板の値段も読んでみてね' },

@@ -1,11 +1,10 @@
-/* 3D 屋台通り（北京・王府井小吃街）
- * 4 つのお店で、2D コースで覚えた言葉を使って注文する：
- *   🥟 小笼包   点餐で注文 → 番号札「三号」→ 番号が順に呼ばれる → 「三号」が聞こえたら取餐へ（UNIT 5 数字）
- *   🍲 涮羊肉   メニュー・指さし注文・一共多少钱（UNIT 7 食事）
- *   🍜 炸酱面   一碗・不要辣（UNIT 7）
- *   🦆 北京烤鸭 几位・一份・买单（UNIT 7）
- * お店は北京マップの対応するスポット（spot）が解放されていると注文できる。
- * マップで選んだスポットのお店（params.shop）を最初に案内する。
+/* 3D 北京の商店街（王府井）— 旅のステージ 3
+ * 好きなお店に入って、メニューを見て注文する（どこか 1 店でごはんを食べるとステージクリア）：
+ *   🥟 小笼包   点餐で注文 → 番号札「三号」→ 番号が順に呼ばれる → 「三号」が聞こえたら取餐へ
+ *   🍲 涮羊肉 / 🍜 炸酱面 / 🦆 北京烤鸭  メニューを見る → 選ぶ → 指さし注文 → 値段を聞く → 食べる → 会計
+ *   🎁 お土産   値段を聞いて「太贵了！」「便宜一点吧」で値切る
+ *   🍡 糖葫芦   1 本買ってみる
+ * メニューの料理は engine.js の { type: 'menu' } で選び、後のセリフの {zh} {price} などに入る。
  * レイアウトと人の会話は js/world3d/stall.js、共通の動きは js/world3d/engine.js。
  */
 (function (App) {
@@ -48,83 +47,143 @@
   const FIRST_CALL = 6;   // 注文してから最初に呼ばれるまで（秒）
   const CALL_EVERY = 9;   // 次の番号までの間隔（秒）
 
-  /* ---------- 🍲🍜🦆 お店（その場で注文 → 食べる → 会計） ---------- */
+  /* ---------- 🍲🍜🦆 お店：メニューを見る → 選ぶ → 注文 → 値段を聞く → 食べる → 会計 ---------- */
+  // メニューの料理（priceZh/pricePy は値段の中国語の読み）
+  const M = (emoji, zh, py, ja, price, priceZh, pricePy) => ({ emoji, zh, py, ja, price, priceZh, pricePy });
   const SHOPS = {
-    xlb: { spot: 'stall', name: '小籠包の屋台', emoji: '🥟', where: '左の奥、湯気の出ている<b>小笼包</b>の屋台' },
+    xlb: { name: '小籠包の屋台', emoji: '🥟', where: '左の奥、湯気の出ている<b>小笼包</b>の屋台' },
     shuan: {
-      spot: 'shuan', name: '涮羊肉の店', emoji: '🍲', where: '右側の<b>涮羊肉</b>（銅の鍋）のお店',
+      name: '涮羊肉の店', emoji: '🍲', where: '右側の<b>涮羊肉</b>（銅の鍋）のお店',
       who: { name: '涮羊肉のおばさん', emoji: '👩‍🍳' },
       script: [
-        { type: 'hamster', text: '銅の鍋の<b>涮羊肉</b>！<br>メニューをもらって注文しよう' },
+        { type: 'hamster', text: '銅の鍋の<b>涮羊肉</b>！<br>メニューを見て、食べたいものを選ぼう' },
         { type: 'say', zh: '欢迎光临！', py: 'Huānyíng guānglín!', ja: 'いらっしゃいませ！', hamster: 'メニューをもらおう', options: ['caidan', 'maidan', 'cesuo'], answer: 0 },
-        { type: 'understand', zh: '给您菜单。羊肉一盘四十块。', py: 'Gěi nín càidān. Yángròu yì pán sìshí kuài.', ja: 'メニューをどうぞ。羊肉は1皿40元です。',
-          q: '羊肉1皿いくら？', options: ['40元', '14元', '4元'], answer: 0, hint: '四（4）×十（10）＝四十' },
-        { type: 'say', hamster: '羊肉の写真を指さして注文！', options: ['yaozhege', 'buyao', 'zaijian'], answer: 0 },
+        { type: 'menu', title: '涮羊肉 菜单', hamster: '何をしゃぶしゃぶする？',
+          items: [
+            M('🐑', '羊肉', 'yángròu', '羊肉（1皿）', 40, '四十块', 'sìshí kuài'),
+            M('🐄', '牛肉', 'niúròu', '牛肉（1皿）', 45, '四十五块', 'sìshíwǔ kuài'),
+            M('🥬', '白菜', 'báicài', '白菜', 8, '八块', 'bā kuài'),
+          ] },
+        { type: 'say', hamster: 'メニューの<b>{zh}</b>を指さして注文！', options: ['yaozhege', 'buyao', 'zaijian'], answer: 0 },
+        { type: 'say', hamster: '値段も聞いてみよう', options: ['duoshao', 'jidian', 'nijiao'], answer: 0 },
+        { type: 'understand', zh: '{zh}一盘{priceZh}。', py: '{py} yì pán {pricePy}.', ja: '{ja}は{price}元です。', q: 'いくら？', options: 'price' },
         { type: 'line', zh: '好的，马上来！', py: 'Hǎo de, mǎshàng lái!', ja: 'はい、すぐお持ちします！',
-          hamster: 'うすい羊肉をさっと鍋にくぐらせて、ごまだれで…はふはふ', next: '🍲 しゃぶしゃぶする' },
+          hamster: 'うすく切った{ja}をさっと鍋にくぐらせて、ごまだれで…はふはふ', next: '🍲 しゃぶしゃぶする' },
         { type: 'say', zh: '好吃吗？', py: 'Hǎochī ma?', ja: 'おいしい？', hamster: '感想を伝えよう', options: ['haochi', 'taigui', 'buyaola'], answer: 0 },
         { type: 'say', hamster: '全部でいくらか聞こう', options: ['yigong', 'jidian', 'nijiao'], answer: 0 },
-        { type: 'understand', zh: '一共四十五块。', py: 'Yígòng sìshíwǔ kuài.', ja: '全部で45元です。',
-          q: '全部でいくら？', options: ['45元', '54元', '40元'], answer: 0, hint: '四十（40）＋五（5）＝四十五' },
+        { type: 'understand', zh: '一共{priceZh}。', py: 'Yígòng {pricePy}.', ja: '全部で{price}元です。', q: '全部でいくら？', options: 'price' },
+        { type: 'line', zh: '欢迎下次再来！', py: 'Huānyíng xià cì zài lái!', ja: 'またどうぞ！', hamster: 'ごちそうさまでした〜' },
       ],
-      used: [['我要这个', 'Wǒ yào zhège', 'これください'], ['好吃！', 'Hǎochī!', 'おいしい！'], ['一共多少钱？', 'Yígòng duōshao qián?', '全部でいくら？']],
-      done: '銅鍋の涮羊肉、ごちそうさま！',
+      used: (v) => [[v.zh, v.py, v.ja], ['我要这个', 'Wǒ yào zhège', 'これください'], ['一共多少钱？', 'Yígòng duōshao qián?', '全部でいくら？']],
+      done: '涮羊肉、ごちそうさま！',
     },
     zhajiang: {
-      spot: 'zhajiang', name: '炸酱面の店', emoji: '🍜', where: '右側の<b>炸酱面</b>のお店',
+      name: '炸酱面の店', emoji: '🍜', where: '右側の<b>炸酱面</b>のお店',
       who: { name: '麺屋のお兄さん', emoji: '🧑‍🍳' },
       script: [
-        { type: 'hamster', text: '北京の家庭の味、<b>炸酱面</b>（ジャージャー麺）！' },
-        { type: 'say', zh: '您好！想吃什么？', py: 'Nín hǎo! Xiǎng chī shénme?', ja: 'いらっしゃい！何を食べますか？',
-          hamster: 'ジャージャー麺を1杯たのもう', options: ['yiwan', 'yifen', 'yilong'], answer: 0 },
+        { type: 'hamster', text: '北京の家庭の味、<b>炸酱面</b>（ジャージャー麺）のお店！' },
+        { type: 'line', zh: '您好！想吃什么？看看菜单吧。', py: 'Nín hǎo! Xiǎng chī shénme? Kànkan càidān ba.', ja: 'いらっしゃい！何にする？メニューを見てね。' },
+        { type: 'menu', title: '老北京 菜单', hamster: '何を食べる？',
+          items: [
+            M('🍜', '炸酱面', 'zhájiàngmiàn', 'ジャージャー麺', 18, '十八块', 'shíbā kuài'),
+            M('🥟', '饺子', 'jiǎozi', '水餃子', 20, '二十块', 'èrshí kuài'),
+            M('🥛', '豆汁', 'dòuzhī', '豆汁（北京名物の飲みもの）', 3, '三块', 'sān kuài'),
+          ] },
+        { type: 'say', hamster: '<b>{zh}</b>を指さして「これください」', options: ['yaozhege', 'maidan', 'buyao'], answer: 0 },
         { type: 'understand', zh: '要辣的吗？', py: 'Yào là de ma?', ja: '辛いのにしますか？',
           q: '何を聞かれた？', options: ['辛くするか', '大盛りにするか', '持ち帰りか'], answer: 0, hint: '「辣（là）」＝辛い' },
         { type: 'say', hamster: '辛くしないでもらおう', options: ['buyaola', 'haochi', 'maidan'], answer: 0 },
-        { type: 'line', zh: '好的！一碗炸酱面，十八块。', py: 'Hǎo de! Yì wǎn zhájiàngmiàn, shíbā kuài.', ja: 'はい！ジャージャー麺1杯、18元ね。',
-          hamster: 'お金をわたそう 💴', next: '💴 18元わたす' },
-        { type: 'say', hamster: '麺と味噌をよくまぜて…ひとくち！感想は？', options: ['haochi', 'taigui', 'buyao'], answer: 0 },
+        { type: 'say', hamster: '値段を聞こう', options: ['duoshao', 'cesuo', 'wei'], answer: 0 },
+        { type: 'understand', zh: '{zh}，{priceZh}。', py: '{py}, {pricePy}.', ja: '{ja}は{price}元。', q: 'いくら？', options: 'price' },
+        { type: 'line', zh: '来了！慢慢吃！', py: 'Lái le! Mànmàn chī!', ja: 'はいどうぞ！ごゆっくり！', hamster: '{ja}、いただきます！', next: '🥢 食べる' },
+        { type: 'say', hamster: 'ひとくち…！感想は？', options: ['haochi', 'taigui', 'buyao'], answer: 0 },
+        { type: 'say', hamster: 'お会計をお願いしよう', options: ['maidan', 'caidan', 'qu'], answer: 0 },
         { type: 'say', hamster: 'お店を出るとき、お礼を言おう', options: ['xiexie', 'duibuqi', 'nihao'], answer: 0 },
       ],
-      used: [['我要一碗炸酱面', 'Wǒ yào yì wǎn zhájiàngmiàn', 'ジャージャー麺を1杯ください'], ['不要辣', 'Bú yào là', '辛くしないで'], ['十八块', 'shíbā kuài', '18元']],
-      done: 'ジャージャー麺、完食！',
+      used: (v) => [[v.zh, v.py, v.ja], ['不要辣', 'Bú yào là', '辛くしないで'], [v.priceZh, v.pricePy, `${v.price}元`]],
+      done: '老北京の味、完食！',
     },
     duck: {
-      spot: 'duck', name: '北京ダックの店', emoji: '🦆', where: '通りのいちばん奥、右の<b>北京烤鸭</b>のお店',
+      name: '北京ダックの店', emoji: '🦆', where: '通りのいちばん奥、右の<b>北京烤鸭</b>のお店',
       who: { name: '北京ダックの料理人', emoji: '🧑‍🍳' },
       script: [
         { type: 'understand', zh: '欢迎光临！几位？', py: 'Huānyíng guānglín! Jǐ wèi?', ja: 'いらっしゃいませ！何名様ですか？',
           q: '何を聞かれた？', options: ['何人か', '何を食べるか', 'どこから来たか'], answer: 0, hint: '「几（jǐ）」＝いくつ、「位（wèi）」＝人をていねいに数える言葉' },
         { type: 'say', hamster: '「1人です」と答えよう', options: [{ zh: '一位。', py: 'Yí wèi.', ja: '1人です' }, { zh: '三位。', py: 'Sān wèi.', ja: '3人です' }, 'buyao'], answer: 0 },
-        { type: 'say', zh: '吃点儿什么？', py: 'Chī diǎnr shénme?', ja: '何を召し上がりますか？', hamster: '北京ダックを1人前！', options: ['yifen', 'yiwan', 'shui'], answer: 0 },
-        { type: 'understand', zh: '好的，一份烤鸭九十八块。', py: 'Hǎo de, yí fèn kǎoyā jiǔshíbā kuài.', ja: 'かしこまりました。北京ダック1人前98元です。',
-          q: 'いくら？', options: ['98元', '89元', '18元'], answer: 0, hint: '九十（90）＋八（8）＝九十八' },
-        { type: 'line', zh: '我给您片鸭子。', py: 'Wǒ gěi nín piàn yāzi.', ja: '目の前で切り分けますね。',
-          hamster: 'パリパリの皮を、うすい皮でネギと一緒にくるんで…', next: '🦆 食べる' },
+        { type: 'say', hamster: 'メニューをもらおう', options: ['caidan', 'maidan', 'dache'], answer: 0 },
+        { type: 'menu', title: '北京烤鸭 菜单', hamster: '北京ダックはもちろん…ほかにも気になる？',
+          items: [
+            M('🦆', '烤鸭', 'kǎoyā', '北京ダック（1人前）', 98, '九十八块', 'jiǔshíbā kuài'),
+            M('🍲', '鸭汤', 'yātāng', 'アヒルのスープ', 15, '十五块', 'shíwǔ kuài'),
+            M('🥒', '拍黄瓜', 'pāi huángguā', 'たたききゅうり', 12, '十二块', 'shí’èr kuài'),
+          ] },
+        { type: 'say', hamster: '<b>{zh}</b>を指さして注文！', options: ['yaozhege', 'xiexie', 'tingbudong'], answer: 0 },
+        { type: 'say', hamster: '値段を聞こう', options: ['duoshao', 'jidian', 'yuanma'], answer: 0 },
+        { type: 'understand', zh: '{zh}，{priceZh}。', py: '{py}, {pricePy}.', ja: '{ja}は{price}元です。', q: 'いくら？', options: 'price' },
+        { type: 'line', zh: '请慢用！', py: 'Qǐng màn yòng!', ja: 'どうぞごゆっくり！',
+          hamster: '料理人さんが目の前で切ってくれる！パリパリ…', next: '🦆 食べる' },
         { type: 'say', hamster: '感想を伝えよう', options: ['haochi', 'taigui', 'buyaola'], answer: 0 },
         { type: 'say', hamster: 'お会計をお願いしよう', options: ['maidan', 'caidan', 'qu'], answer: 0 },
+        { type: 'line', zh: '谢谢光临！', py: 'Xièxie guānglín!', ja: 'ありがとうございました！' },
       ],
-      used: [['我要一份烤鸭', 'Wǒ yào yí fèn kǎoyā', '北京ダックを1人前ください'], ['九十八块', 'jiǔshíbā kuài', '98元'], ['买单', 'Mǎidān', 'お会計お願いします']],
-      done: '北京ダック、制覇！',
+      used: (v) => [[v.zh, v.py, v.ja], ['我要这个', 'Wǒ yào zhège', 'これください'], ['买单', 'Mǎidān', 'お会計お願いします']],
+      done: '北京ダックの店、ごちそうさま！',
+    },
+    // お土産：値段交渉（太贵了 → 便宜一点）
+    souvenir: {
+      name: 'お土産の店', emoji: '🎁', where: '入口すぐ左の<b>纪念品</b>（お土産）の店', extra: true,
+      who: { name: 'お土産屋のお兄さん', emoji: '🎁' },
+      script: [
+        { type: 'say', zh: '你好！看看吧！', py: 'Nǐ hǎo! Kànkan ba!', ja: 'いらっしゃい！見ていって！', hamster: 'あいさつしよう', options: ['nihao', 'zaijian', 'maidan'], answer: 0 },
+        { type: 'menu', title: '纪念品（お土産）', hamster: 'どれにする？',
+          items: [
+            Object.assign(M('🐼', '熊猫玩偶', 'xióngmāo wán’ǒu', 'パンダのぬいぐるみ', 80, '八十块', 'bāshí kuài'), { sale: 60, saleZh: '六十块', salePy: 'liùshí kuài' }),
+            Object.assign(M('🪭', '扇子', 'shànzi', '扇子', 30, '三十块', 'sānshí kuài'), { sale: 20, saleZh: '二十块', salePy: 'èrshí kuài' }),
+            Object.assign(M('🎭', '京剧面具', 'jīngjù miànjù', '京劇のお面', 50, '五十块', 'wǔshí kuài'), { sale: 40, saleZh: '四十块', salePy: 'sìshí kuài' }),
+          ] },
+        { type: 'say', hamster: '値段を聞こう', options: ['duoshao', 'cesuo', 'jidian'], answer: 0 },
+        { type: 'understand', zh: '{zh}，{priceZh}。', py: '{py}, {pricePy}.', ja: '{ja}は{price}元だよ。', q: 'いくら？', options: 'price' },
+        { type: 'say', hamster: 'ちょっと高い…？ 値切ってみよう！', options: ['taigui', 'haochi', 'shide'], answer: 0 },
+        { type: 'say', hamster: '「少し安くして」とお願い！', options: ['pianyi', 'buyaola', 'manyidian'], answer: 0 },
+        { type: 'understand', zh: '好吧好吧，{saleZh}！', py: 'Hǎo ba hǎo ba, {salePy}!', ja: 'しょうがないなあ、{sale}元！', q: 'いくらになった？', options: 'sale' },
+        { type: 'say', hamster: 'お金をわたそう', options: ['geini', 'buyao', 'zaijian'], answer: 0 },
+        { type: 'line', zh: '谢谢！欢迎再来！', py: 'Xièxie! Huānyíng zài lái!', ja: 'ありがとう！また来てね！', hamster: '値切れた！やったね🎉' },
+      ],
+      used: (v) => [['太贵了！', 'Tài guì le!', '高すぎる！'], ['便宜一点吧', 'Piányi yìdiǎn ba', '少し安くして'], [v.saleZh, v.salePy, `${v.sale}元`]],
+      done: '{ja}をゲット！',
+    },
+    tanghulu: {
+      name: '糖葫芦の屋台', emoji: '🍡', where: '左の<b>糖葫芦</b>の屋台', extra: true,
+      who: { name: '糖葫芦のおばさん', emoji: '🍡' },
+      script: [
+        { type: 'line', zh: '糖葫芦！又酸又甜！', py: 'Tánghúlu! Yòu suān yòu tián!', ja: '糖葫芦！甘酸っぱいよ！', hamster: '果物のあめがけ！1本買ってみよう' },
+        { type: 'say', hamster: '値段を聞こう', options: ['duoshao', 'zainali', 'wei'], answer: 0 },
+        { type: 'understand', zh: '三块一串。', py: 'Sān kuài yí chuàn.', ja: '1本3元だよ。', q: '1本いくら？', options: ['3元', '13元', '30元'], answer: 0 },
+        { type: 'say', hamster: '「これください」', options: ['yaozhege', 'taigui', 'buyao'], answer: 0 },
+        { type: 'say', hamster: 'お金をわたそう', options: ['geini', 'xiexie', 'maidan'], answer: 0 },
+        { type: 'say', hamster: 'パリッ…あまずっぱい！感想は？', options: ['haochi', 'tingbudong', 'taigui'], answer: 0 },
+      ],
+      used: () => [['糖葫芦', 'tánghúlu', '糖葫芦（果物のあめがけ）'], ['三块', 'sān kuài', '3元'], ['给你', 'gěi nǐ', 'はい、どうぞ']],
+      done: '糖葫芦をゲット！',
     },
   };
-  const ORDER = ['xlb', 'shuan', 'zhajiang', 'duck'];
+  const MEALS = ['xlb', 'shuan', 'zhajiang', 'duck'];
+  const fillText = (str, v) => String(str).replace(/\{(\w+)\}/g, (m, k) => (v && v[k] != null ? v[k] : m));
 
-  // 3D は 2D の進み具合と関係なく、どのお店にも入れる
-  const shopOpen = () => true;
-  const dishDone = (ctx, id) => !!ctx.saved.dishes[id];
-  const lockMsg = () => '';
-
+  const done = (ctx, id) => !!ctx.saved.dishes[id];
   function finishDish(ctx, id) {
+    const first = !done(ctx, id);
     ctx.saved.dishes[id] = true;
-    App.Trip.clear('market');
-    const next = ORDER.find((k) => !dishDone(ctx, k) && shopOpen(k));
-    ctx.game.focus = next || null;
+    if (!SHOPS[id].extra) App.Trip.clear('market');
+    const next = MEALS.find((k) => !done(ctx, k));
+    if (ctx.game.focus === id) ctx.game.focus = null;
     ctx.save();
-    return next;
+    return { first, next };
   }
-  const nextHint = (next) => (next
-    ? `次は <b>${SHOPS[next].emoji} ${SHOPS[next].name}</b> に行ってみる？<br><small>${SHOPS[next].where}</small>`
-    : '行けるお店は全部まわったね！北京グルメ、おいしかった〜🎉');
+  const mealCount = (ctx) => MEALS.filter((k) => done(ctx, k)).length;
+  const nextHint = (next, ctx) => (next
+    ? `ごはん ${mealCount(ctx)}/4。次は <b>${SHOPS[next].emoji} ${SHOPS[next].name}</b> はどう？<br><small>${SHOPS[next].where}</small>`
+    : '4 つのお店ぜんぶ制覇！北京グルメ、おいしかった〜🎉');
 
   function order(ctx) {
     ctx.runTalk(AUNTIE, ORDER_SCRIPT, () => {
@@ -162,7 +221,7 @@
         ctx.reward(PICKUP_EXP);
       }
       ctx.game.phase = 'done';
-      const next = finishDish(ctx, 'xlb');
+      const r = finishDish(ctx, 'xlb');
       ctx.successCard({
         emoji: '🥟',
         title: '小籠包ゲット！',
@@ -172,29 +231,30 @@
           ['三号', 'sān hào', '3番'],
           ['小心烫', 'xiǎoxīn tàng', '熱いから気をつけて'],
           ['谢谢', 'xièxie', 'ありがとう'],
-        ]) + ctx.hamsterLine(`あつあつ…はふはふ…おいしい〜！🥟<br>${nextHint(next)}`, 'happy'),
+        ]) + ctx.hamsterLine(`あつあつ…はふはふ…おいしい〜！🥟<br>${nextHint(r.next, ctx)}`, 'happy'),
         buttons: [
-          { label: '🧭 屋台通りを見てまわる' },
+          { label: '🧭 商店街を見てまわる' },
           { label: '🗺️ 旅のマップへ戻る', primary: false, onClick: () => App.go('map') },
         ],
       });
     });
   }
 
-  function eatAt(ctx, id) {
+  function visit(ctx, id) {
     const shop = SHOPS[id];
-    ctx.runTalk(shop.who, shop.script, () => {
-      const first = !dishDone(ctx, id);
-      if (first) ctx.reward(DISH_EXP);
-      const next = finishDish(ctx, id);
+    ctx.runTalk(shop.who, shop.script, (v) => {
+      const r = finishDish(ctx, id);
+      if (r.first) ctx.reward(DISH_EXP);
+      const menu = shop.script.find((s) => s.type === 'menu');
+      const item = v || (menu ? menu.items[0] : {});
       ctx.successCard({
-        emoji: shop.emoji,
-        title: shop.done,
-        sub: `${shop.name} クリア`,
-        exp: first ? DISH_EXP : 0,
-        body: App.Fields3D.usedList(shop.used) + ctx.hamsterLine(nextHint(next), 'happy'),
+        emoji: item.emoji || shop.emoji,
+        title: fillText(shop.done, item),
+        sub: `${shop.name}`,
+        exp: r.first ? DISH_EXP : 0,
+        body: App.Fields3D.usedList(shop.used(item)) + ctx.hamsterLine(shop.extra ? 'いい買い物だったね！🎉' : nextHint(r.next, ctx), 'happy'),
         buttons: [
-          { label: '🧭 屋台通りを見てまわる' },
+          { label: '🧭 商店街を見てまわる' },
           { label: '🗺️ 旅のマップへ戻る', primary: false, onClick: () => App.go('map') },
         ],
       });
@@ -221,21 +281,10 @@
     }
   }
 
-  // 料理のお店に話しかけたとき
-  const shopInteract = (id) => (ctx) => {
-    if (!shopOpen(id)) { ctx.hamsterSay(lockMsg(id), 7); return; }
-    if (dishDone(ctx, id) && ctx.game.focus !== id) {
-      App.Speech.speak('欢迎再来！');
-      ctx.toast(`${SHOPS[id].emoji} 欢迎再来！<br><small>Huānyíng zài lái!（また来てね！）</small>`);
-      return;
-    }
-    eatAt(ctx, id);
-  };
-
-  App.screens.stall3d = (root, params = {}) => App.World3D.mount(root, {
+  App.screens.stall3d = (root) => App.World3D.mount(root, {
     id: 'stall',
-    loading: '🥢 王府井の屋台通りへ移動中…',
-    helpText: 'いいにおい〜！ここは北京・<b>王府井の屋台通り</b>だよ🥢<br>小籠包・涮羊肉・炸酱面・北京ダック…<br>覚えた中国語で<b>注文</b>してみよう！',
+    loading: '🏮 北京の商店街へ移動中…',
+    helpText: 'ここは北京・<b>王府井の商店街</b>だよ🏮<br>北京ダック・涮羊肉・炸酱面・小籠包…<br>好きなお店に入って、<b>メニューを見て注文</b>してみよう！<br>お土産屋さんでは<b>値切り</b>もできるよ',
     build(THREE, scene) {
       const w = App.World3D.buildStall(THREE, scene);
       const base = w.update;
@@ -245,8 +294,7 @@
           init = true;
           // 以前のセーブ（小籠包だけの版）から移行
           if (!ctx.saved.dishes) ctx.saved.dishes = { xlb: !!ctx.saved.done };
-          const want = SHOPS[params.shop] ? params.shop : 'xlb';
-          ctx.game.focus = !dishDone(ctx, want) || params.shop ? want : ORDER.find((k) => !dishDone(ctx, k) && shopOpen(k)) || null;
+          if (ctx.saved.done) ctx.saved.dishes.xlb = true;
         }
         if (base) base(dt, t, ctx);
         tickCalls(dt, ctx);
@@ -256,27 +304,22 @@
 
     guide(ctx) {
       const g = ctx.game;
-      const dishes = ctx.saved.dishes || {};
       if (g.phase === 'wait') {
-        return { goal: `⏳ 番号を待とう（あなたは三号）`, say: '<b>三号</b>（sān hào）が呼ばれるまで、<br>まわりを見たり、ほかのお店に行ったりしよう' };
+        return { goal: '⏳ 小籠包の番号を待とう（あなたは三号）', say: '<b>三号</b>（sān hào）が呼ばれるまで、<br>ほかのお店も見てまわろう' };
       }
       if (g.phase === 'pickup') {
         return ctx.near === 'pickup'
           ? { goal: '🎯 取餐（受け取り口）で受け取ろう', say: '店員さんに<b>話しかけて</b>受け取ろう！' }
           : { goal: '🎯 取餐（受け取り口）へ行こう', say: '呼ばれたのは<b>三号</b>！<br>小笼包の屋台の<b>取餐</b>へ急ごう' };
       }
-      const f = g.focus && SHOPS[g.focus];
-      if (f) {
-        const here = ctx.near === (g.focus === 'xlb' ? 'order' : g.focus);
-        if (!shopOpen(g.focus)) return { goal: `🔒 ${f.emoji} ${f.name}`, say: lockMsg(g.focus) };
-        return here
-          ? { goal: `🎯 ${f.emoji} ${f.name}で注文しよう`, say: 'お店の人に<b>話しかけて</b>みよう！' }
-          : { goal: `🎯 ${f.emoji} ${f.name}を探そう`, say: `${f.where}を探そう！` };
-      }
-      const n = ORDER.filter((k) => dishes[k]).length;
+      const n = ctx.saved.dishes ? mealCount(ctx) : 0;
+      const shop = ctx.near && SHOPS[ctx.near === 'order' ? 'xlb' : ctx.near];
+      if (shop) return { goal: `🍽️ ごはん ${n}/4・${shop.emoji} ${shop.name}`, say: 'お店の人に<b>話しかけて</b>みよう！' };
+      if (n === 0) return { goal: '🎯 好きなお店でごはんを食べよう（ごはん 0/4）', say: '北京ダック・涮羊肉・炸酱面・小籠包…<br>どのお店に入る？看板を見てみよう！' };
+      const next = MEALS.find((k) => !ctx.saved.dishes[k]);
       return {
-        goal: `🍽️ 北京グルメ ${n}/4・発見 ${g.found.size}/${g.totals.found}`,
-        say: n >= 4 ? '北京グルメ制覇！🎉<br>通りの人とも話してみよう' : 'ほかのお店でも注文してみよう！<br>看板の値段も読んでみてね',
+        goal: `🍽️ ごはん ${n}/4・話した人 ${g.talked.size}/${g.totals.people}`,
+        say: next ? `次は ${SHOPS[next].where}はどう？<br><small>お土産屋さんで値切りもできるよ</small>` : '北京グルメ制覇！🎉<br>街の人ともおしゃべりしてみよう',
       };
     },
 
@@ -284,16 +327,14 @@
       const p = ctx.game.phase;
       if (id === 'order') return p === 'find' || p === 'done' ? '🥟 小籠包を注文する' : '💬 おばちゃんに話しかける';
       if (id === 'pickup') return p === 'pickup' ? '🥟 小籠包を受け取る' : '💬 取餐の店員さんに話しかける';
-      if (SHOPS[id]) {
-        if (!shopOpen(id)) return `🔒 ${SHOPS[id].emoji} ${SHOPS[id].name}`;
-        return `${SHOPS[id].emoji} 注文する`;
-      }
+      if (id === 'souvenir') return '🎁 お土産を見る';
+      if (id === 'tanghulu') return '🍡 糖葫芦を買う';
+      if (SHOPS[id]) return `${SHOPS[id].emoji} お店に入る`;
       return null;
     },
 
     onInteract: {
       order(ctx) {
-        if (!shopOpen('xlb')) { ctx.hamsterSay(lockMsg('xlb'), 7); return; }
         if (ctx.game.phase === 'find' || ctx.game.phase === 'done') { order(ctx); return; }
         App.Speech.speak('请等一下。');
         ctx.toast('👩‍🍳 请等一下。<br><small>Qǐng děng yíxià.（ちょっと待ってね）</small>');
@@ -311,9 +352,11 @@
         }
         ctx.hamsterSay('ここは<b>取餐</b>＝受け取り口。<br>手前の<b>点餐</b>（注文）で注文してね', 6);
       },
-      shuan: shopInteract('shuan'),
-      zhajiang: shopInteract('zhajiang'),
-      duck: shopInteract('duck'),
+      shuan: (ctx) => visit(ctx, 'shuan'),
+      zhajiang: (ctx) => visit(ctx, 'zhajiang'),
+      duck: (ctx) => visit(ctx, 'duck'),
+      souvenir: (ctx) => visit(ctx, 'souvenir'),
+      tanghulu: (ctx) => visit(ctx, 'tanghulu'),
     },
   });
 })(window.App = window.App || {});

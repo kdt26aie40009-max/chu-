@@ -106,6 +106,7 @@
         <div class="w3d-overlay w3d-modal" hidden>
           <div class="w3d-card w3d-talk-wrap">
             <button class="w3d-close" data-talk-close aria-label="会話をやめる">×</button>
+            ${App.Dev.skipBtn('会話をスキップ', 'data-dev-talk-skip hidden')}
             <div class="w3d-talk-tools">${UI.rateToggle()}${UI.voiceNotice()}</div>
             <div class="w3d-talk"></div>
           </div>
@@ -322,6 +323,23 @@
         });
       }
 
+      /* メニューで選んだ料理など（{zh} {py} {ja} {price} {priceZh} {pricePy} {sale} {saleZh} {salePy}）を
+       * 後のセリフに差し込む。options: 'price' / 'sale' で値段の聞き取り問題を自動で作る */
+      function fillStep(s, v) {
+        if (!v) return s;
+        const f = (str) => (typeof str === 'string' ? str.replace(/\{(\w+)\}/g, (m, k) => (v[k] != null ? v[k] : m)) : str);
+        const out = {};
+        Object.keys(s).forEach((k) => { out[k] = Array.isArray(s[k]) ? s[k].map((o) => (o && typeof o === 'object' ? { zh: f(o.zh), py: f(o.py), ja: f(o.ja) } : f(o))) : f(s[k]); });
+        if (s.options === 'price' || s.options === 'sale') {
+          const n = s.options === 'price' ? v.price : v.sale;
+          const wrong = [n + 10, n > 10 ? n - 5 : n + 5].filter((x) => x !== n);
+          out.options = [`${n}元`, ...wrong.map((x) => `${x}元`)];
+          out.answer = 0;
+          out.hint = out.hint || `「${s.options === 'price' ? v.priceZh : v.saleZh}」＝${n}元`;
+        }
+        return out;
+      }
+
       let talkToken = 0;
       function runTalk(who, script, onDone) {
         setBusy(true);
@@ -330,6 +348,20 @@
         const token = ++talkToken;
         const t = el.talk;
         let i = 0;
+        let vars = null;
+        // 開発者モード：会話イベントを最後まで進めたことにする
+        const devSkip = $('[data-dev-talk-skip]', root);
+        if (devSkip) {
+          devSkip.hidden = false;
+          devSkip.onclick = () => {
+            if (token !== talkToken) return;
+            const menu = script.find((x) => x.type === 'menu');
+            if (menu && !vars) vars = menu.items[0];
+            ctx.talkVars = vars;
+            i = script.length;
+            onDone(vars);
+          };
+        }
         const nextBtn = (label) => {
           t.insertAdjacentHTML('beforeend', `<button class="btn btn-primary btn-block" data-step>${label}</button>`);
           $('[data-step]', t).onclick = () => { App.Sfx.play('tap'); next(); };
@@ -338,9 +370,30 @@
 
         function next() {
           if (disposed || token !== talkToken) return;
-          if (i >= script.length) { onDone(); return; }
-          const s = script[i++];
+          if (i >= script.length) { onDone(vars); return; }
+          const s = fillStep(script[i++], vars);
           t.parentElement.scrollTop = 0;
+
+          if (s.type === 'menu') {
+            t.innerHTML = `${s.hamster ? hamsterLine(s.hamster, 'happy') : ''}
+              <div class="w3d-menu"><div class="w3d-menu-title">📜 ${esc(s.title || '菜单 メニュー')}</div>
+              ${s.items.map((m, k) => `<button class="w3d-menu-item" data-m="${k}">
+                <span class="w3d-menu-emoji">${m.emoji || '🍽️'}</span>
+                <span class="w3d-menu-name"><span class="zh">${esc(m.zh)}</span>${UI.pinyin(m.py, { force: true })}<small>${esc(m.ja)}</small></span>
+                <span class="w3d-menu-price">¥${m.price}</span></button>`).join('')}</div>`;
+            t.querySelectorAll('[data-m]').forEach((b) => {
+              b.onclick = () => {
+                vars = s.items[Number(b.dataset.m)];
+                ctx.talkVars = vars;
+                App.Sfx.play('correct');
+                App.Speech.speak(vars.zh);
+                b.classList.add('is-picked');
+                t.querySelectorAll('[data-m]').forEach((x) => { x.disabled = true; });
+                later(next, 700);
+              };
+            });
+            return;
+          }
 
           if (s.type === 'hamster') {
             t.innerHTML = UI.hamsterSays(s.text, { mood: s.mood || 'happy', size: 'sm' });
@@ -385,6 +438,8 @@
 
       function closeTalk() {
         talkToken++;
+        const ds = $('[data-dev-talk-skip]', root);
+        if (ds) ds.hidden = true;
         el.modal.hidden = true;
         game.talkingTo = null;
         setBusy(false);
@@ -423,6 +478,8 @@
 
       // 会話のあとの「できた！」カード（モーダル内に表示）
       function successCard({ emoji, title, sub = '', exp = 0, body = '', buttons = [] }) {
+        const ds = $('[data-dev-talk-skip]', root);
+        if (ds) ds.hidden = true;
         el.modal.hidden = false;
         setBusy(true);
         App.Sfx.play('clear');

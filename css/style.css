@@ -831,3 +831,18 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .dev-note { margin: 0; font-size: 12px; color: #FFC23D; }
 .dev-row { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .dev-skip { display: block; margin: 6px auto; padding: 6px 14px; border: 2px dashed #888; border-radius: 999px; background: #333; color: #fff; font-size: 12px; font-weight: 700; }
+
+/* ---------- 3D：メニュー（お店で料理を選ぶ） ---------- */
+.w3d-menu { margin-top: 8px; padding: 10px; border-radius: var(--radius-sm); background: #3B2618; color: #FFE7B8; box-shadow: inset 0 0 0 3px #D9A441; }
+.w3d-menu-title { margin: 0 4px 8px; font-weight: 800; font-size: 15px; text-align: center; }
+.w3d-menu-item { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; width: 100%; margin-top: 6px; padding: 8px 10px; border: 0; border-radius: 10px; background: rgba(255,255,255,.08); color: inherit; text-align: left; }
+.w3d-menu-item:active:not(:disabled) { transform: translateY(2px); }
+.w3d-menu-item.is-picked { background: #D9A441; color: #3B2618; }
+.w3d-menu-item:disabled:not(.is-picked) { opacity: .5; }
+.w3d-menu-emoji { font-size: 26px; }
+.w3d-menu-name { display: flex; flex-direction: column; }
+.w3d-menu-name .zh { font-size: 19px; }
+.w3d-menu-name .py { color: #9EE6D6; font-size: 12px; }
+.w3d-menu-item.is-picked .py { color: #1B907E; }
+.w3d-menu-name small { font-size: 12px; font-weight: 700; opacity: .85; }
+.w3d-menu-price { font-size: 18px; font-weight: 800; }
