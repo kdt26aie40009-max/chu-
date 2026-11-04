@@ -36,6 +36,10 @@
             <input type="checkbox" class="switch" data-pinyin ${s.showPinyin ? 'checked' : ''}>
           </label>
           <label class="setting-row switch-row">
+            <span>モチの声<small class="muted">（ハムスターの案内を読み上げる）</small></span>
+            <input type="checkbox" class="switch" data-hvoice ${s.hamsterVoice !== false ? 'checked' : ''}>
+          </label>
+          <label class="setting-row switch-row">
             <span>効果音</span>
             <input type="checkbox" class="switch" data-sfx ${s.sfx ? 'checked' : ''}>
           </label>
@@ -54,6 +58,12 @@
       setTimeout(() => { const v = $('[data-voice]', root); if (v) v.textContent = voiceStatus(); }, 400);
     };
     $('[data-pinyin]', root).onchange = (e) => { s.showPinyin = e.target.checked; save(); };
+    $('[data-hvoice]', root).onchange = (e) => {
+      s.hamsterVoice = e.target.checked;
+      save();
+      if (s.hamsterVoice) App.MochiVoice.speak('ぼくの声だよ！');
+      else App.MochiVoice.stop();
+    };
     $('[data-sfx]', root).onchange = (e) => { s.sfx = e.target.checked; save(); if (s.sfx) App.Sfx.play('correct'); };
     $('[data-reset]', root).onclick = () => {
       if (!confirm('本当にリセットする？（経験値・覚えた言葉がすべて消えます）')) return;

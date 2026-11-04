@@ -96,6 +96,8 @@
         </div>
       </section>`;
 
+    App.MochiVoice.speak(mission.replace(/<span class="mission-meta">.*<\/span>/, ''));
+
     root.querySelectorAll('[data-spot]').forEach((btn) => {
       btn.onclick = () => {
         const s = city.spots.find((x) => x.id === btn.dataset.spot);

@@ -12,7 +12,7 @@
     days: [],      // 遊んだ日 'YYYY-MM-DD'
     lastPlayed: null,
     log: [],       // { date, kind: 'spot'|'review', spotId?, exp }
-    settings: { rate: 1.0, showPinyin: true, sfx: true },
+    settings: { rate: 1.0, showPinyin: true, sfx: true, hamsterVoice: true },
     world3d: {},   // 3D 探索の進み具合（例: airportCheckedIn）
   });
 

@@ -15,6 +15,7 @@
     leaveHandlers = [];
     handlers.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
     App.Speech.stop();
+    App.MochiVoice.stop();
     const root = document.getElementById('app');
     root.innerHTML = '';
     root.className = `app screen-${name}`;

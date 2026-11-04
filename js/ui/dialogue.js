@@ -106,7 +106,7 @@
         if (s.type === 'say') return say(s);
         if (s.type === 'understand') return understand(s);
 
-        if (s.who === 'hamster') push(hamsterMsg(s));
+        if (s.who === 'hamster') { push(hamsterMsg(s)); App.MochiVoice.speak(s.text); }
         else { push(npcMsg(s, npcOf(s.who), false)); App.Speech.speak(s.zh); }
 
         if (isInteractive(steps[i])) setTimeout(() => { if (log.isConnected) step(); }, 500);
