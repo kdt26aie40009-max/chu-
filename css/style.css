@@ -108,6 +108,13 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .speak-sm { min-width: 32px; min-height: 32px; font-size: 14px; padding: 2px 8px; }
 .speak-pill { min-height: 46px; padding: 8px 18px; font-size: 16px; background: var(--accent); color: #fff; box-shadow: 0 3px 0 var(--accent-dark); }
 .speak-pill.is-sub { background: var(--accent-soft); color: var(--accent-dark); box-shadow: none; }
+/* 読み上げ速度の切り替え（0.7x / 1.0x） */
+.rate-toggle { display: inline-flex; align-items: center; gap: 4px; padding: 3px; border-radius: 999px; background: #fff; box-shadow: inset 0 0 0 2px var(--line); }
+.rate-toggle.is-center { display: flex; width: max-content; margin: 4px auto 0; }
+.rate-toggle-label { padding: 0 6px 0 8px; font-size: 12px; font-weight: 800; color: var(--muted); }
+.rate-btn { min-width: 48px; min-height: 32px; padding: 2px 10px; border: 0; border-radius: 999px; background: none; color: var(--muted); font-size: 14px; font-weight: 800; }
+.rate-btn[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.voice-notice { margin: 8px 0 0; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--ng-soft); color: #A33A37; font-size: 12px; font-weight: 700; text-align: left; }
 .speak-big {
   width: 96px; height: 96px; font-size: 40px; border-radius: 50%;
   background: var(--accent); color: #fff; box-shadow: 0 5px 0 var(--accent-dark);
@@ -208,7 +215,6 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .m-water { fill: none; stroke: #A9DBF2; stroke-width: 2.4; stroke-linecap: round; }
 .m-river { fill: none; stroke: #9AD3EE; stroke-width: 8; stroke-linecap: round; }
 .m-river-in { fill: none; stroke: #BDE5F6; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 3 4; }
-.m-label { font-size: 3.4px; fill: #5D9FBF; font-weight: 700; font-family: var(--font-zh); }
 .m-route { fill: none; stroke: #C9B79A; stroke-width: .9; stroke-dasharray: 1.6 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .m-route-done { fill: none; stroke: var(--primary); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
 
@@ -247,6 +253,15 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .spot-locked .spot-badge { background: #fff; font-size: 11px; box-shadow: var(--shadow); }
 .spot-soon .spot-name, .spot-locked .spot-name { color: var(--muted); }
 
+/* 地図の文字（タップで読み上げ・意味） */
+.map-sign {
+  position: absolute; transform: translate(-50%, -50%); display: inline-flex; align-items: center; gap: 2px;
+  min-height: 32px; padding: 2px 8px; border: 0; border-radius: 999px; white-space: nowrap;
+  background: rgba(255, 255, 255, .7); color: #4A8CAD; font-size: 12px; font-weight: 800;
+  box-shadow: inset 0 0 0 1.5px #BDE5F6;
+}
+.map-sign .zh { letter-spacing: .1em; }
+
 .map-dock .hamster-says { margin: 16px 0 12px; }
 .mission-meta { display: block; margin-top: 6px; font-size: 12px; color: var(--muted); font-weight: 700; }
 .dock-actions { display: grid; gap: 10px; }
@@ -265,6 +280,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .interlude { padding-top: 24px; display: grid; gap: 12px; }
 
 /* chat */
+.chat-tools { display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 8px; }
+.chat-tools .voice-notice { align-self: stretch; }
 .chat-log { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 24px; }
 .msg { display: flex; align-items: flex-end; gap: 8px; max-width: 92%; }
 .msg-bubble { background: #fff; border-radius: 18px; padding: 10px 14px; box-shadow: var(--shadow); font-size: 15px; }
@@ -276,6 +293,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .msg-me .msg-ja { color: #D6F3EE; }
 .msg-name { font-size: 11px; font-weight: 800; color: var(--muted); }
 .msg-me .msg-name { color: #D6F3EE; }
+.msg-me .speak-btn, .w3d-me .speak-btn { background: rgba(255, 255, 255, .25); color: #fff; }
 .msg-zh { display: flex; align-items: center; gap: 8px; }
 .msg-zh .zh, .msg-me .zh { font-size: 20px; }
 .msg-ja { font-size: 13px; color: var(--muted); }
@@ -300,6 +318,11 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 }
 .option:active:not(:disabled) { transform: translateY(2px); }
 .say-box .option { background: var(--bg); }
+/* 選択肢の横のスピーカー（ボタンの中にボタンは置けないので、横に重ねる） */
+.opt-wrap { position: relative; display: grid; }
+.opt-wrap > .option { padding-right: 56px; }
+.opt-speak { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); }
+.opt-speak.is-playing { animation: none; }
 .opt-key { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--bg-deep); font-size: 13px; font-weight: 800; color: var(--muted); }
 .opt-body { display: flex; flex-direction: column; }
 .options-zh .zh { font-size: 20px; }
@@ -463,8 +486,29 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .w3d-hamster-label small { color: var(--muted); font-weight: 700; }
 .w3d-person-label { padding: 4px 12px; border-radius: 999px; background: rgba(255, 255, 255, .95); color: var(--ink); font-size: 13px; font-weight: 800; white-space: nowrap; box-shadow: var(--shadow), inset 0 0 0 2px var(--primary-soft); }
 .w3d-me { margin-top: 10px; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--accent); color: #fff; font-weight: 700; font-size: 14px; }
-.w3d-me .zh { font-size: 18px; }
+.w3d-me .zh { font-size: 18px; margin-right: 6px; }
+.w3d-me .py { color: #E3FFF9; }
 .w3d-success p { margin: 0 0 8px; font-size: 14px; font-weight: 700; }
+/* 3D の看板：「🔍 〜を読む」ボタンと看板カード */
+.w3d-read {
+  pointer-events: auto; border: 0; padding: 6px 14px; border-radius: 999px; white-space: nowrap;
+  background: rgba(255, 255, 255, .95); color: var(--ink); font-size: 13px; font-weight: 800;
+  box-shadow: 0 3px 0 var(--accent), var(--shadow);
+}
+.w3d-read .zh { color: var(--accent-dark); font-size: 15px; }
+.sign-card { display: grid; gap: 12px; margin-bottom: 12px; }
+.sign-plate {
+  display: grid; justify-items: start; gap: 2px; padding: 14px 18px; border-radius: 14px;
+  color: #fff; box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .18);
+}
+.sign-plate .zh { font-size: 30px; line-height: 1.2; overflow-wrap: anywhere; }
+.sign-plate small { font-size: 13px; font-weight: 700; opacity: .8; }
+.sign-read { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sign-ja { font-size: 18px; font-weight: 800; }
+.sign-lines { display: grid; gap: 6px; }
+.sign-lines li { display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: 10px; padding: 6px 10px; border-radius: var(--radius-sm); background: #fff; font-weight: 700; font-size: 13px; }
+.sign-lines .zh { font-size: 18px; }
+.sign-line-ja { color: var(--muted); }
 .w3d-npc-label { padding: 4px 12px; border-radius: 999px; background: #24476B; color: #fff; font-size: 13px; font-weight: 800; white-space: nowrap; box-shadow: var(--shadow); }
 
 .w3d-interact {
@@ -506,6 +550,10 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .w3d-options.options-zh { grid-template-columns: repeat(3, 1fr); }
 .w3d-options.options-zh .option { justify-content: center; text-align: center; }
 .w3d-options.options-zh .opt-key { display: none; }
+.w3d-options.options-zh .opt-wrap > .option { padding: 40px 8px 10px; }
+.w3d-options.options-zh .opt-speak { top: 6px; right: 50%; transform: translateX(50%); }
+.w3d-talk-tools { display: flex; flex-direction: column; align-items: flex-start; margin: 0 40px 10px 0; }
+.w3d-talk-tools .voice-notice { align-self: stretch; }
 .w3d-options:not(.options-zh) { grid-template-columns: 1fr; }
 .w3d-fb:empty { display: none; }
 .w3d-success { text-align: center; margin-bottom: 12px; }

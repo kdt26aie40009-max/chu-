@@ -13,7 +13,7 @@
     lastPlayed: null,
     log: [],       // { date, kind: 'spot'|'lesson'|'review', spotId?, lessonId?, exp }
     course: { lessons: {} }, // 2D 学習コース lessonId -> { count, best, firstAt, lastAt }
-    settings: { rate: 0.85, showPinyin: true, sfx: true },
+    settings: { rate: 1.0, showPinyin: true, sfx: true },
     world3d: {},   // 3D 探索の進み具合 world3d[fieldId] = { done, talked, ... }
   });
 

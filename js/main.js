@@ -31,6 +31,25 @@
       sp.classList.add('is-playing');
       return;
     }
+    // 町の表示（js/data/signs.js）：読み上げて、意味をトーストで出す
+    const sign = e.target.closest('[data-sign]');
+    if (sign && App.SIGNS[sign.dataset.sign]) {
+      const s = App.SIGNS[sign.dataset.sign];
+      const { esc } = App.U;
+      App.Speech.speak(s.say || s.zh);
+      App.U.toast(`<span class="zh">${esc(s.zh)}</span>　${esc(s.py)}<br>${esc(s.ja)}`);
+      return;
+    }
+    const rate = e.target.closest('[data-rate-set]');
+    if (rate) {
+      App.Speech.setRate(rate.dataset.rateSet);
+      const cur = App.Speech.rate();
+      document.querySelectorAll('[data-rate-set]').forEach((b) => {
+        b.setAttribute('aria-pressed', String(Number(b.dataset.rateSet) === cur));
+      });
+      App.Sfx.play('tap');
+      return;
+    }
     const go = e.target.closest('[data-go]');
     if (go) {
       if (go.dataset.confirm && !window.confirm(go.dataset.confirm)) return;

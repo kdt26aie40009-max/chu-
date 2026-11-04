@@ -28,6 +28,21 @@
       return `<button class="speak-btn ${cls}" data-speak="${esc(zh)}"${slow ? ' data-slow="1"' : ''} aria-label="音声を聞く">${label}</button>`;
     },
 
+    // 読み上げ速度の切り替え（押すと main.js が設定を保存して、画面上のすべての切り替えを更新する）
+    rateToggle({ cls = '' } = {}) {
+      const cur = App.Speech.rate();
+      return `<div class="rate-toggle ${cls}" role="group" aria-label="読み上げの速さ">
+        <span class="rate-toggle-label">🔊 速さ</span>
+        ${App.Speech.RATES.map((r) => `<button class="rate-btn" data-rate-set="${r}" aria-pressed="${r === cur}">${r.toFixed(1)}x</button>`).join('')}
+      </div>`;
+    },
+
+    // 中国語音声が端末にないときのお知らせ（状態は Speech.refreshNotices で更新）
+    voiceNotice() {
+      const text = App.Speech.noticeText();
+      return `<p class="voice-notice" data-voice-notice role="status"${text ? '' : ' hidden'}>${esc(text)}</p>`;
+    },
+
     // 設定でピンイン非表示にできる（学習カードでは force で常に表示）
     pinyin(py, { force = false, cls = '' } = {}) {
       if (!py || (!force && !App.Store.state.settings.showPinyin)) return '';

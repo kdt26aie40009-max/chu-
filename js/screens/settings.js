@@ -20,10 +20,10 @@
       <main class="page">
         <section class="card setting">
           <h3>🔊 音声</h3>
-          <label class="setting-row">
-            <span>読み上げの速さ <b data-rate-label>${s.rate.toFixed(2)}</b></span>
-            <input type="range" min="0.5" max="1.2" step="0.05" value="${s.rate}" data-rate>
-          </label>
+          <div class="setting-row switch-row">
+            <span>読み上げの速さ<small class="muted">（会話・覚える画面でも切り替えられます）</small></span>
+            ${UI.rateToggle()}
+          </div>
           <button class="btn btn-sub btn-block" data-test>🔊 テスト再生（你好！）</button>
           <p class="muted small" data-voice>${voiceStatus()}</p>
           <p class="muted small">🎙️ 声に出す練習：${App.Speech.canRecognize ? '使えます' : 'このブラウザでは使えません（Chrome 推奨）'}</p>
@@ -50,11 +50,6 @@
       ${UI.tabbar('settings')}`;
 
     const save = () => App.Store.save();
-    $('[data-rate]', root).oninput = (e) => {
-      s.rate = Number(e.target.value);
-      $('[data-rate-label]', root).textContent = s.rate.toFixed(2);
-      save();
-    };
     $('[data-test]', root).onclick = () => {
       App.Speech.speak('你好！');
       setTimeout(() => { const v = $('[data-voice]', root); if (v) v.textContent = voiceStatus(); }, 400);
