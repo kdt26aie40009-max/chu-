@@ -23,6 +23,18 @@
   };
   // 次に行くとよい本線のステージ
   T.next = () => T.stages().find((s) => s.kind === 'main' && !T.isCleared(s.id) && T.isUnlocked(s) && T.ready(s)) || null;
+  // ★の数：★1 クリア、★2 その場所の人の半分と話した、★3 全員と話した
+  const WORLD = { airport3d: 'airport', hotel3d: 'hotel', stall3d: 'stall', capital3d: 'capital', hutong3d: 'hutong', greatwall3d: 'greatwall', shaolin3d: 'shaolin' };
+  T.stars = (st) => {
+    if (!T.isCleared(st.id)) return 0;
+    const w = (S().world3d || {})[WORLD[st.field]] || {};
+    const talked = (w.talked || []).length;
+    const total = w.peopleTotal || 0;
+    if (total && talked >= total) return 3;
+    if (total && talked >= Math.ceil(total / 2)) return 2;
+    return 1;
+  };
+
   T.percent = () => {
     const list = T.stages().filter(T.ready);
     return list.length ? Math.round((list.filter((s) => T.isCleared(s.id)).length / list.length) * 100) : 0;

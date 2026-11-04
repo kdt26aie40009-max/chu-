@@ -1,5 +1,5 @@
 /* =========================================================
-   ハムスターと行く中国旅行 — スタイル
+   ハムコシと征く中国旅行 — スタイル
    ========================================================= */
 :root {
   --bg: #FFF8EE;
@@ -759,55 +759,9 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .ex-read-ja.is-hidden { filter: blur(5px); user-select: none; }
 .ex-chat .chat-actions { position: sticky; }
 
-/* ---------- 3D 旅のマップ ---------- */
-.tm-go { margin: -4px 0 14px; }
-.tm-region { position: relative; border-radius: var(--radius); background: #FFFDF6; box-shadow: var(--shadow); overflow: hidden; }
-.tm-region.is-henan { background: #F7FBF1; }
-.tm-region-head { position: relative; padding: 14px 16px 10px; min-height: 92px; display: flex; align-items: flex-end; }
-.tm-region-head > div { position: relative; }
-.tm-region-head h2 { font-size: 18px; font-weight: 800; }
-.tm-region-head p { margin: 2px 0 0; font-size: 12px; font-weight: 700; color: var(--muted); }
-.tm-sky { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .85; }
-.tm-route { position: relative; display: grid; gap: 12px; padding: 8px 12px 16px 12px; }
-.tm-route::before { content: ""; position: absolute; left: 41px; top: 0; bottom: 24px; width: 6px; border-radius: 3px; background: repeating-linear-gradient(180deg, #E6D3B3 0 10px, #F3E7D2 10px 16px); }
-.tm-route.is-special::before { display: none; }
-.tm-step, .tm-branch { position: relative; }
-.tm-branch { margin-left: 44px; }
-.tm-branch::before { content: ""; position: absolute; left: -16px; top: -12px; width: 26px; height: 40px; border-left: 3px dashed #CDB894; border-bottom: 3px dashed #CDB894; border-bottom-left-radius: 12px; }
-.tm-branch-label { display: block; margin: 0 0 4px 10px; font-size: 11px; font-weight: 800; color: #A0855C; }
-.tm-stop {
-  position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
-  width: 100%; padding: 10px 12px; border: 0; border-radius: var(--radius-sm); background: #fff; text-align: left;
-  box-shadow: 0 3px 0 var(--line), inset 0 0 0 2px var(--line);
-}
-.tm-pin { position: relative; display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; background: var(--bg-deep); font-size: 26px; }
-.tm-no { position: absolute; left: -6px; top: -6px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; font-weight: 800; font-style: normal; }
-.tm-here { position: absolute; right: -14px; bottom: -10px; }
-.tm-text { display: grid; gap: 2px; min-width: 0; }
-.tm-name { font-size: 16px; font-weight: 800; }
-.tm-desc { font-size: 12px; font-weight: 700; color: var(--muted); line-height: 1.45; }
+/* ---------- 旅のマップのシート（行き先の概要・単語チェック） ---------- */
 .tm-level { font-size: 11px; color: var(--gold); letter-spacing: 1px; margin-left: 2px; }
 .tm-level i { color: var(--line); font-style: normal; }
-.tm-chip { padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 800; white-space: nowrap; background: var(--bg-deep); color: var(--muted); }
-.tm-chip.is-cleared { background: var(--accent-soft); color: var(--accent-dark); }
-.tm-chip.is-next { background: var(--primary); color: #fff; }
-.tm-chip.is-open { background: var(--primary-soft); color: var(--primary-dark); }
-.tm-stop.is-cleared .tm-pin { background: var(--accent-soft); }
-.tm-stop.is-next { box-shadow: 0 3px 0 var(--primary-dark), inset 0 0 0 3px var(--primary); background: #FFF6EC; }
-.tm-stop.is-next .tm-pin { background: var(--primary-soft); animation: pin 1.6s ease-in-out infinite; }
-.tm-stop.is-locked, .tm-stop.is-soon { background: #F6F0E6; }
-.tm-stop.is-locked .tm-pin, .tm-stop.is-soon .tm-pin { filter: grayscale(1); opacity: .6; }
-.tm-stop.is-locked .tm-name, .tm-stop.is-soon .tm-name { color: var(--muted); }
-.tm-stop.is-side { background: #FFFBF2; }
-.tm-stop.is-special { box-shadow: 0 3px 0 #C9A06A, inset 0 0 0 2px #E7C48E; }
-.tm-note { margin: 6px 4px 0; font-size: 12px; font-weight: 700; color: #8A6A3A; }
-.tm-rail {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 8px; margin: 10px 0; padding: 10px;
-  border-radius: var(--radius-sm); background: repeating-linear-gradient(90deg, #EADFCB 0 14px, #F7F0E2 14px 22px);
-  font-size: 13px; font-weight: 800; text-align: center;
-}
-.tm-rail span { font-size: 22px; }
-.tm-rail small { width: 100%; font-size: 11px; color: var(--muted); }
 .tm-goal { margin: 0; font-size: 14px; }
 .tm-lock { margin: 0; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg-deep); font-size: 14px; font-weight: 700; }
 .tm-words { display: grid; gap: 6px; }
@@ -951,3 +905,124 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .bt-result.is-lose .bt-intro-art { filter: none; }
 .bt-trophy { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; }
 .bt-trophy .bt-art { width: 90px; }
+
+/* =========================================================
+   旅のマップ（ステージ選択：古い地図に名所と飛び石の道）
+   ========================================================= */
+.screen-map { background: #3B2A1E; }
+.tm-hud {
+  position: sticky; top: 0; z-index: 12; display: flex; align-items: center; gap: 6px;
+  margin: 0 -16px; padding: calc(8px + env(safe-area-inset-top)) 12px 8px;
+  background: linear-gradient(180deg, #4A3424, #2E1F15); box-shadow: 0 3px 0 #1E140D;
+}
+.tm-hud-back {
+  flex: none; width: 40px; height: 36px; border: 0; border-radius: 10px;
+  background: linear-gradient(180deg, #F5C04A, #D9922A); color: #5A2E0E; font-size: 16px; font-weight: 800;
+  box-shadow: 0 3px 0 #8A5A1A, inset 0 0 0 2px #FFE7A8;
+}
+.tm-pill {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px; min-width: 0;
+  height: 30px; padding: 0 8px; border-radius: 999px; background: rgba(0, 0, 0, .45);
+  box-shadow: inset 0 0 0 2px rgba(255, 214, 140, .35); color: #FFF1D6; font-size: 12px; font-weight: 700; white-space: nowrap;
+}
+.tm-pill b { color: #FFD45A; font-size: 14px; }
+.tm-pill-bar { display: block; width: 36px; height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .2); overflow: hidden; }
+.tm-pill-bar i { display: block; height: 100%; background: #FFD45A; }
+
+.tm-chapters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 10px; }
+.tm-chapter {
+  display: flex; flex-direction: column; align-items: center; padding: 6px 4px; border: 0; border-radius: 12px;
+  background: #5A4130; color: #E8D5B0; font-weight: 800; font-size: 14px; box-shadow: 0 3px 0 #24170E;
+}
+.tm-chapter small { font-size: 10px; opacity: .8; }
+.tm-chapter.is-cur { background: linear-gradient(180deg, #C0392B, #8E2A20); color: #FFE08A; box-shadow: 0 3px 0 #4A140E, inset 0 0 0 2px #E8B33E; }
+.tm-chapter.is-locked { opacity: .7; }
+
+.tm-board {
+  position: relative; width: 100%; aspect-ratio: 360 / 560; border-radius: 22px; overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 246, 220, .0) 55%, rgba(120, 80, 30, .35) 100%),
+    radial-gradient(circle at 20% 30%, rgba(160, 120, 60, .12) 0 8%, transparent 9%),
+    radial-gradient(circle at 75% 70%, rgba(160, 120, 60, .1) 0 10%, transparent 11%),
+    repeating-linear-gradient(35deg, rgba(140, 100, 50, .05) 0 2px, transparent 2px 9px),
+    #E3CC9C;
+  box-shadow: 0 0 0 6px #6B4A2E, 0 0 0 9px #2E1F15, inset 0 0 30px rgba(90, 60, 20, .45), 0 10px 24px rgba(0, 0, 0, .5);
+  margin: 4px 0 14px;
+}
+.tm-board-henan { background:
+    radial-gradient(ellipse at 50% 50%, rgba(255, 246, 220, 0) 55%, rgba(60, 80, 40, .35) 100%),
+    repeating-linear-gradient(-30deg, rgba(90, 110, 60, .06) 0 2px, transparent 2px 9px),
+    #DCD3A6; }
+.tm-paths { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tm-road { fill: none; stroke: #B49162; stroke-width: 13; stroke-linecap: round; opacity: .55; }
+.tm-road.is-done { stroke: #D9A048; opacity: .8; }
+.tm-road.is-side { stroke-width: 8; stroke-dasharray: 2 12; opacity: .8; }
+.tm-steps { position: absolute; inset: 0; pointer-events: none; }
+.tm-step {
+  position: absolute; width: 12px; height: 9px; transform: translate(-50%, -50%); border-radius: 50%;
+  background: #A99C83; box-shadow: 0 2px 0 #5A4A3A, inset 0 0 0 2px #6E6150;
+}
+.tm-step.is-done { background: #9CCB5E; box-shadow: 0 2px 0 #4E6E2A, inset 0 0 0 2px #5E8A34; }
+.tm-step.is-side { width: 9px; height: 7px; }
+
+.tm-ribbon {
+  position: absolute; left: 12px; top: 12px; z-index: 3; display: flex; align-items: center; gap: 8px;
+  padding: 6px 18px 6px 14px; background: linear-gradient(180deg, #C0392B, #8E2A20); color: #FFE08A;
+  font-weight: 800; box-shadow: 0 3px 0 #4A140E, inset 0 0 0 2px #E8B33E;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 50%, 100% 100%, 0 100%, 10px 50%);
+}
+.tm-ribbon b { font-size: 16px; letter-spacing: .1em; }
+.tm-ribbon span { font-size: 14px; color: #FFF1D6; }
+.tm-compass { position: absolute; right: 10px; bottom: 10px; width: 12%; opacity: .8; }
+.tm-start {
+  position: absolute; z-index: 2; transform: translate(-50%, -50%); padding: 4px 10px; border-radius: 999px;
+  background: #FFF6E0; box-shadow: 0 2px 0 #5A3A22, inset 0 0 0 2px #5A3A22; font-size: 12px; font-weight: 800; white-space: nowrap;
+}
+.tm-board-lock {
+  position: absolute; left: 50%; top: 44%; z-index: 5; transform: translate(-50%, -50%); padding: 12px 16px; border-radius: 14px;
+  background: rgba(46, 31, 21, .88); color: #FFF1D6; font-size: 14px; font-weight: 700; text-align: center; white-space: nowrap;
+}
+
+/* 名所（ステージ） */
+.lm {
+  position: absolute; z-index: 2; width: 27%; transform: translate(-50%, -62%);
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  padding: 0; border: 0; background: none; color: inherit;
+}
+.lm.is-side { width: 22%; }
+.lm.is-special { width: 46%; }
+.lm-pic { position: relative; display: block; width: 100%; filter: drop-shadow(0 4px 0 rgba(60, 40, 20, .35)); transition: transform .12s; }
+.lm:active .lm-pic { transform: scale(.94); }
+.lm-art { display: block; width: 100%; height: auto; }
+.lm-locked .lm-art, .lm-soon .lm-art { filter: grayscale(1) sepia(.35) brightness(.75); }
+.lm-lock { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-size: 20px; font-style: normal; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .4)); }
+.lm-name {
+  display: flex; align-items: center; gap: 4px; margin-top: -6px; padding: 2px 8px 2px 3px; border-radius: 999px;
+  background: #FFF6E0; box-shadow: 0 2px 0 #5A3A22, inset 0 0 0 2px #5A3A22;
+  font-size: 11px; font-weight: 800; color: #3B2618; white-space: nowrap;
+}
+.lm-name b { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #3B2618; color: #FFE08A; font-size: 10px; }
+.lm-locked .lm-name, .lm-soon .lm-name { background: #D8CBB0; color: #6E6150; }
+.lm-stars { display: flex; gap: 1px; margin-top: 1px; font-size: 15px; line-height: 1; }
+.lm-stars i { font-style: normal; color: #6E6150; text-shadow: 0 1px 0 #2E1F15; }
+.lm-stars i.is-on { color: #FFD23A; text-shadow: 0 0 0 #8A5A1A, 0 1px 0 #8A5A1A, 1px 0 0 #8A5A1A, -1px 0 0 #8A5A1A; }
+.lm-next .lm-pic::before {
+  content: ""; position: absolute; left: 50%; top: 80%; width: 92%; height: 30%; transform: translate(-50%, -50%);
+  border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 230, 120, .85), rgba(255, 230, 120, 0) 70%); animation: lmGlow 1.4s ease-in-out infinite;
+}
+.lm-arrow {
+  position: absolute; left: 50%; top: -12px; z-index: 3; transform: translateX(-50%);
+  color: #2E9BFF; font-size: 26px; line-height: 1; text-shadow: 0 0 0 #fff, 2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 0 4px 4px rgba(0, 0, 0, .35);
+  animation: lmArrow .9s ease-in-out infinite;
+}
+@keyframes lmArrow { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 8px); } }
+@keyframes lmGlow { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+
+.tm-next {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px; margin-bottom: 8px; border-radius: 16px;
+  background: #FFF6E0; box-shadow: 0 3px 0 #2E1F15, inset 0 0 0 2px #6B4A2E;
+}
+.tm-next p { flex: 1; margin: 0; font-size: 13px; font-weight: 700; color: #3B2618; line-height: 1.45; }
+.tm-next small { display: block; font-size: 11px; color: #8C7350; }
+.tm-next .tm-go { flex: none; min-height: 40px; padding: 6px 14px; font-size: 14px; }
+.screen-map .soft-note { color: #E8D5B0; }
