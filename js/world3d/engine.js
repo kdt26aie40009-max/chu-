@@ -199,6 +199,7 @@
         hamsterChasing: false,
         totals: { found: discoveries.length, people: people.length },
       };
+      saved.peopleTotal = people.length; // 旅のマップの★（話した人の数）に使う
       let target = null; // { kind: 'spot', id } | { kind: 'person', p }
       let reading = null; // いま画面に「🔍 読む」ボタンを出している看板
 
