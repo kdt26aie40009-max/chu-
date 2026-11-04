@@ -854,3 +854,94 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .w3d-photo span:first-child { width: 100%; padding: 14px 0 0; background: linear-gradient(180deg, #A9D6F5, #F3E2C0); font-size: 46px; text-align: center; }
 .w3d-photo span:nth-child(2) { width: 100%; padding-bottom: 8px; background: #F3E2C0; font-size: 26px; text-align: center; }
 .w3d-photo small { margin-top: 6px; font-size: 11px; font-weight: 700; color: var(--muted); }
+
+/* =========================================================
+   武術大会のバトル（js/ui/battle.js）
+   ========================================================= */
+.bt { position: absolute; inset: 0; z-index: 20; overflow: hidden; color: #fff; background: radial-gradient(ellipse at 50% 30%, #4A2A1E 0%, #1E1210 75%); font-weight: 700; }
+.bt.is-shake { animation: shake .35s; }
+.bt-art { display: block; width: 100%; height: auto; }
+.bt .btn { position: relative; }
+
+/* 登場演出 */
+.bt-intro { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; text-align: center; }
+.bt-stripes { position: absolute; inset: -20%; background: repeating-linear-gradient(-20deg, var(--bc) 0 40px, transparent 40px 90px); opacity: .25; animation: btStripe 6s linear infinite; }
+@keyframes btStripe { from { transform: translateX(0); } to { transform: translateX(180px); } }
+.bt-intro-art { position: relative; width: 150px; animation: btSlideIn .7s cubic-bezier(.2,1.4,.4,1) both; }
+.bt-intro-name { position: relative; display: flex; flex-direction: column; animation: btSlideIn .7s .25s cubic-bezier(.2,1.4,.4,1) both; }
+.bt-intro-name small { color: var(--bc2); font-size: 14px; letter-spacing: .1em; }
+.bt-intro-name b { font-size: 54px; line-height: 1.1; text-shadow: 0 4px 0 var(--bc), 0 0 24px var(--bc); }
+.bt-intro-name span { font-size: 13px; opacity: .85; }
+.bt-intro-line { position: relative; max-width: 360px; padding: 10px 14px; border-radius: 14px; background: rgba(0,0,0,.45); animation: popIn .4s .7s both; }
+.bt-intro-line .zh { font-size: 18px; }
+.bt-intro-line .py { color: #9EE6D6; }
+.bt-intro-line small { display: block; font-size: 12px; opacity: .85; }
+.bt-go { position: relative; animation: popIn .4s 1s both; }
+@keyframes btSlideIn { from { opacity: 0; transform: translateX(-120px) scale(.9); } to { opacity: 1; transform: none; } }
+
+/* 試合画面 */
+.bt-arena { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); max-width: 520px; margin: 0 auto; }
+.bt-top, .bt-bottom { display: flex; align-items: center; gap: 10px; }
+.bt-name { display: flex; flex-direction: column; min-width: 80px; }
+.bt-name b { font-size: 22px; color: var(--bc2); }
+.bt-name small { font-size: 11px; opacity: .8; }
+.bt-hp { flex: 1; height: 16px; border-radius: 999px; background: rgba(255,255,255,.15); overflow: hidden; box-shadow: inset 0 0 0 2px rgba(255,255,255,.25); }
+.bt-hp i { display: block; height: 100%; transition: width .4s; }
+.bt-hp.is-boss i { background: linear-gradient(90deg, #E74C3C, #F5B92E); }
+.bt-hp.is-me i { background: linear-gradient(90deg, #2FB36B, #7FD9B0); }
+.bt-stage { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 0; }
+.bt-boss { width: min(150px, 34vh); transition: transform .2s; }
+.bt-boss.is-hit { animation: btHit .45s; }
+@keyframes btHit { 0% { transform: translateX(0); filter: brightness(2); } 30% { transform: translateX(16px) rotate(4deg); } 100% { transform: none; filter: none; } }
+.bt-call { min-height: 70px; margin-top: 6px; text-align: center; }
+.bt-call b { display: block; font-size: 34px; text-shadow: 0 3px 0 rgba(0,0,0,.5); animation: popIn .2s; }
+.bt-call small { font-size: 13px; opacity: .85; }
+.bt-fx { position: absolute; top: 20%; left: 50%; transform: translateX(-50%); font-size: 22px; font-weight: 800; opacity: 0; pointer-events: none; white-space: nowrap; }
+.bt-fx.is-on { animation: btFx .9s ease-out; }
+.bt-fx.is-dodge { color: #9EE6D6; }
+.bt-fx.is-hurt { color: #FF8A80; }
+.bt-fx.is-hit { color: #FFE08A; font-size: 28px; }
+.bt-fx.is-weak { color: #DDD; }
+.bt-fx.is-sp-star { color: #FFE08A; }
+.bt-fx.is-sp-seal { color: #CFE3F5; }
+@keyframes btFx { 0% { opacity: 0; transform: translate(-50%, 10px) scale(.8); } 20% { opacity: 1; transform: translate(-50%, 0) scale(1.1); } 100% { opacity: 0; transform: translate(-50%, -30px); } }
+.bt-timer { height: 8px; border-radius: 999px; background: rgba(255,255,255,.15); overflow: hidden; margin: 6px 0; }
+.bt-timer i { display: block; height: 100%; width: 100%; background: #F5B92E; }
+.bt-pad { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.bt-label { grid-column: 1 / -1; text-align: center; font-size: 13px; opacity: .85; }
+.bt-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 72px; border: 0; border-radius: 16px; background: rgba(255,255,255,.12); color: #fff; box-shadow: 0 4px 0 rgba(0,0,0,.4), inset 0 0 0 2px rgba(255,255,255,.25); }
+.bt-btn .zh { font-size: 30px; line-height: 1.1; }
+.bt-btn small { font-size: 11px; opacity: .85; }
+.bt-btn:active:not(:disabled) { transform: translateY(3px); }
+.bt-btn.is-right { background: #2FB36B; }
+.bt-btn.is-wrong { background: #E74C3C; }
+.bt-btn:disabled:not(.is-right):not(.is-wrong) { opacity: .45; }
+.bt-hint { display: flex; align-items: center; gap: 4px; font-size: 12px; white-space: nowrap; }
+
+/* 必殺技 */
+.bt-special { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; animation: btSpIn .3s ease-out; }
+.bt-special-bg { position: absolute; inset: 0; background: #000; }
+.bt-special.is-star .bt-special-bg { background: radial-gradient(circle at 50% 50%, #FFB347 0%, #7A2A00 45%, #000 80%); }
+.bt-special.is-star .bt-special-bg::after { content: "✦ ✧ ✦ ✧ ✦ ✧ ✦ ✧"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 48px; color: #FFE08A; letter-spacing: 18px; animation: btStars 2.2s linear; white-space: nowrap; }
+@keyframes btStars { from { transform: translate(-60%, -40%) rotate(-25deg); } to { transform: translate(60%, 40%) rotate(-25deg); } }
+.bt-special.is-seal .bt-special-bg { background: #0E141C; }
+.bt-special.is-seal .bt-special-bg::before, .bt-special.is-seal .bt-special-bg::after { content: ""; position: absolute; left: 50%; top: 50%; width: 260px; height: 260px; border: 3px solid #9AA5B1; transform: translate(-50%, -50%) rotate(45deg); box-shadow: 0 0 0 26px rgba(154,165,177,.18), 0 0 0 52px rgba(154,165,177,.12), 0 0 0 78px rgba(154,165,177,.08); animation: btSeal 2.2s ease-out; }
+.bt-special.is-seal .bt-special-bg::after { width: 150px; height: 150px; animation-direction: reverse; }
+@keyframes btSeal { from { transform: translate(-50%, -50%) rotate(0deg) scale(2); opacity: 0; } to { transform: translate(-50%, -50%) rotate(45deg) scale(1); opacity: 1; } }
+.bt-special-text { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; animation: btSlideIn .5s .2s both; }
+.bt-special-text small { font-size: 14px; letter-spacing: .3em; opacity: .8; }
+.bt-special-text b { font-size: 60px; line-height: 1.1; text-shadow: 0 0 20px var(--bc), 0 4px 0 var(--bc); }
+.bt-special-text span { font-size: 14px; }
+.bt-special-text em { font-style: normal; font-size: 22px; margin-top: 4px; color: var(--bc2); }
+@keyframes btSpIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* 結果 */
+.bt-result { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 16px; text-align: center; max-width: 420px; margin: 0 auto; }
+.bt-result .zh { font-size: 20px; margin: 0; }
+.bt-result small { font-size: 12px; opacity: .85; }
+.bt-result .py { color: #9EE6D6; }
+.bt-result .hamster-says { color: var(--ink); width: 100%; }
+.bt-win-title { font-size: 56px; font-weight: 800; color: #FFE08A; text-shadow: 0 4px 0 #B8332A, 0 0 30px #FFB347; animation: popIn .5s; }
+.bt-result.is-lose .bt-intro-art { filter: none; }
+.bt-trophy { display: flex; justify-content: center; gap: 6px; margin-bottom: 8px; }
+.bt-trophy .bt-art { width: 90px; }

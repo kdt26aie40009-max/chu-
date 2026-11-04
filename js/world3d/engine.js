@@ -522,6 +522,7 @@
       const ctx = {
         THREE, scene, world, game, saved, player, el, C,
         runTalk, closeTalk, successCard, hamsterSay, hamsterLine, toast, teleport, reward,
+        setBusy, // 3D の上に別の画面（武術大会など）を出すときに、歩けないようにする
         save: () => App.Store.save(),
         near: null,
       };

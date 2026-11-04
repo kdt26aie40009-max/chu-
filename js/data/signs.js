@@ -44,6 +44,13 @@
     emergencyExit: { zh: '安全出口', py: 'ānquán chūkǒu', ja: '非常口', note: '「安全な出口」で非常口。いざというときのために！' },
     tv: { zh: '你好吗？', py: 'Nǐ hǎo ma?', ja: '元気？', note: '「吗」をつけると質問になるよ。ドラマの続きはまた今度！' },
 
+    /* ---- 少林寺 ---- */
+    shaolinGate: { zh: '少林寺', py: 'Shàolín Sì', ja: '少林寺', note: '「少室山の林の中のお寺」という意味。カンフーの聖地！' },
+    lianGong: { zh: '练功场', py: 'liàngōng chǎng', ja: '練功場（修行の場所）', note: '「练功」＝武術の練習をすること' },
+    talin: { zh: '塔林', py: 'tǎlín', ja: '塔林（塔の林）', note: '昔のお坊さんのお墓の塔が林のようにならんでいるよ' },
+    wushuBisai: { zh: '武术比赛', py: 'wǔshù bǐsài', ja: '武術大会', note: '「比赛」＝試合。単語のレッスンでも出てきたね' },
+    daxiongbaodian: { zh: '大雄宝殿', py: 'Dàxióng Bǎodiàn', ja: '大雄宝殿（本堂）', note: 'お寺でいちばん大切な建物' },
+
     /* ---- 北京 ---- */
     hutongName: { zh: '仓鼠胡同', py: 'Cāngshǔ Hútòng', ja: 'ハムスター胡同（路地の名前）', note: '青い札は路地の名前。北京には胡同が千以上あるんだって' },
     siheyuan: { zh: '四合院', py: 'sìhéyuàn', ja: '四合院（伝統的な家）', note: '中庭を 4 つの建物が囲む、北京の昔ながらの家' },
