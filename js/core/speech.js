@@ -72,6 +72,7 @@
         : '中国語の音声が見つからないみたい…<br>Chrome か Edge がおすすめだよ');
     }
     if (!Speech.supported) return false;
+    if (App.MochiVoice) App.MochiVoice.stop();
     const synth = window.speechSynthesis;
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);

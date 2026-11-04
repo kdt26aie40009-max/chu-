@@ -398,6 +398,7 @@
 
           if (s.type === 'hamster') {
             t.innerHTML = UI.hamsterSays(s.text, { mood: s.mood || 'happy', size: 'sm' });
+            App.MochiVoice.speak(s.text);
             nextBtn(s.next || 'つぎへ ▶');
             return;
           }

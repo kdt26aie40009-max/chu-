@@ -15,6 +15,7 @@
     leaveHandlers = [];
     handlers.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
     App.Speech.stop();
+    App.MochiVoice.stop();
     const root = document.getElementById('app');
     root.innerHTML = '';
     root.className = `app screen-${name}`;
@@ -31,6 +32,14 @@
       sp.classList.remove('is-playing');
       void sp.offsetWidth;
       sp.classList.add('is-playing');
+      return;
+    }
+    const mochi = e.target.closest('[data-mochi]');
+    if (mochi) {
+      App.MochiVoice.speak(mochi.dataset.mochi, { force: true });
+      mochi.classList.remove('is-playing');
+      void mochi.offsetWidth;
+      mochi.classList.add('is-playing');
       return;
     }
     // 町の表示（js/data/signs.js）：読み上げて、意味をトーストで出す
