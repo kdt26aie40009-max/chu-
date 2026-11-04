@@ -72,6 +72,7 @@
       },
       {
         id: 'stall', name: '小籠包の屋台', emoji: '🥟', day: 1, x: 24, y: 98,
+        scene3d: 'stall3d', // アイコンをタップすると 3D 屋台通りへ
         theme: '数字 1〜5',
         mission: '数字を聞き取って小籠包を買おう！',
         phrases: ['n1', 'n2', 'n3', 'n4', 'n5'],
