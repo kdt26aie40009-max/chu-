@@ -69,6 +69,26 @@
     }
   });
 
+  // チート：Ctrl をすばやく 3 回押すと、全ステージ解放（もう一度 3 回で元に戻す）
+  {
+    let presses = [];
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Control' || e.repeat) return;
+      const now = performance.now();
+      presses = presses.filter((t) => now - t < 1000).concat(now);
+      if (presses.length < 3) return;
+      presses = [];
+      const trip = App.Store.state.trip;
+      trip.unlockAll = !trip.unlockAll;
+      App.Store.save();
+      App.Sfx.play(trip.unlockAll ? 'clear' : 'tap');
+      App.U.toast(trip.unlockAll
+        ? '🔓 チート発動！<b>全ステージ解放</b>だ！<br><small>もう一度 Ctrl を 3 回で元に戻るよ</small>'
+        : '🔒 チート解除。ステージはクリアした順に開くよ');
+      if (App.currentScreen === 'map') App.go('map', { chapter: trip.chapter });
+    });
+  }
+
   App.Store.load();
   App.Dev.init();      // 開発者モードならテスト用セーブに切り替える
   App.Trip.migrate();  // 以前の版の 3D の進み具合を、旅のステージに引き継ぐ

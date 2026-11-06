@@ -104,9 +104,11 @@
           : { goal: '🎯 售票处（チケット売り場）へ', say: 'まずは左の<b>售票处</b>で入場券（门票）を買おう！' };
       }
       if (g.phase === 'climb') {
-        const h = ctx.world.heightAt(ctx.player.x, ctx.player.z);
-        const pct = Math.min(100, Math.round((h / 26) * 100));
-        return { goal: `🧗 てっぺんを目指そう（高さ ${pct}%）・${talked}`, say: pct > 60 ? 'もう少し…！<b>加油</b>（がんばれ）！' : '城壁の上を、奥へ奥へ登っていこう！' };
+        const pct = Math.max(0, Math.min(100, Math.round(((14 - ctx.player.z) / (14 - ctx.world.topZ)) * 100)));
+        const say = pct > 75 ? 'もう少し…！<b>加油</b>（がんばれ）！'
+          : pct > 40 ? 'まだまだ続くよ！見張り台でひと休みしながら行こう'
+            : '城壁の上を、奥へ奥へ登っていこう！<br><small>上ったり下ったり、長い道のりだよ</small>';
+        return { goal: `🧗 てっぺんを目指そう（道のり ${pct}%）・${talked}`, say };
       }
       return { goal: `🎉 長城 登頂！（発見 ${g.found.size}/${g.totals.found}・${talked}）`, say: '景色を楽しもう！<br>帰り道の人とも話せるよ' };
     },

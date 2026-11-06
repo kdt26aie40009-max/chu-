@@ -51,8 +51,14 @@
 </svg>`;
   }
 
+  const DEFAULT_NAME = 'ハムコシ'; // ← はじめの名前。設定画面からいつでも変えられる（settings.hamsterName）
   App.Hamster = {
-    name: 'モチ', // ← ハムスターの名前はここで変更
+    DEFAULT_NAME,
+    get name() {
+      const s = App.Store && App.Store.state && App.Store.state.settings;
+      const n = s && typeof s.hamsterName === 'string' ? s.hamsterName.trim() : '';
+      return n || DEFAULT_NAME;
+    },
     svg,
     figure({ mood = 'normal', size = 'md', bounce = false } = {}) {
       return `<div class="hamster hamster-${size}${bounce ? ' is-bounce' : ''}">${svg(mood)}</div>`;
