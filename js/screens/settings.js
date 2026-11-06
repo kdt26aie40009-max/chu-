@@ -20,7 +20,7 @@
       <main class="page">
         <section class="card setting">
           <h3>🔊 音声</h3>
-          <div class="setting-row switch-row">
+          <div class="setting-row rate-row">
             <span>読み上げの速さ<small class="muted">（会話・覚える画面でも切り替えられます）</small></span>
             ${UI.rateToggle()}
           </div>

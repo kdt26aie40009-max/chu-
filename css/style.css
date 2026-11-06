@@ -428,13 +428,17 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .jr-log li span:nth-child(2) { flex: 1; }
 .jr-log b { color: var(--primary-dark); }
 
-.setting { display: grid; gap: 10px; }
+.setting { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 .setting h3 { margin-bottom: 0; }
 .setting p { margin: 0; }
 .setting-row { display: grid; gap: 6px; font-weight: 700; }
 .setting-row input[type=range] { width: 100%; accent-color: var(--primary); }
-.switch-row { grid-template-columns: 1fr auto; align-items: center; }
+.switch-row { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
 .switch-row small { display: block; font-size: 11px; }
+/* 読み上げの速さ：せまい画面ではボタンを下に回す */
+.rate-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+.rate-row > span { flex: 1 1 140px; min-width: 0; }
+.rate-row small { display: block; font-size: 11px; }
 .switch { appearance: none; -webkit-appearance: none; width: 52px; height: 30px; border-radius: 999px; background: var(--line); position: relative; cursor: pointer; transition: background .2s; margin: 0; }
 .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, .15); transition: transform .2s; }
 .switch:checked { background: var(--accent); }
@@ -1127,3 +1131,4 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   font: inherit; font-size: 18px; font-weight: 800; color: var(--ink); box-shadow: inset 0 0 0 2px var(--line);
 }
 .setting-name-input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--primary); }
+@media (max-width: 360px) { .setting-name > :first-child { display: none; } }
