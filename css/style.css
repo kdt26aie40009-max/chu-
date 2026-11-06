@@ -171,6 +171,12 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   content: ""; position: absolute; left: -8px; bottom: 16px;
   border: 8px solid transparent; border-right-color: #fff; border-left: 0;
 }
+/* モチの声で聞くボタン（吹き出しの文のおわりに置く） */
+.mochi-btn {
+  display: inline-grid; place-items: center; width: 30px; height: 30px; margin-left: 6px; vertical-align: middle;
+  border: 0; border-radius: 50%; padding: 0; background: var(--primary-soft); color: var(--primary-dark); font-size: 13px;
+}
+.mochi-btn.is-playing { animation: pulse .5s; }
 .hamster-says.is-compact { margin: 8px 0; align-items: center; }
 .hamster-says.is-compact .bubble { padding: 8px 12px; font-size: 14px; }
 .hamster-says.is-compact .bubble::before { bottom: auto; top: 50%; transform: translateY(-50%); }
@@ -188,6 +194,12 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .title-logo h1 { margin-top: 8px; font-size: 26px; font-weight: 800; }
 .title-logo h1 span { display: inline-block; font-size: 42px; color: var(--primary); text-shadow: 0 3px 0 #fff, 0 5px 0 var(--primary-soft); }
 .title-zh { margin: 4px 0 0; font-family: var(--font-zh); color: var(--muted); font-size: 13px; letter-spacing: .15em; }
+.title-call {
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 10px; min-height: 36px; padding: 4px 14px;
+  border: 0; border-radius: 999px; background: #fff; color: var(--primary-dark); font-size: 13px; font-weight: 800;
+  box-shadow: 0 3px 0 var(--primary-soft), var(--shadow);
+}
+.title-call.is-playing { animation: pulse .5s; }
 .title-hero { display: flex; flex-direction: column; align-items: center; margin: 20px 0 12px; }
 .bubble-up { margin-bottom: 14px; max-width: 300px; }
 .bubble-up::after {
@@ -901,122 +913,134 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .bt-trophy .bt-art { width: 90px; }
 
 /* =========================================================
-   旅のマップ（ステージ選択：古い地図に名所と飛び石の道）
+   旅のマップ（ステージ選択：明るい絵地図に名所と道路）
    ========================================================= */
-.screen-map { background: #3B2A1E; }
 .tm-hud {
   position: sticky; top: 0; z-index: 12; display: flex; align-items: center; gap: 6px;
   margin: 0 -16px; padding: calc(8px + env(safe-area-inset-top)) 12px 8px;
-  background: linear-gradient(180deg, #4A3424, #2E1F15); box-shadow: 0 3px 0 #1E140D;
+  background: rgba(255, 248, 238, .94); backdrop-filter: blur(6px); box-shadow: 0 2px 0 var(--line);
 }
 .tm-hud-back {
-  flex: none; width: 40px; height: 36px; border: 0; border-radius: 10px;
-  background: linear-gradient(180deg, #F5C04A, #D9922A); color: #5A2E0E; font-size: 16px; font-weight: 800;
-  box-shadow: 0 3px 0 #8A5A1A, inset 0 0 0 2px #FFE7A8;
+  flex: none; width: 40px; height: 36px; border: 0; border-radius: 12px;
+  background: var(--primary); color: #fff; font-size: 16px; font-weight: 800; box-shadow: 0 3px 0 var(--primary-dark);
 }
 .tm-pill {
   flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px; min-width: 0;
-  height: 30px; padding: 0 8px; border-radius: 999px; background: rgba(0, 0, 0, .45);
-  box-shadow: inset 0 0 0 2px rgba(255, 214, 140, .35); color: #FFF1D6; font-size: 12px; font-weight: 700; white-space: nowrap;
+  height: 32px; padding: 0 8px; border-radius: 999px; background: #fff;
+  box-shadow: inset 0 0 0 2px var(--line), 0 2px 0 var(--line); color: var(--muted); font-size: 12px; font-weight: 700; white-space: nowrap;
 }
-.tm-pill b { color: #FFD45A; font-size: 14px; }
-.tm-pill-bar { display: block; width: 36px; height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .2); overflow: hidden; }
-.tm-pill-bar i { display: block; height: 100%; background: #FFD45A; }
+.tm-pill b { color: var(--ink); font-size: 15px; }
+.tm-pill-bar { display: block; width: 36px; height: 7px; border-radius: 999px; background: var(--bg-deep); overflow: hidden; }
+.tm-pill-bar i { display: block; height: 100%; border-radius: 999px; background: var(--primary); }
 
 .tm-chapters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 10px; }
 .tm-chapter {
-  display: flex; flex-direction: column; align-items: center; padding: 6px 4px; border: 0; border-radius: 12px;
-  background: #5A4130; color: #E8D5B0; font-weight: 800; font-size: 14px; box-shadow: 0 3px 0 #24170E;
+  display: flex; flex-direction: column; align-items: center; padding: 6px 4px; border: 0; border-radius: 16px;
+  background: #fff; color: var(--ink); font-weight: 800; font-size: 15px; box-shadow: 0 3px 0 var(--line), inset 0 0 0 2px var(--line);
 }
-.tm-chapter small { font-size: 10px; opacity: .8; }
-.tm-chapter.is-cur { background: linear-gradient(180deg, #C0392B, #8E2A20); color: #FFE08A; box-shadow: 0 3px 0 #4A140E, inset 0 0 0 2px #E8B33E; }
-.tm-chapter.is-locked { opacity: .7; }
+.tm-chapter small { font-size: 11px; color: var(--muted); }
+.tm-chapter.is-cur { background: var(--primary); color: #fff; box-shadow: 0 3px 0 var(--primary-dark); }
+.tm-chapter.is-cur small { color: #FFE3CC; }
+.tm-chapter.is-locked { color: var(--muted); }
 
+/* 地図のボード：草原の緑。ふちは太めの線で「おもちゃの地図」っぽく */
 .tm-board {
-  position: relative; width: 100%; aspect-ratio: 360 / 560; border-radius: 22px; overflow: hidden;
-  background:
-    radial-gradient(ellipse at 50% 50%, rgba(255, 246, 220, .0) 55%, rgba(120, 80, 30, .35) 100%),
-    radial-gradient(circle at 20% 30%, rgba(160, 120, 60, .12) 0 8%, transparent 9%),
-    radial-gradient(circle at 75% 70%, rgba(160, 120, 60, .1) 0 10%, transparent 11%),
-    repeating-linear-gradient(35deg, rgba(140, 100, 50, .05) 0 2px, transparent 2px 9px),
-    #E3CC9C;
-  box-shadow: 0 0 0 6px #6B4A2E, 0 0 0 9px #2E1F15, inset 0 0 30px rgba(90, 60, 20, .45), 0 10px 24px rgba(0, 0, 0, .5);
-  margin: 4px 0 14px;
+  position: relative; width: 100%; aspect-ratio: 360 / 600; border-radius: 26px; overflow: hidden; margin: 4px 0 14px;
+  background: #B7E08A;
+  box-shadow: inset 0 0 0 4px #4A3426, 0 5px 0 #4A3426, 0 10px 22px rgba(80, 60, 30, .18);
 }
-.tm-board-henan { background:
-    radial-gradient(ellipse at 50% 50%, rgba(255, 246, 220, 0) 55%, rgba(60, 80, 40, .35) 100%),
-    repeating-linear-gradient(-30deg, rgba(90, 110, 60, .06) 0 2px, transparent 2px 9px),
-    #DCD3A6; }
+.tm-board-henan { background: linear-gradient(180deg, #CDEBFA 0 42%, #B7E08A 42%); }
 .tm-paths { position: absolute; inset: 0; width: 100%; height: 100%; }
-.tm-road { fill: none; stroke: #B49162; stroke-width: 13; stroke-linecap: round; opacity: .55; }
-.tm-road.is-done { stroke: #D9A048; opacity: .8; }
-.tm-road.is-side { stroke-width: 8; stroke-dasharray: 2 12; opacity: .8; }
-.tm-steps { position: absolute; inset: 0; pointer-events: none; }
-.tm-step {
-  position: absolute; width: 12px; height: 9px; transform: translate(-50%, -50%); border-radius: 50%;
-  background: #A99C83; box-shadow: 0 2px 0 #5A4A3A, inset 0 0 0 2px #6E6150;
-}
-.tm-step.is-done { background: #9CCB5E; box-shadow: 0 2px 0 #4E6E2A, inset 0 0 0 2px #5E8A34; }
-.tm-step.is-side { width: 9px; height: 7px; }
+.tm-river { fill: none; stroke: #7CCBF2; stroke-width: 26; stroke-linecap: round; }
+.tm-river-line { fill: none; stroke: #fff; stroke-width: 2.5; stroke-dasharray: 8 14; stroke-linecap: round; opacity: .8; }
+/* 道路：こげ茶のふち → クリーム（通った道は黄色） → 白いセンターライン */
+.tm-road-edge { fill: none; stroke: #4A3426; stroke-width: 20; stroke-linecap: round; }
+.tm-road { fill: none; stroke: #FFF4D8; stroke-width: 14; stroke-linecap: round; }
+.tm-road.is-done { stroke: #FFC93C; }
+.tm-road-line { fill: none; stroke: #fff; stroke-width: 2.5; stroke-dasharray: 7 9; opacity: .9; }
+.tm-road-edge.is-side { stroke-width: 13; }
+.tm-road.is-side { stroke-width: 8; }
+/* 線路（少林寺へ）：枕木 → レール 2 本（あいだを地面の色でぬく） */
+.tm-road-edge.is-rail { stroke: #8A6A45; stroke-width: 20; stroke-dasharray: 4 7; stroke-linecap: butt; }
+.tm-road.is-rail, .tm-road.is-rail.is-done { stroke: #6F7680; stroke-width: 10; stroke-linecap: butt; }
+.tm-road-line.is-rail { stroke: #B7E08A; stroke-width: 5; stroke-dasharray: none; opacity: 1; }
 
-.tm-ribbon {
-  position: absolute; left: 12px; top: 12px; z-index: 3; display: flex; align-items: center; gap: 8px;
-  padding: 6px 18px 6px 14px; background: linear-gradient(180deg, #C0392B, #8E2A20); color: #FFE08A;
-  font-weight: 800; box-shadow: 0 3px 0 #4A140E, inset 0 0 0 2px #E8B33E;
-  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 50%, 100% 100%, 0 100%, 10px 50%);
+.tm-title {
+  position: absolute; left: 12px; top: 12px; z-index: 3; display: flex; align-items: baseline; gap: 6px;
+  padding: 5px 14px; border-radius: 14px; background: #FFD84A; color: #4A3426; font-size: 17px; font-weight: 800;
+  box-shadow: inset 0 0 0 3px #4A3426, 0 3px 0 #4A3426; transform: rotate(-3deg);
 }
-.tm-ribbon b { font-size: 16px; letter-spacing: .1em; }
-.tm-ribbon span { font-size: 14px; color: #FFF1D6; }
-.tm-compass { position: absolute; right: 10px; bottom: 10px; width: 12%; opacity: .8; }
+.tm-title small { font-size: 12px; }
+.tm-sun { position: absolute; right: 10px; top: 8px; width: 13%; animation: tmSun 3s ease-in-out infinite; }
+.tm-compass { position: absolute; left: 10px; bottom: 10px; width: 12%; }
+@keyframes tmSun { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
 .tm-start {
-  position: absolute; z-index: 2; transform: translate(-50%, -50%); padding: 4px 10px; border-radius: 999px;
-  background: #FFF6E0; box-shadow: 0 2px 0 #5A3A22, inset 0 0 0 2px #5A3A22; font-size: 12px; font-weight: 800; white-space: nowrap;
+  position: absolute; z-index: 2; transform: translate(-50%, -50%); padding: 5px 12px; border-radius: 999px;
+  background: #fff; box-shadow: inset 0 0 0 2.5px #4A3426, 0 3px 0 #4A3426; font-size: 13px; font-weight: 800; white-space: nowrap;
 }
 .tm-board-lock {
-  position: absolute; left: 50%; top: 44%; z-index: 5; transform: translate(-50%, -50%); padding: 12px 16px; border-radius: 14px;
-  background: rgba(46, 31, 21, .88); color: #FFF1D6; font-size: 14px; font-weight: 700; text-align: center; white-space: nowrap;
+  position: absolute; left: 50%; top: 48%; z-index: 5; transform: translate(-50%, -50%); padding: 12px 16px; border-radius: 16px;
+  background: #fff; color: var(--ink); font-size: 14px; font-weight: 700; text-align: center; white-space: nowrap;
+  box-shadow: inset 0 0 0 3px #4A3426, 0 4px 0 #4A3426;
 }
 
 /* 名所（ステージ） */
 .lm {
-  position: absolute; z-index: 2; width: 27%; transform: translate(-50%, -62%);
+  position: absolute; z-index: 2; width: 28%; transform: translate(-50%, -62%);
   display: flex; flex-direction: column; align-items: center; gap: 0;
   padding: 0; border: 0; background: none; color: inherit;
 }
-.lm.is-side { width: 22%; }
+.lm.is-side { width: 23%; }
 .lm.is-special { width: 46%; }
-.lm-pic { position: relative; display: block; width: 100%; filter: drop-shadow(0 4px 0 rgba(60, 40, 20, .35)); transition: transform .12s; }
-.lm:active .lm-pic { transform: scale(.94); }
+.lm-pic { position: relative; display: block; width: 100%; filter: drop-shadow(0 4px 0 rgba(47, 110, 52, .35)); transition: transform .12s; }
+.lm:active .lm-pic { transform: scale(.92) rotate(-3deg); }
 .lm-art { display: block; width: 100%; height: auto; }
-.lm-locked .lm-art, .lm-soon .lm-art { filter: grayscale(1) sepia(.35) brightness(.75); }
-.lm-lock { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); font-size: 20px; font-style: normal; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .4)); }
+.lm-locked .lm-art, .lm-soon .lm-art { filter: grayscale(1) contrast(.6) brightness(1.25); opacity: .8; }
+.lm-lock {
+  position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%); display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2.5px #4A3426; font-size: 17px; font-style: normal;
+}
+.lm-done {
+  position: absolute; right: 2%; top: 4%; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--ok); color: #fff; font-size: 16px; font-weight: 900; font-style: normal;
+  box-shadow: inset 0 0 0 2.5px #fff, 0 0 0 2px #4A3426; transform: rotate(-10deg);
+}
 .lm-name {
-  display: flex; align-items: center; gap: 4px; margin-top: -6px; padding: 2px 8px 2px 3px; border-radius: 999px;
-  background: #FFF6E0; box-shadow: 0 2px 0 #5A3A22, inset 0 0 0 2px #5A3A22;
-  font-size: 11px; font-weight: 800; color: #3B2618; white-space: nowrap;
+  display: flex; align-items: center; gap: 5px; margin-top: -8px; padding: 3px 10px 3px 3px; border-radius: 999px;
+  background: #fff; box-shadow: inset 0 0 0 2.5px #4A3426, 0 3px 0 #4A3426;
+  font-size: 13px; font-weight: 800; color: #3A2E26; white-space: nowrap;
 }
-.lm-name b { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #3B2618; color: #FFE08A; font-size: 10px; }
-.lm-locked .lm-name, .lm-soon .lm-name { background: #D8CBB0; color: #6E6150; }
-.lm-stars { display: flex; gap: 1px; margin-top: 1px; font-size: 15px; line-height: 1; }
-.lm-stars i { font-style: normal; color: #6E6150; text-shadow: 0 1px 0 #2E1F15; }
-.lm-stars i.is-on { color: #FFD23A; text-shadow: 0 0 0 #8A5A1A, 0 1px 0 #8A5A1A, 1px 0 0 #8A5A1A, -1px 0 0 #8A5A1A; }
+.lm-name b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 12px; box-shadow: inset 0 0 0 2px #4A3426; }
+.lm.is-side .lm-name b { background: var(--accent); }
+.lm.is-special .lm-name b { background: #A06BE0; }
+.lm-locked .lm-name, .lm-soon .lm-name { background: #EFEAE0; color: #8C7B6B; }
+.lm-locked .lm-name b, .lm-soon .lm-name b { background: #BDB3A3; }
+.lm-stars { display: flex; gap: 1px; margin-top: 3px; font-size: 16px; line-height: 1; }
+.lm-stars i { font-style: normal; color: #fff; text-shadow: 0 1px 0 #4A3426, 1px 0 0 #4A3426, -1px 0 0 #4A3426, 0 -1px 0 #4A3426; }
+.lm-stars i.is-on { color: #FFD23A; }
+.lm-here {
+  position: absolute; left: 50%; top: -18px; z-index: 3; padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+  background: var(--ng); color: #fff; font-size: 12px; font-weight: 800; box-shadow: inset 0 0 0 2px #4A3426, 0 3px 0 #4A3426;
+  animation: lmHere .9s ease-in-out infinite;
+}
+.lm-here::after {
+  content: ""; position: absolute; left: 50%; bottom: -8px; transform: translateX(-50%);
+  border: 6px solid transparent; border-top-color: #4A3426; border-bottom: 0;
+}
+.lm-mochi { position: absolute; left: -18%; bottom: 0; width: 40%; }
+.lm-mochi .hamster-xs { width: 100%; }
+.lm.is-special .lm-mochi { left: -4%; width: 24%; }
 .lm-next .lm-pic::before {
-  content: ""; position: absolute; left: 50%; top: 80%; width: 92%; height: 30%; transform: translate(-50%, -50%);
-  border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 230, 120, .85), rgba(255, 230, 120, 0) 70%); animation: lmGlow 1.4s ease-in-out infinite;
+  content: ""; position: absolute; left: 50%; top: 80%; width: 100%; height: 34%; transform: translate(-50%, -50%);
+  border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 70%); animation: lmGlow 1.2s ease-in-out infinite;
 }
-.lm-arrow {
-  position: absolute; left: 50%; top: -12px; z-index: 3; transform: translateX(-50%);
-  color: #2E9BFF; font-size: 26px; line-height: 1; text-shadow: 0 0 0 #fff, 2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 0 4px 4px rgba(0, 0, 0, .35);
-  animation: lmArrow .9s ease-in-out infinite;
-}
-@keyframes lmArrow { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 8px); } }
-@keyframes lmGlow { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+@keyframes lmHere { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -6px); } }
+@keyframes lmGlow { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
 
 .tm-next {
-  display: flex; align-items: center; gap: 8px; padding: 10px 12px; margin-bottom: 8px; border-radius: 16px;
-  background: #FFF6E0; box-shadow: 0 3px 0 #2E1F15, inset 0 0 0 2px #6B4A2E;
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px; margin-bottom: 8px; border-radius: 18px;
+  background: #fff; box-shadow: inset 0 0 0 2px var(--line), 0 3px 0 var(--line);
 }
-.tm-next p { flex: 1; margin: 0; font-size: 13px; font-weight: 700; color: #3B2618; line-height: 1.45; }
-.tm-next small { display: block; font-size: 11px; color: #8C7350; }
-.tm-next .tm-go { flex: none; min-height: 40px; padding: 6px 14px; font-size: 14px; }
-.screen-map .soft-note { color: #E8D5B0; }
+.tm-next p { flex: 1; margin: 0; font-size: 14px; font-weight: 700; color: var(--ink); line-height: 1.45; }
+.tm-next small { display: block; font-size: 12px; color: var(--muted); }
+.tm-next .tm-go { flex: none; min-height: 42px; padding: 6px 16px; font-size: 15px; }

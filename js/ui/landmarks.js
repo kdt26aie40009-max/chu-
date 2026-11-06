@@ -1,14 +1,15 @@
-/* 旅のマップの名所イラスト（オリジナルの SVG。丸い石の台の上に建物がのっている）
+/* 旅のマップの名所イラスト（オリジナルの SVG。クリーム色の丸い広場の上に建物がのっている）
  * App.Landmarks.svg(stageId) → SVG 文字列（viewBox 0 0 100 90）
  */
 (function (App) {
   'use strict';
 
-  const O = '#3B2618'; // ふちの線
+  const O = '#4A3426'; // ふちの線
+  // 足もとの広場（クリーム色の丸い台。緑の地図の上でよく目立つ）
   const base = `
-    <ellipse cx="50" cy="76" rx="40" ry="11" fill="#6E6150"/>
-    <ellipse cx="50" cy="72" rx="40" ry="11" fill="#A89B84" stroke="${O}" stroke-width="2"/>
-    <ellipse cx="50" cy="71" rx="31" ry="7" fill="#BFB39C"/>`;
+    <ellipse cx="50" cy="76" rx="41" ry="11.5" fill="#D9A95A" stroke="${O}" stroke-width="2.4"/>
+    <ellipse cx="50" cy="72" rx="41" ry="11" fill="#FFE7AE" stroke="${O}" stroke-width="2.4"/>
+    <ellipse cx="38" cy="69" rx="12" ry="3" fill="#fff" opacity=".6"/>`;
 
   const ART = {
     // 管制塔と飛行機
