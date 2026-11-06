@@ -35,9 +35,13 @@
       callBtn.onclick = () => {
         App.Speech.stop();
         App.MochiVoice.stop();
-        if (!titleCall) titleCall = new Audio(App.TITLE_CALL);
+        if (!titleCall) {
+          titleCall = new Audio(App.TITLE_CALL);
+          titleCall.addEventListener('ended', () => App.Music.duck(0));
+        }
         titleCall.currentTime = 0;
-        titleCall.play().catch(() => {});
+        App.Music.duck(Number.isFinite(titleCall.duration) ? titleCall.duration + 0.3 : 6); // BGM を小さくして声をはっきり
+        titleCall.play().catch(() => App.Music.duck(0));
         callBtn.classList.remove('is-playing');
         void callBtn.offsetWidth;
         callBtn.classList.add('is-playing');

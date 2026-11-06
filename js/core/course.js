@@ -30,6 +30,7 @@
   // カテゴリの中で 1 つ前のレッスンをクリアすると開く（開発者モードでは全部開く）
   C.isUnlocked = (lesson) => {
     if (App.Dev && App.Dev.on && App.Dev.flags.allLessons) return true;
+    if (S().trip.unlockAll) return true; // チート（Ctrl を 3 回。main.js）
     const list = C.catLessons(lesson.unit.cat);
     const i = list.indexOf(lesson);
     return i <= 0 || C.isDone(list[i - 1].id);

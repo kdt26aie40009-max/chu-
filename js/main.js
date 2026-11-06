@@ -21,6 +21,8 @@
     root.className = `app screen-${name}`;
     window.scrollTo(0, 0);
     App.currentScreen = name;
+    App.currentParams = params;
+    App.Music.setScreen(name);
     screen(root, params);
     App.Dev.decorate(root);
   };
@@ -69,7 +71,18 @@
     }
   });
 
-  // チート：Ctrl をすばやく 3 回押すと、全ステージ解放（もう一度 3 回で元に戻す）
+  // BGM はブラウザの決まりで、最初のタップ・キー操作のあとから鳴らせる
+  {
+    const kick = () => {
+      App.Music.start();
+      ['pointerdown', 'keydown', 'touchstart'].forEach((t) => document.removeEventListener(t, kick, true));
+    };
+    ['pointerdown', 'keydown', 'touchstart'].forEach((t) => document.addEventListener(t, kick, true));
+  }
+
+  // チート：Ctrl をすばやく 3 回押すと、全部解放（もう一度 3 回で元に戻す）
+  //   3D の旅の全ステージ・2D の全レッスン・図鑑の全部の言葉（App.cheat() で確認できる）
+  App.cheat = () => !!App.Store.state.trip.unlockAll;
   {
     let presses = [];
     document.addEventListener('keydown', (e) => {
@@ -83,9 +96,11 @@
       App.Store.save();
       App.Sfx.play(trip.unlockAll ? 'clear' : 'tap');
       App.U.toast(trip.unlockAll
-        ? '🔓 チート発動！<b>全ステージ解放</b>だ！<br><small>もう一度 Ctrl を 3 回で元に戻るよ</small>'
-        : '🔒 チート解除。ステージはクリアした順に開くよ');
-      if (App.currentScreen === 'map') App.go('map', { chapter: trip.chapter });
+        ? '🔓 チート発動！<b>全部解放</b>だ！<br><small>旅の全ステージ・2D の全レッスン・図鑑の全部の言葉<br>もう一度 Ctrl を 3 回で元に戻るよ</small>'
+        : '🔒 チート解除。ステージやレッスンはクリアした順に開くよ');
+      const cur = App.currentScreen;
+      if (cur === 'map') App.go('map', { chapter: trip.chapter });
+      else if (cur === 'course' || cur === 'dictionary') App.go(cur, App.currentParams || {});
     });
   }
 

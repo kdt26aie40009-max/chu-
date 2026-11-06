@@ -52,6 +52,10 @@
             <input type="checkbox" class="switch" data-hvoice ${s.hamsterVoice !== false ? 'checked' : ''}>
           </label>
           <label class="setting-row switch-row">
+            <span>BGM（音楽）<small class="muted">（後ろで小さく流れる曲）</small></span>
+            <input type="checkbox" class="switch" data-music ${s.music !== false ? 'checked' : ''}>
+          </label>
+          <label class="setting-row switch-row">
             <span>効果音</span>
             <input type="checkbox" class="switch" data-sfx ${s.sfx ? 'checked' : ''}>
           </label>
@@ -91,6 +95,7 @@
       else App.MochiVoice.stop();
     };
     $('[data-wordcheck]', root).onchange = (e) => { s.wordCheck = e.target.checked; save(); };
+    $('[data-music]', root).onchange = (e) => { s.music = e.target.checked; save(); App.Music.start(); App.Music.refresh(); };
     $('[data-sfx]', root).onchange = (e) => { s.sfx = e.target.checked; save(); if (s.sfx) App.Sfx.play('correct'); };
     $('[data-reset]', root).onclick = () => {
       if (!confirm('本当にリセットする？（経験値・覚えた言葉がすべて消えます）')) return;

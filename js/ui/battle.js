@@ -52,6 +52,7 @@
       if (!App.Store.state.settings.sfx) return;
       const song = SONGS[kind];
       if (!song) return;
+      if (App.Music) App.Music.hold(true); // ふだんの BGM はお休み
       try {
         ac = ac || new (window.AudioContext || window.webkitAudioContext)();
         if (ac.state === 'suspended') ac.resume();
@@ -79,6 +80,7 @@
     }
     function stop() {
       clearTimeout(timer);
+      if (App.Music) App.Music.hold(false);
       if (master) {
         try { master.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.3); } catch (e) { /* noop */ }
         const m = master;
