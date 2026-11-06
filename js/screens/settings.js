@@ -30,13 +30,25 @@
         </section>
 
         <section class="card setting">
+          <h3>🐹 ハムスターの名前</h3>
+          <div class="setting-name">
+            ${App.Hamster.figure({ mood: 'happy', size: 'sm' })}
+            <form class="setting-name-form" data-name-form>
+              <input type="text" class="setting-name-input" data-name maxlength="10" value="${App.U.esc(App.Hamster.name)}" placeholder="${App.Hamster.DEFAULT_NAME}" aria-label="ハムスターの名前">
+              <button class="btn btn-primary" type="submit">決定</button>
+            </form>
+          </div>
+          <p class="muted small">いつでも変えられるよ。カタカナかひらがなだと、声でも名前を呼んでくれる。空にすると「${App.Hamster.DEFAULT_NAME}」に戻るよ</p>
+        </section>
+
+        <section class="card setting">
           <h3>🎮 表示・サウンド</h3>
           <label class="setting-row switch-row">
             <span>ピンインを表示<small class="muted">（覚えるカードでは常に表示）</small></span>
             <input type="checkbox" class="switch" data-pinyin ${s.showPinyin ? 'checked' : ''}>
           </label>
           <label class="setting-row switch-row">
-            <span>モチの声<small class="muted">（ハムスターの案内を読み上げる）</small></span>
+            <span>${App.U.esc(App.Hamster.name)}の声<small class="muted">（ハムスターの案内を読み上げる）</small></span>
             <input type="checkbox" class="switch" data-hvoice ${s.hamsterVoice !== false ? 'checked' : ''}>
           </label>
           <label class="setting-row switch-row">
@@ -61,6 +73,15 @@
     $('[data-test]', root).onclick = () => {
       App.Speech.speak('你好！');
       setTimeout(() => { const v = $('[data-voice]', root); if (v) v.textContent = voiceStatus(); }, 400);
+    };
+    $('[data-name-form]', root).onsubmit = (e) => {
+      e.preventDefault();
+      s.hamsterName = $('[data-name]', root).value.trim().slice(0, 10) || App.Hamster.DEFAULT_NAME;
+      save();
+      App.Sfx.play('correct');
+      toast(`🐹 これからは「${App.U.esc(App.Hamster.name)}」だよ！よろしくね`);
+      App.MochiVoice.speak(`ぼくの名前は、${App.Hamster.name}！よろしくね`);
+      App.go('settings');
     };
     $('[data-pinyin]', root).onchange = (e) => { s.showPinyin = e.target.checked; save(); };
     $('[data-hvoice]', root).onchange = (e) => {

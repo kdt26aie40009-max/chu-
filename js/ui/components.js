@@ -52,7 +52,7 @@
     // モチの声で聞くボタン（押すと main.js が App.MochiVoice で読む。設定で声をオフにしていても聞ける）
     mochiBtn(text) {
       if (!App.MOCHI_VOICE || !/[ぁ-ゖ]/.test(App.MochiVoice.toKana(text))) return '';
-      return `<button class="mochi-btn" data-mochi="${esc(text)}" aria-label="モチの声で聞く">🔊</button>`;
+      return `<button class="mochi-btn" data-mochi="${esc(text)}" aria-label="${esc(App.Hamster.name)}の声で聞く">🔊</button>`;
     },
 
     hamsterSays(text, { mood = 'normal', size = 'sm', cls = '' } = {}) {

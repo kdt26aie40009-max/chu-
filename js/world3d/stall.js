@@ -3,6 +3,7 @@
  *   通り      x: -3.9〜3.9（bounds で制限）
  *   左の屋台  纪念品＝お土産(z=17.5)・糖葫芦(z=10)・臭豆腐(z=-3)・小笼包(z=-16.5, 点餐/取餐の 2 窓口)、奥に象棋のテーブル
  *   右の屋台  羊肉串(z=14)・涮羊肉(z=4)・炸酱面(z=-8)、突き当たりの右に北京烤鸭の店
+ *   突き当たり 赤い扉が出口（z=-27.6・緑の「出口」看板と矢印）
  * 単位はメートル。屋台のカウンターは当たり判定つき。
  */
 (function (App) {
@@ -266,6 +267,14 @@
     const endRoof = box(18.6, 0.25, 2.4, tile, 0, 8.1, -27.2);
     endRoof.rotation.x = 0.35;
     Md.sign(THREE, scene, signOpts({ zh: '王府井小吃街', en: 'Wangfujing Snack Street' }), 4.4, 0, 5.2, -27.55);
+    // 出口（赤い扉のまわりに枠と緑の看板。ここから次の行き先へ）
+    [-1.3, 1.3].forEach((x) => box(0.25, 3.3, 0.3, M('#6B2A22'), x, 1.65, -27.5));
+    box(2.85, 0.3, 0.3, M('#6B2A22'), 0, 3.3, -27.5);
+    Md.sign(THREE, scene, { zh: '出口', en: 'Exit → 天安门', bg: '#2F8F4E', accent: '#FFFFFF', sub: '#D9F5E3', w: 512, h: 256 }, 1.6, 0, 3.95, -27.4);
+    const exitArrow = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.45, 4), new THREE.MeshBasicMaterial({ color: '#3BD16F' }));
+    exitArrow.rotation.x = Math.PI;
+    exitArrow.position.set(0, 2.9, -26.9);
+    scene.add(exitArrow);
 
     /* ---------- 入口の牌楼（ゲート） ---------- */
     [-4.6, 4.6].forEach((x) => {
@@ -535,6 +544,7 @@
       people,
       drawBoard,
       interactables: [
+        { id: 'exit', x: 0, z: -26.4, r: 1.7 },
         { id: 'order', x: -3.4, z: -14, r: 2.4 },
         { id: 'pickup', x: -3.4, z: -19.5, r: 2.4 },
         { id: 'shuan', x: 3.4, z: 4, r: 2.4 },
@@ -569,6 +579,8 @@
           p.m.material.opacity = 0.5 * (1 - p.t);
         });
         lanterns.forEach((l) => { l.g.rotation.z = Math.sin(t * 1.3 + l.ph) * 0.06; });
+        exitArrow.position.y = 2.9 + Math.sin(t * 4) * 0.12;
+        exitArrow.rotation.y = t * 1.5;
       },
     };
   }

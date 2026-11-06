@@ -217,6 +217,7 @@
       const cMid = new THREE.Color('#5E9C47');
       const cHigh = new THREE.Color('#4A7F3E');
       const cRock = new THREE.Color('#9A9A86');
+      const cForest = new THREE.Color('#3E7434');
       for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i);
         const z = pos.getZ(i);
@@ -227,6 +228,9 @@
         if (k > 0.6) c.lerp(cHigh, (k - 0.6) * 2);
         const v = Math.sin(x * 0.31 + z * 0.17) * Math.cos(z * 0.23 - x * 0.11);
         c.offsetHSL(v * 0.02, 0, v * 0.04);
+        // 森の中は地面も濃い緑に
+        const clump = Math.sin(x * 0.06) * Math.cos(z * 0.05) + 0.5 * Math.sin(x * 0.13 + z * 0.1);
+        if (clump > -0.75 && !(Math.abs(x) < 16 && z > -6 && z < 40)) c.lerp(cForest, Math.min(0.55, (clump + 0.75) * 0.4) * smooth(5, 12, Math.abs(x - ridgeX(z))));
         if (h > 55) c.lerp(cRock, Math.min(0.6, (h - 55) / 40));
         colors.push(c.r, c.g, c.b);
       }
@@ -249,18 +253,20 @@
       const rnd = Sc.rand(11);
       const pts = [];
       const AUTUMN = ['#D9792E', '#C9472F', '#E3A33A'];
-      for (let i = 0; i < 5200 && pts.length < 1700; i++) {
-        const x = (rnd() - 0.5) * 520;
-        const z = 150 - rnd() * 560;
+      for (let i = 0; i < 16000 && pts.length < 4200; i++) {
+        // 城壁の近く（見える範囲）ほど木を多く
+        const near = rnd() < 0.55;
+        const x = near ? (rnd() - 0.5) * 140 : (rnd() - 0.5) * 520;
+        const z = near ? 20 - rnd() * 300 : 150 - rnd() * 560;
         const ax = Math.abs(x - ridgeX(z));
-        if (ax < 6.5) continue; // 城壁の上
+        if (ax < 5.4) continue; // 城壁の上
         if (Math.abs(x) < 16 && z > -6 && z < 40) continue; // 広場と関門
         const clump = Math.sin(x * 0.06) * Math.cos(z * 0.05) + 0.5 * Math.sin(x * 0.13 + z * 0.1);
-        if (clump < -0.35 && rnd() < 0.8) continue; // 草原のすき間
+        if (clump < -0.75 && rnd() < 0.7) continue; // ところどころ草原のすき間
         const y = terrainH(x, z);
         const round = rnd() < 0.45;
         pts.push({
-          x, y, z, s: (ax < 40 ? 1.1 : 1.6) * (0.8 + rnd() * 0.7), kind: round ? 'round' : 'pine',
+          x, y, z, s: (ax < 12 ? 0.85 : ax < 40 ? 1.15 : 1.6) * (0.75 + rnd() * 0.7), kind: round ? 'round' : 'pine',
           color: round && rnd() < 0.18 ? AUTUMN[Math.floor(rnd() * 3)] : null,
         });
       }

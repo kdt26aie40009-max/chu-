@@ -192,11 +192,41 @@
     const stone = M('#B7B2A8');
     const dark = M('#2A2420');
     const green = M('#5E8F4E');
+    // 黄色い瑠璃瓦（たてのすじ＝瓦の列）
+    const roofGold = new THREE.MeshStandardMaterial({ map: tex(256, 64, (g, w, h) => {
+      for (let x = 0; x < w; x += 8) {
+        g.fillStyle = (x / 8) % 2 ? '#E9B02A' : '#F6C83F'; g.fillRect(x, 0, 8, h);
+        g.fillStyle = 'rgba(120,70,0,.35)'; g.fillRect(x + 7, 0, 1, h);
+      }
+      g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(0, 0, w, 6);
+    }, [10, 1]), roughness: 0.45, metalness: 0.15 });
+    // 天安門の赤い壁（下はすこし暗い帯、上にうすい影）
+    const redWall = new THREE.MeshStandardMaterial({ map: tex(512, 256, (g, w, h) => {
+      const gr = g.createLinearGradient(0, 0, 0, h);
+      gr.addColorStop(0, '#9A2C25'); gr.addColorStop(0.15, '#B23A30'); gr.addColorStop(1, '#A8322A');
+      g.fillStyle = gr; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 160; i++) { g.fillStyle = `rgba(80,10,5,${Math.random() * 0.08})`; g.fillRect(Math.random() * w, Math.random() * h, 2 + Math.random() * 6, 20 + Math.random() * 60); }
+      g.fillStyle = '#8A8478'; g.fillRect(0, h - 22, w, 22);
+      g.fillStyle = '#A9A397'; g.fillRect(0, h - 22, w, 4);
+    }), roughness: 0.8 });
+    // 軒下の彩色（青・緑・金のもよう）
+    const eaveTex = new THREE.MeshStandardMaterial({ map: tex(256, 32, (g, w, h) => {
+      g.fillStyle = '#245F73'; g.fillRect(0, 0, w, h);
+      for (let x = 0; x < w; x += 32) {
+        g.fillStyle = '#3E8C6A'; g.fillRect(x + 4, 6, 24, 20);
+        g.fillStyle = '#E8B12E'; g.fillRect(x + 14, 2, 4, h - 4);
+        g.fillStyle = '#F2EADB'; g.fillRect(x, 0, 2, h);
+      }
+    }, [12, 1]), roughness: 0.7 });
 
     /* ---------- 地面 ---------- */
     const tileTex = tex(256, 256, (g, w, h) => {
-      g.fillStyle = '#B4AEA2'; g.fillRect(0, 0, w, h);
-      g.strokeStyle = '#9C9588'; g.lineWidth = 3;
+      const tones = ['#C4BCAC', '#BCB4A3', '#C9C2B3', '#B6AE9D'];
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) {
+        g.fillStyle = tones[(r * 3 + c * 2) % 4]; g.fillRect(c * 64, r * 64, 64, 64);
+        for (let i = 0; i < 18; i++) { g.fillStyle = `rgba(90,80,60,${Math.random() * 0.12})`; g.fillRect(c * 64 + Math.random() * 64, r * 64 + Math.random() * 64, 2, 2); }
+      }
+      g.strokeStyle = '#9E9686'; g.lineWidth = 2;
       for (let k = 0; k <= 4; k++) { g.beginPath(); g.moveTo(0, k * 64); g.lineTo(w, k * 64); g.stroke(); g.beginPath(); g.moveTo(k * 64, 0); g.lineTo(k * 64, h); g.stroke(); }
     }, [40, 80]);
     plane(160, 320, new THREE.MeshStandardMaterial({ map: tileTex, roughness: 0.95 }), 0, 0, -10, -Math.PI / 2);
@@ -234,14 +264,66 @@
       for (let z = 10; z <= 70; z += 4) cyl(0.6, 0.6, 14, M('#F2EADB'), s * 42.6, 7, z, 10);
       box(16, 1.2, 72, M('#C9B79A'), s * 50, 16.6, 40);
     });
-    // 花壇
-    [[-18, 30], [18, 30], [-18, 56], [18, 56]].forEach(([x, z]) => {
-      box(6, 0.6, 3, stone, x, 0.3, z, { collide: true });
-      for (let k = 0; k < 10; k++) sph(0.32, M(['#E74C3C', '#F5B92E', '#E86F9A'][k % 3]), x - 2.5 + (k % 5) * 1.25, 0.8, z - 0.6 + Math.floor(k / 5) * 1.2);
+    // 花壇（赤・黄・ピンクの花がぎっしり）
+    {
+      const beds = [[-16, 28], [16, 28], [-16, 56], [16, 56]];
+      const flowerGeo = new THREE.SphereGeometry(0.26, 8, 6);
+      const colors = ['#E74C3C', '#F5B92E', '#E86F9A', '#FF8A3D', '#FFFFFF'];
+      const flowers = new THREE.InstancedMesh(flowerGeo, new THREE.MeshLambertMaterial({ color: '#ffffff' }), beds.length * 66);
+      const m4 = new THREE.Matrix4();
+      const c = new THREE.Color();
+      let n = 0;
+      beds.forEach(([x, z]) => {
+        box(10, 0.6, 5, stone, x, 0.3, z, { collide: true });
+        box(9.4, 0.12, 4.4, M('#4E7A3A'), x, 0.62, z);
+        for (let r = 0; r < 6; r++) for (let k = 0; k < 11; k++) {
+          m4.makeTranslation(x - 4.2 + k * 0.84 + (r % 2) * 0.3, 0.82 + Math.random() * 0.1, z - 1.8 + r * 0.72);
+          flowers.setMatrixAt(n, m4);
+          flowers.setColorAt(n++, c.set(colors[(r + Math.floor(k / 3)) % colors.length]));
+        }
+      });
+      flowers.instanceMatrix.needsUpdate = true;
+      if (flowers.instanceColor) flowers.instanceColor.needsUpdate = true;
+      scene.add(flowers);
+    }
+    // 両わきの松の並木
+    {
+      const pts = [];
+      [-1, 1].forEach((sd) => {
+        for (let z = 15; z <= 70; z += 4.5) {
+          pts.push({ x: sd * 27.5, y: 0, z, s: 1.25, kind: 'pine' });
+          rect(sd * 27.5 - 0.5, sd * 27.5 + 0.5, z - 0.5, z + 0.5);
+        }
+      });
+      App.Scenery3D.forest(THREE, scene, pts);
+    }
+    // 華表（白い大理石の柱）と石の獅子（天安門の前）
+    [-1, 1].forEach((sd) => {
+      const hx = sd * 16;
+      box(2, 1, 2, marble, hx, 0.5, 13.6, { collide: true });
+      cyl(0.42, 0.42, 9, marble, hx, 5.5, 13.6, 8);
+      box(2.6, 0.55, 0.22, marble, hx, 8.2, 13.6);
+      cyl(0.9, 0.9, 0.3, marble, hx, 10.1, 13.6, 12);
+      sph(0.42, marble, hx, 10.6, 13.6);
+      const lx = sd * 9;
+      box(1.5, 1.2, 2.1, stone, lx, 0.6, 12.9, { collide: true });
+      box(0.9, 1.1, 1.5, M('#CFC8BA'), lx, 1.75, 12.8);
+      sph(0.55, M('#CFC8BA'), lx, 2.55, 13.3);
+      sph(0.3, M('#BEB6A6'), lx + sd * 0.35, 1.5, 13.6);
     });
 
     /* ---------- 金水橋と堀 ---------- */
-    plane(64, 4, new THREE.MeshStandardMaterial({ color: '#5E9BC2', roughness: 0.25, metalness: 0.2 }), 0, 0.05, 9, -Math.PI / 2);
+    const moatTex = tex(256, 64, (g, w, h) => {
+      const gr = g.createLinearGradient(0, 0, 0, h);
+      gr.addColorStop(0, '#4A8DBA'); gr.addColorStop(1, '#6FB3D8');
+      g.fillStyle = gr; g.fillRect(0, 0, w, h);
+      g.strokeStyle = 'rgba(255,255,255,.45)'; g.lineWidth = 2;
+      for (let i = 0; i < 14; i++) {
+        const x = Math.random() * w; const y = Math.random() * h;
+        g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + 8, y - 3, x + 16, y); g.stroke();
+      }
+    }, [8, 1]);
+    const moat = plane(64, 4, new THREE.MeshStandardMaterial({ map: moatTex, roughness: 0.2, metalness: 0.15 }), 0, 0.05, 9, -Math.PI / 2);
     const bridges = [[-12, 3], [-6, 3], [0, 5], [6, 3], [12, 3]];
     bridges.forEach(([x, w]) => {
       box(w, 0.4, 4.6, marble, x, 0.25, 9);
@@ -258,9 +340,9 @@
 
     /* ---------- 天安門 ---------- */
     const GZ = 2;   // 城壁の中心
-    box(29, 12, 10, red, -16.5, 6, GZ, { collide: true });
-    box(29, 12, 10, red, 16.5, 6, GZ, { collide: true });
-    box(4, 4, 10, red, 0, 10, GZ);
+    box(29, 12, 10, redWall, -16.5, 6, GZ, { collide: true });
+    box(29, 12, 10, redWall, 16.5, 6, GZ, { collide: true });
+    box(4, 4, 10, redWall, 0, 10, GZ);
     // 通路の扉（広場で写真を撮ると開く）
     const gateCollider = rect(-2.1, 2.1, GZ + 4.4, GZ + 5.2);
     const doors = [-1, 1].map((s) => {
@@ -282,9 +364,20 @@
     for (let x = -29; x <= 29; x += 2) box(0.25, 0.9, 0.25, marble, x, 13, GZ + 4.8);
     box(40, 6, 7, red, 0, 15.6, GZ - 0.5);
     for (let x = -19; x <= 19; x += 3.8) cyl(0.35, 0.35, 6, M('#C0392B'), x, 15.6, GZ + 3.2, 10);
-    roof(48, 3.2, 14, gold, 0, 18.4, GZ);
-    roof(42, 4.6, 11, gold, 0, 20.8, GZ);
+    roof(48, 3.2, 14, roofGold, 0, 18.4, GZ);
+    roof(42, 4.6, 11, roofGold, 0, 20.8, GZ);
     box(46, 0.5, 13, gold, 0, 18.5, GZ);
+    box(40.6, 0.9, 7.6, eaveTex, 0, 18.1, GZ - 0.5);
+    box(34.6, 0.7, 7, eaveTex, 0, 21.1, GZ);
+    // 大きな赤い提灯（柱と柱のあいだに 8 つ）
+    [-17.1, -13.3, -9.5, -5.7, 5.7, 9.5, 13.3, 17.1].forEach((x) => {
+      cyl(0.02, 0.02, 0.8, dark, x, 17.6, GZ + 3.6, 4);
+      const l = sph(0.75, new THREE.MeshStandardMaterial({ color: '#E0302A', emissive: '#7A1008', roughness: 0.5 }), x, 16.6, GZ + 3.6);
+      l.scale.set(1, 1.15, 1);
+      cyl(0.42, 0.42, 0.18, gold, x, 17.45, GZ + 3.6, 12);
+      cyl(0.42, 0.42, 0.18, gold, x, 15.75, GZ + 3.6, 12);
+      cyl(0.05, 0.05, 0.6, M('#F5C842'), x, 15.35, GZ + 3.6, 6);
+    });
     signRead('tiananmen', { zh: '天安门', en: 'Tiananmen', bg: '#2A3A6B', accent: '#E0C068', sub: '#E8E8F0' }, 5.2, 0, 16.5, GZ + 3.6, 0);
     const guard = Md.staff(THREE, { uniform: '#2F4A6B', scarf: '#C0392B' });
     guard.position.set(3.5, 0, 13.2);
@@ -336,8 +429,8 @@
     rect(-3, 3, HZ + 12, HZ + 16.5);
     box(34, 8, 12, red, 0, 8.5, HZ - 1);
     for (let x = -16; x <= 16; x += 3.2) cyl(0.4, 0.4, 8, M('#C0392B'), x, 8.5, HZ + 5.6, 10);
-    roof(42, 3.4, 18, gold, 0, 12.5, HZ - 1);
-    roof(36, 5, 14, gold, 0, 15.2, HZ - 1);
+    roof(42, 3.4, 18, roofGold, 0, 12.5, HZ - 1);
+    roof(36, 5, 14, roofGold, 0, 15.2, HZ - 1);
     box(40, 0.5, 16, gold, 0, 12.6, HZ - 1);
     signRead('taihedian', { zh: '太和殿', en: 'Hall of Supreme Harmony', bg: '#2A3A6B', accent: '#E0C068', sub: '#E8E8F0' }, 4, 0, 11.4, HZ + 5.1, 0);
     const palaceGuide = Md.staff(THREE, { uniform: '#24476B', scarf: '#E0A526' });
@@ -403,6 +496,7 @@
           pos.array[i * 3 + 2] = Math.sin(x * 1.4 - t * 4) * 0.25 * ((x + 2.4) / 4.8);
         }
         pos.needsUpdate = true;
+        moat.material.map.offset.x = t * 0.03;
         doors.forEach(({ hinge, s }) => {
           const target = gate.open ? -s * 1.6 : 0;
           hinge.rotation.y += (target - hinge.rotation.y) * Math.min(1, dt * 2);
