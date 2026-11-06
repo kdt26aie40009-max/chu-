@@ -148,8 +148,11 @@
     const signRead = (id, opts, width, x, y, z, rotY = 0) => readables.push(Md.readable(Md.sign(THREE, scene, opts, width, x, y, z, rotY), id));
 
     /* ---------- 空・光（山の朝） ---------- */
-    scene.background = new THREE.Color('#BFD8E8');
+    scene.background = new THREE.Color('#D2E2EA');
     scene.fog = new THREE.Fog('#D2E2EA', 50, 170);
+    App.Scenery3D.sky(THREE, scene, { top: '#4A92D4', horizon: '#D2E2EA', ground: '#C9C2A8', sun: [0.55, 0.4, 0.5] });
+    App.Scenery3D.farMountains(THREE, scene, { r: 290, colors: ['#7E9C8A', '#A8BFC2'], height: [50, 110], seed: 8 });
+    App.Scenery3D.clouds(THREE, scene, { count: 14, y: [60, 110], seed: 12 });
     scene.add(new THREE.HemisphereLight(0xf4f8ff, 0x6c6a52, 0.8));
     const sun = new THREE.DirectionalLight(0xffefd2, 0.65);
     sun.position.set(25, 40, 20);
@@ -177,6 +180,21 @@
       const a = (i / 26) * Math.PI * 2;
       const d = 80 + (i % 3) * 30;
       cone(30 + (i % 4) * 8, 40 + ((i * 7) % 5) * 9, hill[i % 3], Math.cos(a) * d, 0, Math.sin(a) * d - 20, 7);
+    }
+
+    // 境内のまわりの森（松が多め。山門の前の参道はあけておく）
+    {
+      const rnd = App.Scenery3D.rand(21);
+      const pts = [];
+      for (let i = 0; i < 2600 && pts.length < 520; i++) {
+        const x = (rnd() - 0.5) * 170;
+        const z = -12 + (rnd() - 0.5) * 170;
+        if (Math.abs(x) < 22 && z > -45 && z < 26) continue; // 境内
+        if (Math.abs(x) < 7 && z >= 26) continue; // 参道
+        if (Math.hypot(x, z + 12) > 85) continue;
+        pts.push({ x, y: 0, z, s: 1.2 + rnd() * 0.9, kind: rnd() < 0.7 ? 'pine' : 'round' });
+      }
+      App.Scenery3D.forest(THREE, scene, pts);
     }
 
     /* ---------- 境内の壁 ---------- */
@@ -352,10 +370,10 @@
       ],
       facePlayer: [referee],
       discoveries: [
-        { id: 'gate', x: 0, z: 21, r: 3, say: '<b>少林寺</b>！カンフー（<b>功夫</b>）の聖地だよ。お坊さんには「<b>阿弥陀佛</b>」とあいさつしよう' },
+        { id: 'gate', x: 0, z: 21, r: 3, culture: 'shaolin', say: '<b>少林寺</b>！カンフー（<b>功夫</b>）の聖地だよ。お坊さんには「<b>阿弥陀佛</b>」とあいさつしよう' },
         { id: 'incense', x: 0, z: 8.5, r: 2.6, say: '大きな<b>香炉</b>。お線香のけむりがゆらゆら…' },
-        { id: 'yard', x: -7.5, z: -4, r: 3, say: '<b>练功场</b>（練功場）。木の人形「<b>木人桩</b>」で練習できるみたい！' },
-        { id: 'talin', x: 7.5, z: -3, r: 3, say: '<b>塔林</b>。昔のえらいお坊さんのお墓の塔なんだって' },
+        { id: 'yard', x: -7.5, z: -4, r: 3, culture: 'gongfu', say: '<b>练功场</b>（練功場）。木の人形「<b>木人桩</b>」で練習できるみたい！' },
+        { id: 'talin', x: 7.5, z: -3, r: 3, culture: 'talin', say: '<b>塔林</b>。昔のえらいお坊さんのお墓の塔なんだって' },
         { id: 'arena', x: 0, z: -15, r: 3, say: '<b>擂台</b>（武術大会の舞台）！<br>受付の人に話しかけると参加できるよ' },
       ],
       update(dt, t) {

@@ -1,14 +1,20 @@
 /* 3D 万里の長城のレイアウト
  * 南の広場（z: 14〜32）で入場券を買い、関門をくぐって北（-z）へ城壁の上を登っていく。
- *   通路       x: -2.25〜2.25（両側に胸壁）、z: 14 → -93
- *   見張り台   ① z -8〜0（高さ 5）  ② z -44〜-36（高さ 14）  ③ てっぺん z -93〜-80（高さ 26）
+ *   通路       x: -2.25〜2.25（両側に胸壁）、z: 14 → -250（約 260m。上り坂・下り坂をくり返す）
+ *   見張り台   8 つ（PROFILE の平らなところ）。いちばん奥の ⑧（高さ 44）が「好汉坡」
  * 坂と階段の高さは heightAt(x, z)（engine.js が目線・人・ハムスターの高さに使う）。
+ * まわりの山（terrainH）は城壁の高さにそって尾根になり、森でおおわれている。てっぺんの先は飾りの長城が続く。
  */
 (function (App) {
   'use strict';
 
-  // 城壁の高さ [z, 高さ]（z が小さいほど奥＝上）
-  const PROFILE = [[14, 0], [0, 5], [-8, 5], [-36, 14], [-44, 14], [-80, 26], [-93, 26]];
+  // 城壁の高さ [z, 高さ]（z が小さいほど奥）。2 点が同じ高さのところに見張り台を置く
+  const PROFILE = [
+    [14, 0], [0, 5], [-8, 5], [-36, 14], [-44, 14], [-60, 10], [-68, 10], [-98, 20], [-106, 20],
+    [-124, 16], [-132, 16], [-166, 28], [-174, 28], [-208, 36], [-216, 36], [-236, 44], [-250, 44],
+  ];
+  const END_Z = PROFILE[PROFILE.length - 1][0];
+  const TOP_H = PROFILE[PROFILE.length - 1][1];
   function heightAt(x, z) {
     if (z >= PROFILE[0][0]) return 0;
     for (let i = 0; i < PROFILE.length - 1; i++) {
@@ -73,7 +79,7 @@
     {
       id: 'traveler', name: '世界一周中の旅人', emoji: '🌍',
       look: { top: '#C0504D', bottom: '#4A5560', hair: '#D9A441', backpack: '#2F6FA8' },
-      stand: { x: 1.6, z: -87, rot: -Math.PI / 2 },
+      stand: { x: 1.6, z: -244, rot: -Math.PI / 2 },
       script: [
         { type: 'say', zh: '你好！', py: 'Nǐ hǎo!', ja: 'こんにちは！', hamster: 'あいさつを返そう', options: ['nihao', 'zaijian', 'maidan'], answer: 0 },
         { type: 'understand', zh: '你是日本人吗？', py: 'Nǐ shì Rìběn rén ma?', ja: 'あなたは日本人ですか？',
@@ -86,7 +92,7 @@
     {
       id: 'hikers', name: '登山サークルの大学生', emoji: '🥾',
       look: { top: '#27AE60', bottom: '#2F3740', hair: '#1E1A18', cap: '#27AE60', backpack: '#F5B92E' },
-      stand: { x: -1.6, z: -58, rot: Math.PI / 2 },
+      stand: { x: -1.6, z: -212, rot: Math.PI / 2 },
       script: [
         { type: 'line', zh: '你好！快到顶了，加油！', py: 'Nǐ hǎo! Kuài dào dǐng le, jiāyóu!', ja: 'こんにちは！もうすぐてっぺんだよ、がんばって！' },
         { type: 'say', hamster: 'お礼を言おう', options: ['xiexie', 'zaijian', 'maidan'], answer: 0 },
@@ -95,12 +101,58 @@
     {
       id: 'painter', name: '景色を描くおじさん', emoji: '🖌️',
       look: { top: '#8E5BB8', bottom: '#3E3A36', hair: '#BBBBBB', cap: '#F4EFE6' },
-      stand: { x: 1.6, z: -40, rot: -Math.PI / 2 },
+      stand: { x: 1.6, z: -102, rot: -Math.PI / 2 },
       script: [
         { type: 'line', zh: '嗯，今天的长城很美。', py: 'Ńg, jīntiān de Chángchéng hěn měi.', ja: 'うむ、今日の長城は美しい。', hamster: '絵を描いてる…じゃましないように' },
       ],
     },
+    {
+      id: 'historian', name: '歴史の先生', emoji: '👨‍🏫',
+      look: { top: '#3E5C8A', bottom: '#3E3A36', hair: '#5A4A3A' },
+      stand: { x: 1.6, z: -64, rot: -Math.PI / 2 },
+      script: [
+        { type: 'line', zh: '你知道吗？长城有两千多年的历史。', py: 'Nǐ zhīdào ma? Chángchéng yǒu liǎngqiān duō nián de lìshǐ.', ja: '知ってる？長城には 2000 年以上の歴史があるんだよ。',
+          hamster: '「历史（lìshǐ）」＝歴史！' },
+        { type: 'line', zh: '这一段是明朝修的。', py: 'Zhè yí duàn shì Míngcháo xiū de.', ja: 'このあたりは明の時代に造られたんだ。',
+          hamster: '📖 右上の「文化メモ」で、くわしく読めるよ' },
+        { type: 'say', hamster: 'お礼を言おう', options: ['xiexie', 'zaijian', 'maidan'], answer: 0 },
+      ],
+    },
+    {
+      id: 'grandma', name: '散歩中のおばあちゃん', emoji: '👵',
+      look: { top: '#C0504D', bottom: '#3E3A36', hair: '#D8D8D8', hairStyle: 'bun' },
+      stand: { x: -1.6, z: -128, rot: Math.PI / 2 },
+      script: [
+        { type: 'understand', zh: '慢慢走，别着急。', py: 'Mànmàn zǒu, bié zháojí.', ja: 'ゆっくり歩きなさい、あせらずにね。',
+          q: '何と言われた？', options: ['ゆっくり歩いてね', '急いで走って', 'ここで休もう'], answer: 0, hint: '「慢慢（mànmàn）」＝ゆっくり' },
+        { type: 'say', hamster: 'お礼を言おう', options: ['xiexie', 'duibuqi', 'nihao'], answer: 0 },
+        { type: 'line', zh: '前面还很长哦！加油！', py: 'Qiánmiàn hái hěn cháng o! Jiāyóu!', ja: 'この先もまだ長いよ！がんばって！', hamster: 'まだ半分くらい…！' },
+      ],
+    },
   ];
+
+  /* ---------- まわりの山（城壁の尾根と、森におおわれた丘） ---------- */
+  const smooth = (a, b, x) => {
+    const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
+    return t * t * (3 - 2 * t);
+  };
+  // てっぺんの先は、尾根が少しずつ高くなりながら左右にくねる（飾りの長城がその上を続く）
+  const ridgeX = (z) => (z < END_Z ? 34 * Math.sin((END_Z - z) * 0.018) : 0);
+  const ridgeH = (z) => (z < END_Z ? TOP_H + (END_Z - z) * 0.16 : heightAt(0, z));
+  function terrainH(x, z) {
+    const ax = Math.abs(x - ridgeX(z));
+    const base = ridgeH(z) - 1.2;
+    const sig = 9 + Math.max(0, base) * 0.6;
+    const t = Math.max(0, ax - 3.4);
+    const ridge = base * Math.exp(-(t * t) / (2 * sig * sig));
+    const n1 = Math.sin(x * 0.045 + Math.sin(z * 0.03) * 1.5) * Math.cos(z * 0.037 + x * 0.01);
+    const n2 = Math.sin(x * 0.11 + z * 0.07) * Math.sin(z * 0.09 - x * 0.05);
+    const far = Math.min(1, Math.pow(Math.max(0, ax - 45) / 150, 1.3)) * 60 * (0.75 + 0.25 * Math.sin(z * 0.025 + x * 0.03));
+    const hills = (7 + n1 * 7 + n2 * 2.5) * smooth(10, 40, ax) + far;
+    // 入口の広場のあたりは平ら
+    const flat = 1 - (1 - smooth(16, 40, Math.abs(x))) * smooth(-10, 8, z);
+    return Math.max(0, ridge, hills * flat);
+  }
 
   function buildGreatWall(THREE, scene) {
     const Md = App.Models3D;
@@ -115,13 +167,6 @@
       if (collide) rect(x - w / 2, x + w / 2, z - d / 2, z + d / 2);
       return m;
     };
-    const cone = (r, h, mat, x, z, seg = 7) => {
-      const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat);
-      m.position.set(x, h / 2, z);
-      m.rotation.y = Math.random() * Math.PI;
-      scene.add(m);
-      return m;
-    };
     const tex = (w, h, draw, repeat) => {
       const t = Md.canvasTexture(THREE, w, h, draw);
       t.wrapS = t.wrapT = THREE.RepeatWrapping;
@@ -130,11 +175,15 @@
     };
 
     /* ---------- 空・光（よく晴れた日） ---------- */
-    scene.background = new THREE.Color('#9FD3F2');
-    scene.fog = new THREE.Fog('#BFE0F2', 70, 260);
-    scene.add(new THREE.HemisphereLight(0xeaf6ff, 0x6c7a4a, 0.85));
-    const sun = new THREE.DirectionalLight(0xfff1d6, 0.75);
-    sun.position.set(-30, 60, 20);
+    const Sc = App.Scenery3D;
+    scene.background = new THREE.Color('#D6EAF6');
+    scene.fog = new THREE.Fog('#D6EAF6', 80, 340);
+    Sc.sky(THREE, scene, { top: '#3F8FDA', horizon: '#D6EAF6', ground: '#B9D3A8', sun: [-0.5, 0.42, -0.75] });
+    Sc.farMountains(THREE, scene, { r: 320, colors: ['#8DB0A6', '#B3CCD3'], height: [40, 95] });
+    Sc.clouds(THREE, scene, { count: 16, y: [75, 130], r: [150, 300] });
+    scene.add(new THREE.HemisphereLight(0xeaf6ff, 0x5d7a45, 0.8));
+    const sun = new THREE.DirectionalLight(0xfff1d6, 0.8);
+    sun.position.set(-40, 60, -50);
     scene.add(sun);
 
     /* ---------- 素材 ---------- */
@@ -156,47 +205,103 @@
     const roofMat = M('#4A4644');
     const redMat = M('#B83A2E');
 
-    /* ---------- 地面と山 ---------- */
-    const groundMat = new THREE.MeshStandardMaterial({ map: tex(128, 128, (g, w, h) => {
-      g.fillStyle = '#7E9A5A'; g.fillRect(0, 0, w, h);
-      for (let i = 0; i < 300; i++) { g.fillStyle = Math.random() < 0.5 ? '#6F8C4E' : '#8DA866'; g.fillRect(Math.random() * w, Math.random() * h, 3, 3); }
-    }, [80, 80]), roughness: 1 });
-    const gnd = new THREE.Mesh(new THREE.PlaneGeometry(700, 700), groundMat);
-    gnd.rotation.x = -Math.PI / 2;
-    scene.add(gnd);
-
-    // 城壁の下の尾根（城壁が山の上を走っているように見せる）
-    const ridgeMat = M('#6F8F4E');
-    for (let z = 6; z >= -100; z -= 6) {
-      const h = heightAt(0, z) - 0.6;
-      if (h > 1) cone(15 + h * 0.4, h, ridgeMat, 0, z, 9);
-    }
-    // 遠くの山
-    const hillMats = [M('#5E7F45'), M('#6E8E52'), M('#7C9A5C'), M('#8AA36A')];
-    for (let i = 0; i < 46; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const d = 70 + Math.random() * 170;
-      const x = Math.cos(a) * d;
-      const z = Math.sin(a) * d - 40;
-      if (Math.abs(x) < 26 && z < 40 && z > -120) continue;
-      cone(25 + Math.random() * 35, 18 + Math.random() * 50, hillMats[i % 4], x, z, 8);
-    }
-    // 遠くの山を越えていく長城（飾り）
-    const farWall = (pts) => {
-      for (let i = 0; i < pts.length; i++) {
-        const [x, z, h] = pts[i];
-        cone(26, h, hillMats[i % 4], x, z, 8);
-        box(4, 3, 4, stoneMat, x, h + 0.5, z);
-        if (i > 0) {
-          const [px, pz, ph] = pts[i - 1];
-          const len = Math.hypot(x - px, z - pz, h - ph);
-          const seg = box(1.6, 1.6, len, stoneMat, (x + px) / 2, (h + ph) / 2 + 0.3, (z + pz) / 2);
-          seg.lookAt(x, h + 0.3, z);
-        }
+    /* ---------- 地面：尾根と丘（頂点の色で草・森・岩をぬり分け） ---------- */
+    {
+      const geo = new THREE.PlaneGeometry(620, 660, 155, 165);
+      geo.rotateX(-Math.PI / 2);
+      geo.translate(0, 0, -110);
+      const pos = geo.attributes.position;
+      const colors = [];
+      const c = new THREE.Color();
+      const cLow = new THREE.Color('#9CCB6E');
+      const cMid = new THREE.Color('#5E9C47');
+      const cHigh = new THREE.Color('#4A7F3E');
+      const cRock = new THREE.Color('#9A9A86');
+      const cForest = new THREE.Color('#3E7434');
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i);
+        const z = pos.getZ(i);
+        const h = terrainH(x, z);
+        pos.setY(i, h);
+        const k = Math.min(1, h / 30);
+        c.copy(cLow).lerp(cMid, Math.min(1, k * 1.6));
+        if (k > 0.6) c.lerp(cHigh, (k - 0.6) * 2);
+        const v = Math.sin(x * 0.31 + z * 0.17) * Math.cos(z * 0.23 - x * 0.11);
+        c.offsetHSL(v * 0.02, 0, v * 0.04);
+        // 森の中は地面も濃い緑に
+        const clump = Math.sin(x * 0.06) * Math.cos(z * 0.05) + 0.5 * Math.sin(x * 0.13 + z * 0.1);
+        if (clump > -0.75 && !(Math.abs(x) < 16 && z > -6 && z < 40)) c.lerp(cForest, Math.min(0.55, (clump + 0.75) * 0.4) * smooth(5, 12, Math.abs(x - ridgeX(z))));
+        if (h > 55) c.lerp(cRock, Math.min(0.6, (h - 55) / 40));
+        colors.push(c.r, c.g, c.b);
       }
-    };
-    farWall([[-30, -120, 30], [-60, -140, 38], [-95, -125, 28], [-130, -150, 42], [-170, -130, 34]]);
-    farWall([[30, -125, 32], [62, -150, 44], [100, -135, 30], [140, -160, 40]]);
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+      geo.computeVertexNormals();
+      scene.add(new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true })));
+    }
+    // 入口の広場（石だたみ）
+    const plaza = new THREE.Mesh(new THREE.PlaneGeometry(18, 20), new THREE.MeshStandardMaterial({ map: tex(128, 128, (g, w, h) => {
+      g.fillStyle = '#B3A387'; g.fillRect(0, 0, w, h);
+      g.strokeStyle = '#97876A'; g.lineWidth = 3;
+      for (let y = 0; y <= h; y += 32) for (let x = 0; x <= w; x += 32) g.strokeRect(x + ((y / 32) % 2) * 16, y, 32, 32);
+    }, [5, 5]), roughness: 1 }));
+    plaza.rotation.x = -Math.PI / 2;
+    plaza.position.set(0, 0.03, 23.5);
+    scene.add(plaza);
+
+    /* ---------- 森（尾根の斜面と丘。ところどころ紅葉） ---------- */
+    {
+      const rnd = Sc.rand(11);
+      const pts = [];
+      const AUTUMN = ['#D9792E', '#C9472F', '#E3A33A'];
+      for (let i = 0; i < 16000 && pts.length < 4200; i++) {
+        // 城壁の近く（見える範囲）ほど木を多く
+        const near = rnd() < 0.55;
+        const x = near ? (rnd() - 0.5) * 140 : (rnd() - 0.5) * 520;
+        const z = near ? 20 - rnd() * 300 : 150 - rnd() * 560;
+        const ax = Math.abs(x - ridgeX(z));
+        if (ax < 5.4) continue; // 城壁の上
+        if (Math.abs(x) < 16 && z > -6 && z < 40) continue; // 広場と関門
+        const clump = Math.sin(x * 0.06) * Math.cos(z * 0.05) + 0.5 * Math.sin(x * 0.13 + z * 0.1);
+        if (clump < -0.75 && rnd() < 0.7) continue; // ところどころ草原のすき間
+        const y = terrainH(x, z);
+        const round = rnd() < 0.45;
+        pts.push({
+          x, y, z, s: (ax < 12 ? 0.85 : ax < 40 ? 1.15 : 1.6) * (0.75 + rnd() * 0.7), kind: round ? 'round' : 'pine',
+          color: round && rnd() < 0.18 ? AUTUMN[Math.floor(rnd() * 3)] : null,
+        });
+      }
+      Sc.forest(THREE, scene, pts);
+    }
+
+    /* ---------- てっぺんの先へ続く長城（飾り） ---------- */
+    {
+      const pts = [];
+      for (let z = END_Z - 4; z > -440; z -= 7) {
+        const x = ridgeX(z);
+        pts.push([x, z, terrainH(x, z) + 0.6]);
+      }
+      // 左の山なみをこえていくもう 1 本
+      for (let k = 0; k < 26; k++) {
+        const x = -40 - k * 8;
+        const z = -150 - 30 * Math.sin(k * 0.3) - k * 4;
+        pts.push(null);
+        pts.push([x, z, terrainH(x, z) + 0.6]);
+      }
+      let prev = null;
+      let n = 0;
+      pts.forEach((pt) => {
+        if (!pt) { prev = null; return; }
+        const [x, z, h] = pt;
+        if (prev) {
+          const [px, pz, ph] = prev;
+          const len = Math.hypot(x - px, z - pz, h - ph);
+          const seg = box(2.6, 2.2, len + 0.4, stoneMat, (x + px) / 2, (h + ph) / 2 + 0.4, (z + pz) / 2);
+          seg.lookAt(x, h + 0.4, z);
+          if (++n % 6 === 0) box(4.2, 4.2, 4.2, stoneMat, x, h + 1.8, z);
+        }
+        prev = pt;
+      });
+    }
 
     /* ---------- 城壁の通路（坂・階段） ---------- */
     const W = 4.6;
@@ -232,11 +337,11 @@
       });
     }
     for (let i = 0; i < PROFILE.length - 1; i++) segment(PROFILE[i][0], PROFILE[i][1], PROFILE[i + 1][0], PROFILE[i + 1][1]);
-    rect(-3.2, -2.25, -93.5, 14.2);
-    rect(2.25, 3.2, -93.5, 14.2);
+    rect(-3.2, -2.25, END_Z - 0.5, 14.2);
+    rect(2.25, 3.2, END_Z - 0.5, 14.2);
 
     /* ---------- 見張り台（烽火台） ---------- */
-    function tower(zFront, zBack, h, { top = false } = {}) {
+    function tower(zFront, zBack, h) {
       const len = zFront - zBack;
       const cz = (zFront + zBack) / 2;
       const wm = brickMat(len / 3, 1.5);
@@ -251,7 +356,7 @@
         }
       };
       end(zFront, true);
-      end(zBack, !top);
+      end(zBack, true);
       box(8.8, 0.4, len + 0.6, wm, 0, h + 4.8, cz);
       for (let k = -4; k <= 4; k += 1.6) {
         box(0.7, 0.6, 0.6, stoneMat, k, h + 5.3, zFront);
@@ -261,22 +366,44 @@
       [-1, 1].forEach((s) => {
         for (let z = zBack + 1.6; z < zFront - 1; z += 2.4) box(0.64, 1.0, 0.7, M('#2E2A26'), s * 4, h + 2, z);
       });
-      if (top) {
-        // てっぺんの楼閣と旗
-        box(5, 0.3, 5, roofMat, 0, h + 7.4, cz);
-        [-2, 2].forEach((x) => [-2, 2].forEach((z) => box(0.3, 2.3, 0.3, redMat, x, h + 6.2, cz + z)));
-        const roof = new THREE.Mesh(new THREE.ConeGeometry(4.4, 2.2, 4), roofMat);
-        roof.position.set(0, h + 8.6, cz);
-        roof.rotation.y = Math.PI / 4;
-        scene.add(roof);
-        box(0.08, 3.2, 0.08, M('#555555'), 3.6, h + 6.6, zFront + 0.3);
-        box(1.4, 0.9, 0.04, redMat, 4.3, h + 7.6, zFront + 0.3);
-      }
     }
-    tower(0, -8, 5);
-    tower(-36, -44, 14);
-    tower(-80, -93, 26, { top: true });
-    Md.sign(THREE, scene, { zh: '好汉坡', en: 'Hero’s Slope', bg: '#8E2F2F', accent: '#FFC23D', sub: '#FBE3C4' }, 3.2, 0, 26 + 5.8, -79.6);
+    // てっぺん（好汉坡）：景色が見わたせるように低い胸壁だけ。まんなかに楼閣、奥に石碑
+    function summit(zFront, zBack, h) {
+      const len = zFront - zBack;
+      const cz = (zFront + zBack) / 2;
+      const wm = brickMat(len / 3, 1);
+      box(8.6, 6, len, wm, 0, h - 3, cz);
+      [-1, 1].forEach((s) => {
+        box(0.6, 1.1, len, wm, s * 4, h + 0.55, cz);
+        for (let z = zBack + 0.6; z < zFront; z += 1.3) box(0.66, 0.55, 0.6, stoneMat, s * 4, h + 1.4, z);
+        box(2.7, 1.1, 0.6, wm, s * 2.95, h + 0.55, zFront, { collide: true });
+      });
+      box(8.6, 1.1, 0.6, wm, 0, h + 0.55, zBack, { collide: true });
+      for (let x = -3.9; x <= 3.9; x += 1.3) box(0.6, 0.55, 0.66, stoneMat, x, h + 1.4, zBack);
+      // 楼閣
+      [-2, 2].forEach((x) => [-2.5, 2.5].forEach((z) => box(0.3, 3, 0.3, redMat, x, h + 1.5, cz + z)));
+      box(5.6, 0.3, 6.6, redMat, 0, h + 3.1, cz);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(4.8, 2, 4), roofMat);
+      roof.position.set(0, h + 4.25, cz);
+      roof.rotation.y = Math.PI / 4;
+      roof.scale.set(1, 1, 1.15);
+      scene.add(roof);
+      // 旗
+      box(0.08, 4.6, 0.08, M('#555555'), 3.4, h + 2.3, zFront - 0.6);
+      box(1.4, 0.9, 0.04, redMat, 4.1, h + 4.1, zFront - 0.6, { rotY: Math.PI / 2 });
+      // 石碑「好汉坡」
+      box(2.2, 2.8, 0.5, M('#8E8676'), 0, h + 1.4, zBack + 1);
+      box(2.5, 0.3, 0.7, M('#6E6858'), 0, h + 2.95, zBack + 1);
+      Md.sign(THREE, scene, { zh: '好汉坡', en: 'Hero’s Slope', bg: '#8E2F2F', accent: '#FFC23D', sub: '#FBE3C4' }, 1.9, 0, h + 1.6, zBack + 1.27);
+    }
+    // PROFILE の平らなところ（同じ高さが 2 つ続くところ）に見張り台。いちばん奥がてっぺん
+    for (let i = 1; i < PROFILE.length - 1; i++) {
+      const [z0, h0] = PROFILE[i];
+      const [z1, h1] = PROFILE[i + 1];
+      if (h0 !== h1) continue;
+      if (i + 1 === PROFILE.length - 1) summit(z0, z1, h0); else tower(z0, z1, h0);
+    }
+    const topFront = PROFILE[PROFILE.length - 2][0];
     Md.sign(THREE, scene, { zh: '烽火台', en: 'Beacon Tower', bg: '#5A4632', accent: '#FFC23D', sub: '#F3E2C0' }, 2.6, 0, 5 + 5.8, 0.35);
 
     /* ---------- ふもとの関門と広場 ---------- */
@@ -346,13 +473,21 @@
       ],
       facePlayer: [guard],
       discoveries: [
-        { id: 'gate', x: 0, z: 20.5, r: 3, say: '<b>万里长城</b>＝万里の長城！<br>まずは左の<b>售票处</b>で入場券（门票）を買おう' },
-        { id: 'tower1', x: 0, z: -4, r: 3, say: '<b>烽火台</b>＝のろし台。<br>敵が来たら煙をあげて知らせたんだって' },
+        { id: 'gate', x: 0, z: 20.5, r: 3, culture: 'changcheng', say: '<b>万里长城</b>＝万里の長城！<br>まずは左の<b>售票处</b>で入場券（门票）を買おう' },
+        { id: 'tower1', x: 0, z: -4, r: 3, culture: 'fenghuotai', say: '<b>烽火台</b>＝のろし台。<br>敵が来たら煙をあげて知らせたんだって' },
         { id: 'slope', x: 0, z: -22, r: 3, say: 'けっこう急な階段…！<br>「<b>好累啊！</b>」って言いたくなるね' },
         { id: 'tower2', x: 0, z: -40, r: 3, say: '長城は全長2万km以上！<br>「宇宙から見える」は、実はウソらしいよ' },
-        { id: 'view', x: 0, z: -62, r: 3, say: '後ろをふり返ってみて！<br>「<b>太美了！</b>」な景色だよ' },
+        { id: 'down', x: 0, z: -52, r: 3, say: '今度は下り坂！<br>長城は山の尾根にそって、上ったり下ったりするんだ' },
+        { id: 'brick', x: 0, z: -64, r: 3, culture: 'chengzhuan', say: 'このレンガのつなぎ目…<br><b>もち米</b>が入ってるんだって！' },
+        { id: 'view', x: 0, z: -84, r: 3, say: '後ろをふり返ってみて！<br>「<b>太美了！</b>」な景色だよ' },
+        { id: 'forest', x: 0, z: -116, r: 3, say: '下を見て！一面の森🌲<br>秋は紅葉で、山が赤や黄色にそまるんだって' },
+        { id: 'half', x: 0, z: -150, r: 3, say: 'まだまだ続く…！「<b>好累啊</b>」…<br>でも、もうひとふんばり！' },
+        { id: 'far', x: 0, z: -190, r: 3, say: '向こうの山にも長城が見える！<br>ほんとうに「万里」だね' },
+        { id: 'last', x: 0, z: -228, r: 3, culture: 'haohanpo', say: '最後の急な坂！<br>ここを登りきれば<b>好汉坡</b>だ！<b>加油！</b>' },
       ],
-      zones: [{ id: 'top', x1: -2.4, x2: 2.4, z1: -92, z2: -83 }],
+      topHeight: TOP_H,
+      topZ: END_Z,
+      zones: [{ id: 'top', x1: -2.4, x2: 2.4, z1: END_Z + 1, z2: topFront - 3 }],
       update(dt) {
         if (!gate.open) return;
         leaves.forEach(({ hinge, s }) => {

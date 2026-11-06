@@ -1,113 +1,185 @@
-/* ② 3D 旅行マップ
- * 北京の本線（上から下へ番号順）＋寄り道、少し離れて「高速鉄道で行く河南省（少林寺）」。
- * 行き先をタップ → 概要と「出発する」 → （任意）単語チェック → 3D へ。
+/* ② 3D 旅行マップ（ステージ選択画面）
+ * 明るい絵地図（草原・川・池・木）の上で、名所のイラストが道路でつながる。通った道は黄色に。
+ *   第一章「北京」：上から番号順に進む一本道＋寄り道（胡同）
+ *   特別章「嵩山・少林寺」：高速鉄道で行く別の旅先（空港に着いたら行ける・高難度）
+ * 名所をタップ → 概要と「出発する」 → （任意）単語チェック → 3D へ。
  * 2D 学習の進み具合は関係なく、3D の中でクリアした順に行き先が開く。
  */
 (function (App) {
   'use strict';
   App.screens = App.screens || {};
 
-  const { esc, $, toast } = App.U;
+  const { esc, $ } = App.U;
   const UI = App.UI;
 
   const stars = (n) => `<span class="tm-level" aria-label="難しさ ${n}">${'★'.repeat(n)}<i>${'★'.repeat(3 - n)}</i></span>`;
 
-  // 北京の街並み（かわいい背景イラスト）
-  const SKYLINE = `
-    <svg class="tm-sky" viewBox="0 0 400 90" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <path d="M0 70 L30 52 L58 66 L92 40 L128 62 L160 48 L196 66 L232 44 L270 64 L304 50 L340 66 L372 46 L400 60 L400 90 L0 90 Z" fill="#DCE8C8"/>
-      <path d="M40 58 L58 50 L76 58 L94 47 L112 58" stroke="#B58A5A" stroke-width="3" fill="none" stroke-linejoin="round"/>
-      <g fill="#E8B4A0"><rect x="170" y="56" width="60" height="20" rx="2"/><path d="M162 58 L200 44 L238 58 Z" fill="#C0504D"/></g>
-      <g fill="#F3D9C4"><rect x="260" y="60" width="16" height="18"/><rect x="282" y="52" width="14" height="26"/><rect x="300" y="64" width="20" height="14"/></g>
-      <g fill="#F0503C"><circle cx="120" cy="74" r="4"/><circle cx="136" cy="74" r="4"/><circle cx="152" cy="74" r="4"/></g>
-      <rect y="78" width="400" height="12" fill="#EFE3CA"/>
-    </svg>`;
-  const MOUNTAIN = `
-    <svg class="tm-sky" viewBox="0 0 400 90" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <path d="M0 74 L50 30 L90 60 L140 18 L190 58 L240 26 L290 62 L340 32 L400 66 L400 90 L0 90 Z" fill="#B9CFA0"/>
-      <path d="M0 80 L70 56 L130 74 L200 50 L260 76 L330 58 L400 78 L400 90 L0 90 Z" fill="#9DB985"/>
-      <g fill="#C0504D"><rect x="186" y="58" width="28" height="14"/><path d="M180 60 L200 50 L220 60 Z" fill="#6B4A3A"/></g>
-    </svg>`;
+  // マップの見た目（ボードは 360×600 の座標）。章ごとに、名所の位置と道
+  const CHAPTERS = [
+    {
+      id: 'beijing', no: '第1章', title: '北京の旅', region: 'beijing',
+      nodes: { airport: [92, 138], hutong: [292, 120], hotel: [258, 232], market: [96, 318], tiananmen: [266, 404], gugong: [96, 484], greatwall: [262, 548] },
+      route: ['airport', 'hotel', 'market', 'tiananmen', 'gugong', 'greatwall'],
+      branches: [['hotel', 'hutong']],
+      deco: 'beijing',
+    },
+    {
+      id: 'henan', no: '特別章', title: '嵩山・少林寺', region: 'henan',
+      start: [92, 96], startLabel: '🚄 北京から高速鉄道',
+      nodes: { shaolin: [196, 392] },
+      route: ['@start', 'shaolin'],
+      branches: [],
+      deco: 'henan',
+    },
+  ];
 
-  App.screens.map = (root) => {
+  // 2 点を S 字のカーブでつなぐ
+  const curve = (a, b) => {
+    const my = (a[1] + b[1]) / 2;
+    return `M${a[0]} ${a[1]} C${a[0]} ${my} ${b[0]} ${my} ${b[0]} ${b[1]}`;
+  };
+
+  // 絵地図の飾り（川・池・木・雲・山）。道より下に描く
+  const tree = (x, y, r = 11, c = '#5DBB4F') => `<g class="tm-tree"><rect x="${x - 2}" y="${y}" width="4" height="${r}" rx="2" fill="#9A6A3E"/><circle cx="${x}" cy="${y - r * 0.3}" r="${r}" fill="${c}" stroke="#2F6E34" stroke-width="2.4"/><circle cx="${x - r * 0.35}" cy="${y - r * 0.65}" r="${r * 0.3}" fill="#fff" opacity=".35"/></g>`;
+  const cloud = (x, y, k = 1) => `<g transform="translate(${x} ${y}) scale(${k})"><path d="M0 14 a10 10 0 0 1 12 -12 a13 13 0 0 1 24 2 a9 9 0 0 1 10 10 z" fill="#fff" stroke="#9CC6E4" stroke-width="2"/></g>`;
+  const hill = (x, y, w, h, c = '#8FCF6A') => `<path d="M${x - w / 2} ${y} Q${x} ${y - h * 2} ${x + w / 2} ${y} Z" fill="${c}" stroke="#2F6E34" stroke-width="2.4" stroke-linejoin="round"/>`;
+  const DECO = {
+    beijing: `
+      <g opacity=".55" fill="#D3F0A8">${[[60, 60, 50], [300, 330, 60], [60, 420, 46], [200, 580, 70], [180, 200, 40]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>
+      <path class="tm-river" d="M-10 352 Q60 322 128 350 T250 352 T370 330"/>
+      <path class="tm-river-line" d="M-10 352 Q60 322 128 350 T250 352 T370 330"/>
+      <g stroke="#8A5A2E" stroke-width="3.5" stroke-linecap="round"><path d="M164 342 L204 353 M157 369 L197 380"/></g>
+      <g fill="#8A5A2E"><circle cx="164" cy="342" r="3.5"/><circle cx="204" cy="353" r="3.5"/><circle cx="157" cy="369" r="3.5"/><circle cx="197" cy="380" r="3.5"/></g>
+      <ellipse cx="322" cy="296" rx="32" ry="20" fill="#7CCBF2" stroke="#3E8DC4" stroke-width="2.4"/>
+      <path d="M306 294 q4 -3 8 0 M322 302 q4 -3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>
+      ${hill(312, 600, 120, 34)}${hill(220, 600, 90, 22, '#A6DB7E')}
+      ${tree(28, 220)}${tree(48, 238, 9, '#7ACB55')}${tree(176, 98, 10)}${tree(340, 470, 12)}${tree(322, 486, 9, '#7ACB55')}${tree(170, 470, 10, '#7ACB55')}${tree(24, 560, 10)}${tree(178, 270, 8, '#7ACB55')}
+      ${cloud(150, 16, 0.9)}${cloud(300, 40, 0.7)}`,
+    henan: `
+      ${hill(60, 250, 170, 90, '#8FCF6A')}${hill(190, 260, 200, 120, '#7CC35A')}${hill(320, 250, 160, 80, '#8FCF6A')}
+      <rect x="0" y="250" width="360" height="350" fill="#B7E08A"/>
+      <path class="tm-river" d="M300 250 Q330 360 290 450 T330 610"/>
+      <path class="tm-river-line" d="M300 250 Q330 360 290 450 T330 610"/>
+      ${[[70, 520], [96, 540], [122, 520]].map(([x, y]) => `<path d="M${x - 6} ${y} h12 l-2 -6 h-8 z M${x - 4} ${y - 6} h8 v-10 h-8 z M${x - 6} ${y - 16} h12 l-6 -9 z" fill="#E4DCCB" stroke="#5A4A3A" stroke-width="1.8" stroke-linejoin="round"/>`).join('')}
+      ${tree(40, 300)}${tree(330, 520, 12)}${tree(240, 540, 10, '#7ACB55')}${tree(30, 430, 10, '#7ACB55')}${tree(150, 300, 9)}
+      ${cloud(230, 30, 0.9)}${cloud(30, 160, 0.7)}`,
+  };
+  // にっこり太陽と方位マーク
+  const SUN = `<svg class="tm-sun" viewBox="0 0 60 60" aria-hidden="true">
+    <g stroke="#F59E1B" stroke-width="4" stroke-linecap="round">${[0, 45, 90, 135, 180, 225, 270, 315].map((a) => `<line x1="30" y1="5" x2="30" y2="11" transform="rotate(${a} 30 30)"/>`).join('')}</g>
+    <circle cx="30" cy="30" r="15" fill="#FFD84A" stroke="#E0891B" stroke-width="2.5"/>
+    <circle cx="25" cy="28" r="1.8" fill="#5A3A22"/><circle cx="35" cy="28" r="1.8" fill="#5A3A22"/>
+    <path d="M25 34 q5 5 10 0" stroke="#5A3A22" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="21" cy="33" r="2.4" fill="#FF9EAA" opacity=".8"/><circle cx="39" cy="33" r="2.4" fill="#FF9EAA" opacity=".8"/></svg>`;
+  const COMPASS = `<svg class="tm-compass" viewBox="0 0 48 48" aria-hidden="true">
+    <circle cx="24" cy="26" r="16" fill="#fff" stroke="#4A3426" stroke-width="2.5"/>
+    <path d="M24 13 L29 26 L24 39 L19 26 Z" fill="#E5533D" stroke="#4A3426" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M24 26 L29 26 L24 39 L19 26 Z" fill="#DDD3C3" stroke="#4A3426" stroke-width="1.5" stroke-linejoin="round"/>
+    <rect x="15" y="0" width="18" height="11" rx="5.5" fill="#4A3426"/><text x="24" y="8.6" text-anchor="middle" font-size="8.5" fill="#fff" font-weight="800">北</text></svg>`;
+
+  App.screens.map = (root, params = {}) => {
     const T = App.Trip;
     const P = App.Progress;
+    const st = App.Store.state;
     const lv = P.level();
     const next = T.next();
     const all = T.stages();
+    const shaolinOpen = T.isUnlocked(T.find('shaolin'));
 
     const stateOf = (s) => {
       if (!T.ready(s)) return 'soon';
       if (T.isCleared(s.id)) return 'cleared';
       if (!T.isUnlocked(s)) return 'locked';
-      return s === next ? 'next' : 'open';
+      return s === next || (s.kind === 'special' && !next) ? 'next' : 'open';
     };
-    const chip = {
-      cleared: '<span class="tm-chip is-cleared">✓ クリア</span>',
-      next: '<span class="tm-chip is-next">▶ いまここ</span>',
-      open: '<span class="tm-chip is-open">行ける！</span>',
-      locked: '<span class="tm-chip is-locked">🔒 まだ</span>',
-      soon: '<span class="tm-chip is-soon">準備中</span>',
-    };
-    const node = (s, extra = '') => {
-      const st = stateOf(s);
+    const starTotal = all.reduce((n, s) => n + T.stars(s), 0);
+    const chId = params.chapter || st.trip.chapter || 'beijing';
+    const ch = CHAPTERS.find((c) => c.id === chId) || CHAPTERS[0];
+    const W = 360;
+    const H = 600;
+    const pct = (p) => `left:${(p[0] / W) * 100}%;top:${(p[1] / H) * 100}%`;
+    const posOf = (id) => (id === '@start' ? ch.start : ch.nodes[id]);
+    // 道：区間ごとに「通った道」と「これからの道」を分ける
+    const segs = [];
+    for (let i = 0; i < ch.route.length - 1; i++) {
+      const a = ch.route[i];
+      const b = ch.route[i + 1];
+      const done = a === '@start' ? shaolinOpen : T.isCleared(a);
+      segs.push({ d: curve(posOf(a), posOf(b)), done, side: false, rail: a === '@start' });
+    }
+    ch.branches.forEach(([a, b]) => segs.push({ d: curve(posOf(a), posOf(b)), done: T.isCleared(a), side: true }));
+
+    const node = (id) => {
+      const s = T.find(id);
+      const state = stateOf(s);
+      const n = T.stars(s);
+      const badge = s.no ? `<b>${s.no}</b>` : s.kind === 'side' ? '<b>寄</b>' : '<b>★</b>';
       return `
-        <button class="tm-stop is-${st} ${extra}" data-stage="${s.id}">
-          <span class="tm-pin">${s.emoji}${s.no ? `<i class="tm-no">${s.no}</i>` : ''}
-            ${st === 'next' ? `<span class="tm-here">${App.Hamster.figure({ mood: 'happy', size: 'xs', bounce: true })}</span>` : ''}</span>
-          <span class="tm-text">
-            <span class="tm-name">${esc(s.name)} ${stars(s.level)}</span>
-            <span class="tm-desc">${esc(s.desc)}</span>
-          </span>
-          ${chip[st]}
+        <button class="lm lm-${state}${s.kind === 'side' ? ' is-side' : ''}${s.kind === 'special' ? ' is-special' : ''}" style="${pct(ch.nodes[id])}" data-stage="${s.id}" aria-label="${esc(s.name)}">
+          ${state === 'next' ? '<span class="lm-here" aria-hidden="true">いまここ！</span>' : ''}
+          <span class="lm-pic">${App.Landmarks.svg(s.id)}
+            ${state === 'locked' ? '<i class="lm-lock">🔒</i>' : ''}${state === 'soon' ? '<i class="lm-lock">🛠</i>' : ''}
+            ${state === 'cleared' ? '<i class="lm-done" aria-label="クリア">✓</i>' : ''}
+            ${state === 'next' ? `<span class="lm-mochi">${App.Hamster.figure({ mood: 'happy', size: 'xs', bounce: true })}</span>` : ''}</span>
+          <span class="lm-name">${badge}${esc(s.name)}</span>
+          ${state === 'cleared' ? `<span class="lm-stars">${[1, 2, 3].map((k) => `<i class="${k <= n ? 'is-on' : ''}">★</i>`).join('')}</span>` : ''}
         </button>`;
     };
 
-    // 北京：本線を上から順に。寄り道は分かれ道として、元になるステージの下に出す
-    const bj = all.filter((s) => s.region === 'beijing');
-    const route = bj.filter((s) => s.kind === 'main').map((s) => {
-      const sides = bj.filter((x) => x.kind === 'side' && x.after === s.id);
-      return `<li class="tm-step">${node(s)}</li>${sides.map((x) => `
-        <li class="tm-branch"><span class="tm-branch-label">↪ 寄り道</span>${node(x, 'is-side')}</li>`).join('')}`;
-    }).join('');
-    const henan = all.filter((s) => s.region === 'henan');
-    const hn = T.region('henan');
-
     const msg = next
-      ? `次の行き先は <b>${next.emoji} ${esc(next.name)}</b>！<br><small>${esc(next.goal)}</small>`
+      ? `次の行き先は <b>${next.emoji} ${esc(next.name)}</b>！<small>${esc(next.goal)}</small>`
       : all.filter(T.ready).every((s) => T.isCleared(s.id))
-        ? '行ける場所はぜんぶ旅したね！🎉<br>好きな場所にもう一度行ってみよう'
+        ? '行ける場所はぜんぶ旅したね！🎉<small>★3 を目指して、街の人とたくさん話そう</small>'
         : '寄り道や、少林寺にも行ってみよう！';
 
     root.innerHTML = `
-      ${UI.topbar({ title: '🗺️ 中国を旅する', back: 'title', right: UI.levelChip() })}
-      <section class="stats-strip">
-        <div class="stat-exp">
-          <div class="stat-row"><span>Lv.${lv.level}</span><span class="muted">${lv.cur} / ${lv.need} EXP</span></div>
-          ${UI.expBar(lv)}
-        </div>
-        <div class="stat-mini"><b>${T.percent()}%</b><span>旅の達成率</span></div>
-        <div class="stat-mini"><b>${all.filter((s) => T.isCleared(s.id)).length}</b><span>行った場所</span></div>
+      <header class="tm-hud">
+        <button class="tm-hud-back" data-go="title" aria-label="もどる">◀</button>
+        <span class="tm-pill"><b>Lv.${lv.level}</b><i class="tm-pill-bar"><i style="width:${(lv.cur / lv.need) * 100}%"></i></i></span>
+        <span class="tm-pill">⭐ <b>${starTotal}</b>/${all.length * 3}</span>
+        <span class="tm-pill">📍 <b>${all.filter((s) => T.isCleared(s.id)).length}</b>/${all.length}</span>
+      </header>
+
+      <nav class="tm-chapters">
+        ${CHAPTERS.map((c) => {
+          const locked = c.id === 'henan' && !shaolinOpen;
+          return `<button class="tm-chapter${c === ch ? ' is-cur' : ''}${locked ? ' is-locked' : ''}" data-chapter="${c.id}">
+            <small>${c.no}</small>${locked ? '🔒 ' : ''}${esc(c.title)}</button>`;
+        }).join('')}
+      </nav>
+
+      <section class="tm-board tm-board-${ch.id}">
+        <svg class="tm-paths" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+          ${DECO[ch.deco]}
+          ${segs.map((g) => `<path class="tm-road-edge${g.side ? ' is-side' : ''}${g.rail ? ' is-rail' : ''}" d="${g.d}"/>`).join('')}
+          ${segs.map((g) => `<path class="tm-road${g.done ? ' is-done' : ''}${g.side ? ' is-side' : ''}${g.rail ? ' is-rail' : ''}" d="${g.d}"/>`).join('')}
+          ${segs.filter((g) => !g.side).map((g) => `<path class="tm-road-line${g.rail ? ' is-rail' : ''}" d="${g.d}"/>`).join('')}
+        </svg>
+        <div class="tm-title"><small>${ch.no}</small>${esc(ch.title)}</div>
+        ${SUN}
+        ${ch.start ? `<span class="tm-start" style="${pct(ch.start)}">${ch.startLabel}</span>` : ''}
+        ${Object.keys(ch.nodes).map(node).join('')}
+        ${COMPASS}
+        ${ch.id === 'henan' && !shaolinOpen ? '<div class="tm-board-lock">🔒 北京の<b>空港</b>に着いたら行けるよ</div>' : ''}
       </section>
 
-      ${UI.hamsterSays(msg, { mood: 'happy', size: 'sm' })}
-      ${next ? `<button class="btn btn-primary btn-lg btn-block tm-go" data-stage="${next.id}">${next.emoji} ${esc(next.name)}へ出発</button>` : ''}
-
-      <section class="tm-region">
-        <header class="tm-region-head">${SKYLINE}<div><h2>📍 ${esc(T.region('beijing').zh)}</h2><p>${esc(T.region('beijing').desc)}</p></div></header>
-        <ol class="tm-route">${route}</ol>
-      </section>
-
-      <div class="tm-rail" aria-hidden="true"><span>🚄</span>${esc(hn.how)}<small>北京から南西へ約 700km</small></div>
-
-      <section class="tm-region is-henan">
-        <header class="tm-region-head">${MOUNTAIN}<div><h2>📍 ${esc(hn.zh)}・嵩山</h2><p>${esc(hn.desc)}</p></div></header>
-        <ol class="tm-route is-special">${henan.map((s) => `<li class="tm-step">${node(s, 'is-special')}
-          <p class="tm-note">⭐ 特別な旅先・高難度。空港に着いたら、いつでも行けるよ</p></li>`).join('')}</ol>
-      </section>
+      <div class="tm-next">
+        ${App.Hamster.figure({ mood: 'happy', size: 'xs' })}
+        <p>${msg}</p>
+        ${next ? `<button class="btn btn-primary tm-go" data-stage="${next.id}">出発 ▶</button>` : ''}
+      </div>
 
       <div class="cs-sheet-wrap" hidden><div class="cs-sheet card"></div></div>
       ${UI.tabbar('map')}`;
+
+    root.querySelectorAll('[data-chapter]').forEach((b) => {
+      b.onclick = () => {
+        App.Sfx.play('tap');
+        st.trip.chapter = b.dataset.chapter;
+        App.Store.save();
+        App.go('map', { chapter: b.dataset.chapter });
+      };
+    });
 
     const sheetWrap = $('.cs-sheet-wrap', root);
     const sheet = $('.cs-sheet', root);
@@ -119,6 +191,7 @@
       const before = s.after && T.find(s.after);
       const words = s.words.map((id) => App.PHRASES[id]).filter(Boolean);
       const rec = App.Store.state.trip.cleared[s.id];
+      const cul = App.Culture.byStage(s.id);
       sheet.innerHTML = `
         <div class="cs-sheet-head" style="--c:${s.region === 'henan' ? '#7A3A12' : '#2BB5A0'}">
           <span>${esc(T.region(s.region).name)}・${s.kind === 'main' ? `ステージ ${s.no}` : s.kind === 'side' ? '寄り道' : '特別な旅先'}</span>
@@ -127,6 +200,7 @@
         </div>
         <p class="tm-goal">🎯 目的：<b>${esc(s.goal)}</b>${rec ? `<br><small class="muted">クリア ${rec.count}回</small>` : ''}</p>
         ${words.length ? `<p class="muted small">ここで役立つ言葉</p><ul class="cs-words">${words.map((p) => `<li><span class="zh">${esc(p.zh)}</span><span class="muted">${esc(p.ja)}</span></li>`).join('')}</ul>` : ''}
+        ${cul.length ? `<p class="muted small">📖 この場所の文化メモ（タップで読めるよ）</p><div class="cul-chips">${cul.map(App.Culture.chip).join('')}</div>` : ''}
         ${st === 'locked' ? `<p class="tm-lock">🔒 <b>${esc(before.emoji + ' ' + before.name)}</b> をクリアすると行けるよ</p>` : ''}
         ${st === 'soon' ? '<p class="tm-lock">🛠 この場所はいま準備中だよ</p>' : ''}
         ${st !== 'locked' && st !== 'soon' ? '<button class="btn btn-primary btn-lg btn-block" data-depart>🌏 出発する</button>' : ''}
@@ -134,6 +208,9 @@
       const dep = $('[data-depart]', sheet);
       if (dep) dep.onclick = () => { App.Sfx.play('tap'); beforeDepart(s); };
       $('[data-close]', sheet).onclick = () => { App.Sfx.play('tap'); close(); };
+      sheet.querySelectorAll('[data-culture]').forEach((b) => {
+        b.onclick = () => App.Culture.open(b.dataset.culture, { onClose: () => openStage(s) });
+      });
       sheetWrap.hidden = false;
     }
 
@@ -168,8 +245,8 @@
       };
     });
 
-    const here = $('.tm-stop.is-next', root);
-    if (here && Object.keys(App.Store.state.trip.cleared).length) requestAnimationFrame(() => here.scrollIntoView({ block: 'center' }));
+    const here = $('.lm-next', root);
+    if (here && Object.keys(st.trip.cleared).length) requestAnimationFrame(() => here.scrollIntoView({ block: 'center' }));
   };
 
   /* ---------- 出発前の単語チェック（2〜5 問・採点は 2D の記録に入れない） ---------- */

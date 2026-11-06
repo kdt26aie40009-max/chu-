@@ -9,8 +9,8 @@
       <div class="title-screen">
         <div class="clouds" aria-hidden="true"><span>☁️</span><span>☁️</span><span>☁️</span></div>
         <div class="title-logo">
-          <span class="title-tag" data-devtap>${App.Dev.on ? '🛠 開発者モード' : '仮タイトル'}</span>
-          <h1>ハムスターと行く<br><span>中国旅行</span></h1>
+          <span class="title-tag" data-devtap>${App.Dev.on ? '🛠 開発者モード' : '中国語で旅するゲーム'}</span>
+          <h1>ハムコシと征く<br><span>中国旅行</span></h1>
           <p class="title-zh">和仓鼠一起去中国旅行</p>
           ${App.TITLE_CALL ? '<button class="title-call" data-title-call aria-label="タイトルコールを聞く">🔊 タイトルコール</button>' : ''}
         </div>
@@ -44,7 +44,7 @@
       };
     }
 
-    // 開発者モードの切り替え（「仮タイトル」を 7 回タップ）
+    // 開発者モードの切り替え（タイトル上の小さなラベルを 7 回タップ）
     let taps = 0;
     let timer = 0;
     root.querySelector('[data-devtap]').onclick = () => {

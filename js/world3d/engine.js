@@ -10,7 +10,8 @@
  *   interactables: [{id,x,z,r}]                 話しかけ・調べる地点（cfg.onInteract[id] が呼ばれる）
  *   tags: [{obj, y, text, maxDist}]             3D 上に出す名札
  *   facePlayer: [model]                         プレイヤーの方を向く人（係員など）
- *   discoveries: [{id,x,z,r,say}]               近づくとハムスターが豆知識
+ *   discoveries: [{id,x,z,r,say,culture?}]      近づくとハムスターが豆知識（culture: 文化メモの id。近くで「📖 文化メモ」が出る）
+ *   cultures?: [{id,x,z,r}]                     文化メモ（js/data/culture.js）を読める場所（discoveries 以外で足したいとき）
  *   zones: [{id,x1,x2,z1,z2}]                   入ると cfg.onZone[id] が 1 回呼ばれる
  *   heightAt?(x, z) -> y                        地面の高さ（坂・階段。無ければ平ら）
  *   update?(dt, t, ctx)
@@ -83,6 +84,7 @@
         <div class="w3d-label w3d-hamster-label"><div class="bubble"></div></div>
         <div class="w3d-label w3d-person-label"></div>
         <button class="w3d-label w3d-read" hidden></button>
+        <button class="w3d-culture" hidden></button>
 
         <button class="btn btn-primary btn-lg w3d-interact" hidden></button>
 
@@ -128,6 +130,7 @@
       hBubble: $('.w3d-hamster-label .bubble', root),
       pLabel: $('.w3d-person-label', root),
       read: $('.w3d-read', root),
+      culture: $('.w3d-culture', root),
       interact: $('.w3d-interact', root),
       joy: $('.w3d-joy', root),
       help: $('.w3d-help', root),
@@ -174,6 +177,8 @@
       const zones = world.zones || [];
       const ground = world.heightAt || (() => 0);
       const readables = world.readables || [];
+      const cultures = (world.cultures || []).concat(discoveries.filter((d) => d.culture).map((d) => ({ id: d.culture, x: d.x, z: d.z, r: d.r + 3 })))
+        .filter((c) => App.Culture.get(c.id));
 
       const resize = () => {
         const w = el.wrap.clientWidth;
@@ -199,8 +204,10 @@
         hamsterChasing: false,
         totals: { found: discoveries.length, people: people.length },
       };
+      saved.peopleTotal = people.length; // 旅のマップの★（話した人の数）に使う
       let target = null; // { kind: 'spot', id } | { kind: 'person', p }
       let reading = null; // いま画面に「🔍 読む」ボタンを出している看板
+      let culNear = null; // いま「📖 文化メモ」ボタンを出している場所
 
       const input = App.Input3D.create(renderer.domElement, { onInteract: interact, joyEl: el.joy });
       const setBusy = (v) => { game.busy = v; input.setEnabled(!v); };
@@ -478,6 +485,44 @@
       }
       el.read.onclick = () => { if (reading && !game.busy) openSign(reading); };
 
+      /* ---------- 文化メモ（建物・食べ物の説明と歴史） ---------- */
+      function updateCulture() {
+        let best = null;
+        let bestD = Infinity;
+        if (!game.busy) {
+          cultures.forEach((c) => {
+            const d = Math.hypot(player.x - c.x, player.z - c.z);
+            if (d < c.r && d < bestD) { bestD = d; best = c; }
+          });
+        }
+        culNear = best;
+        if (!best) { el.culture.hidden = true; return; }
+        const info = App.Culture.get(best.id);
+        const read = App.Culture.isRead(best.id);
+        const key = best.id + (read ? ':read' : '');
+        if (el.culture.dataset.k !== key) {
+          el.culture.dataset.k = key;
+          el.culture.innerHTML = `<small>📖 文化メモ</small><b>${info.emoji} ${esc(info.name)}</b>${read ? '' : '<i>NEW</i>'}`;
+        }
+        el.culture.hidden = false;
+      }
+      // after: 「もどる」で呼ぶ関数（成功カードから開いたときなど）。無ければ閉じる
+      function openCulture(id, { after } = {}) {
+        if (!App.Culture.get(id)) return;
+        App.Sfx.play('tap');
+        talkToken++;
+        setBusy(true);
+        el.interact.hidden = true;
+        el.read.hidden = true;
+        el.culture.hidden = true;
+        el.modal.hidden = false;
+        el.talk.parentElement.scrollTop = 0;
+        App.Culture.markRead(id);
+        el.talk.innerHTML = `${App.Culture.card(id)}<button class="btn btn-primary btn-block" data-step>とじる</button>`;
+        $('[data-step]', el.talk).onclick = () => { App.Sfx.play('tap'); if (after) after(); else closeTalk(); };
+      }
+      el.culture.onclick = () => { if (culNear && !game.busy) openCulture(culNear.id); };
+
       // 会話のあとの「できた！」カード（モーダル内に表示）
       function successCard({ emoji, title, sub = '', exp = 0, body = '', buttons = [] }) {
         const ds = $('[data-dev-talk-skip]', root);
@@ -522,7 +567,7 @@
 
       const ctx = {
         THREE, scene, world, game, saved, player, el, C,
-        runTalk, closeTalk, successCard, hamsterSay, hamsterLine, toast, teleport, reward,
+        runTalk, closeTalk, successCard, hamsterSay, hamsterLine, toast, teleport, reward, openCulture,
         setBusy, // 3D の上に別の画面（武術大会など）を出すときに、歩けないようにする
         save: () => App.Store.save(),
         near: null,
@@ -728,7 +773,8 @@
           if (Math.hypot(player.x - d.x, player.z - d.z) < d.r) {
             game.found.add(d.id);
             App.Sfx.play('correct');
-            hamsterSay(d.say, 6);
+            hamsterSay(d.culture && !App.Culture.isRead(d.culture)
+              ? `${d.say}<br><small>📖 右上の「文化メモ」で、くわしく読めるよ</small>` : d.say, d.culture ? 7 : 6);
             if (cfg.onDiscover) cfg.onDiscover(d, ctx);
           }
         });
@@ -747,10 +793,17 @@
         }
 
         updateReadable(s);
+        updateCulture();
         updateTexts(now);
         placeLabel(el.hLabel, hm, 1.35, 30);
         (world.tags || []).forEach((tg) => placeLabel(tg.el, tg.obj, tg.y, tg.maxDist || 16));
 
+        // 空・雲・遠くの山（scenery.js）はカメラについてくる
+        (scene.userData.follow || []).forEach((o) => {
+          o.position.x = camera.position.x;
+          o.position.z = camera.position.z;
+          if (o.userData.followY) o.position.y = camera.position.y;
+        });
         renderer.render(scene, camera);
       }
 
