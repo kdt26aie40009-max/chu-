@@ -20,7 +20,7 @@
       <main class="page">
         <section class="card setting">
           <h3>🔊 音声</h3>
-          <div class="setting-row switch-row">
+          <div class="setting-row rate-row">
             <span>読み上げの速さ<small class="muted">（会話・覚える画面でも切り替えられます）</small></span>
             ${UI.rateToggle()}
           </div>
@@ -50,6 +50,10 @@
           <label class="setting-row switch-row">
             <span>${App.U.esc(App.Hamster.name)}の声<small class="muted">（ハムスターの案内を読み上げる）</small></span>
             <input type="checkbox" class="switch" data-hvoice ${s.hamsterVoice !== false ? 'checked' : ''}>
+          </label>
+          <label class="setting-row switch-row">
+            <span>BGM（音楽）<small class="muted">（後ろで小さく流れる曲）</small></span>
+            <input type="checkbox" class="switch" data-music ${s.music !== false ? 'checked' : ''}>
           </label>
           <label class="setting-row switch-row">
             <span>効果音</span>
@@ -91,6 +95,7 @@
       else App.MochiVoice.stop();
     };
     $('[data-wordcheck]', root).onchange = (e) => { s.wordCheck = e.target.checked; save(); };
+    $('[data-music]', root).onchange = (e) => { s.music = e.target.checked; save(); App.Music.start(); App.Music.refresh(); };
     $('[data-sfx]', root).onchange = (e) => { s.sfx = e.target.checked; save(); if (s.sfx) App.Sfx.play('correct'); };
     $('[data-reset]', root).onclick = () => {
       if (!confirm('本当にリセットする？（経験値・覚えた言葉がすべて消えます）')) return;

@@ -3,7 +3,8 @@
  *   通路       x: -2.25〜2.25（両側に胸壁）、z: 14 → -250（約 260m。上り坂・下り坂をくり返す）
  *   見張り台   8 つ（PROFILE の平らなところ）。いちばん奥の ⑧（高さ 44）が「好汉坡」
  * 坂と階段の高さは heightAt(x, z)（engine.js が目線・人・ハムスターの高さに使う）。
- * まわりの山（terrainH）は城壁の高さにそって尾根になり、森でおおわれている。てっぺんの先は飾りの長城が続く。
+ * まわりの山（terrainH）は城壁の高さにそって尾根になり、森でおおわれている。両側には岩肌の見える高い峰。
+ * てっぺんの先は飾りの長城が続く。時間は夕方（てっぺんの方向に夕日が沈む）。
  */
 (function (App) {
   'use strict';
@@ -147,8 +148,11 @@
     const ridge = base * Math.exp(-(t * t) / (2 * sig * sig));
     const n1 = Math.sin(x * 0.045 + Math.sin(z * 0.03) * 1.5) * Math.cos(z * 0.037 + x * 0.01);
     const n2 = Math.sin(x * 0.11 + z * 0.07) * Math.sin(z * 0.09 - x * 0.05);
-    const far = Math.min(1, Math.pow(Math.max(0, ax - 45) / 150, 1.3)) * 60 * (0.75 + 0.25 * Math.sin(z * 0.025 + x * 0.03));
-    const hills = (7 + n1 * 7 + n2 * 2.5) * smooth(10, 40, ax) + far;
+    const far = Math.min(1, Math.pow(Math.max(0, ax - 45) / 150, 1.3)) * 95 * (0.75 + 0.25 * Math.sin(z * 0.025 + x * 0.03));
+    // とがった峰（ところどころ高くつき出る）
+    const pk = Math.max(0, Math.sin(x * 0.021 + 1.3) * Math.sin(z * 0.017 + 0.4) + 0.4 * Math.sin(x * 0.05 - z * 0.04));
+    const peaks = Math.pow(pk, 1.7) * 75 * smooth(28, 80, ax);
+    const hills = (11 + n1 * 12 + n2 * 4) * smooth(10, 40, ax) + far + peaks;
     // 入口の広場のあたりは平ら
     const flat = 1 - (1 - smooth(16, 40, Math.abs(x))) * smooth(-10, 8, z);
     return Math.max(0, ridge, hills * flat);
@@ -174,16 +178,17 @@
       return t;
     };
 
-    /* ---------- 空・光（よく晴れた日） ---------- */
+    /* ---------- 空・光（夕方。てっぺんの先に夕日が沈む） ---------- */
     const Sc = App.Scenery3D;
-    scene.background = new THREE.Color('#D6EAF6');
-    scene.fog = new THREE.Fog('#D6EAF6', 80, 340);
-    Sc.sky(THREE, scene, { top: '#3F8FDA', horizon: '#D6EAF6', ground: '#B9D3A8', sun: [-0.5, 0.42, -0.75] });
-    Sc.farMountains(THREE, scene, { r: 320, colors: ['#8DB0A6', '#B3CCD3'], height: [40, 95] });
-    Sc.clouds(THREE, scene, { count: 16, y: [75, 130], r: [150, 300] });
-    scene.add(new THREE.HemisphereLight(0xeaf6ff, 0x5d7a45, 0.8));
-    const sun = new THREE.DirectionalLight(0xfff1d6, 0.8);
-    sun.position.set(-40, 60, -50);
+    scene.background = new THREE.Color('#F2B48E');
+    scene.fog = new THREE.Fog('#E9A889', 70, 330);
+    Sc.sky(THREE, scene, { top: '#34477E', horizon: '#F8A866', ground: '#9A7466', sun: [-0.3, 0.07, -0.95], sunColor: '#FFB070', sunSize: 120 });
+    Sc.farMountains(THREE, scene, { r: 320, colors: ['#7A6386', '#A1809A'], height: [55, 120] });
+    Sc.clouds(THREE, scene, { count: 18, y: [60, 120], r: [150, 300], tint: '#FFB98F' });
+    scene.add(new THREE.HemisphereLight(0xffd9b8, 0x6a5560, 1.0));
+    scene.add(new THREE.AmbientLight(0xffc8a0, 0.22)); // 夕日を背にした面も暗くなりすぎないように
+    const sun = new THREE.DirectionalLight(0xffa860, 1.05);
+    sun.position.set(-30, 16, -90);
     scene.add(sun);
 
     /* ---------- 素材 ---------- */
@@ -231,7 +236,7 @@
         // 森の中は地面も濃い緑に
         const clump = Math.sin(x * 0.06) * Math.cos(z * 0.05) + 0.5 * Math.sin(x * 0.13 + z * 0.1);
         if (clump > -0.75 && !(Math.abs(x) < 16 && z > -6 && z < 40)) c.lerp(cForest, Math.min(0.55, (clump + 0.75) * 0.4) * smooth(5, 12, Math.abs(x - ridgeX(z))));
-        if (h > 55) c.lerp(cRock, Math.min(0.6, (h - 55) / 40));
+        if (h > 50) c.lerp(cRock, Math.min(0.75, (h - 50) / 35));
         colors.push(c.r, c.g, c.b);
       }
       geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
@@ -264,6 +269,7 @@
         const clump = Math.sin(x * 0.06) * Math.cos(z * 0.05) + 0.5 * Math.sin(x * 0.13 + z * 0.1);
         if (clump < -0.75 && rnd() < 0.7) continue; // ところどころ草原のすき間
         const y = terrainH(x, z);
+        if (y > 75 && rnd() < 0.8) continue; // 高い峰は岩肌
         const round = rnd() < 0.45;
         pts.push({
           x, y, z, s: (ax < 12 ? 0.85 : ax < 40 ? 1.15 : 1.6) * (0.75 + rnd() * 0.7), kind: round ? 'round' : 'pine',

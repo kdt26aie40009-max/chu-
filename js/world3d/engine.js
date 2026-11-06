@@ -1,5 +1,6 @@
 /* 3D フィールド共通エンジン
  * 歩く・見回す・当たり判定・ハムスター追従・人の動きと会話・発見スポット・ラベル表示・会話モーダル。
+ * タップ（クリック）で移動：地面 → そこまで歩く、人 → 近くまで歩いて話しかける、調べる場所 → 近くまで歩いて調べる。
  * 各フィールド（空港・ホテル…）は「レイアウト（build）」と「設定（cfg）」だけを書けばよい。
  *
  * build(THREE, scene) が返すもの:
@@ -89,8 +90,8 @@
         <button class="btn btn-primary btn-lg w3d-interact" hidden></button>
 
         <div class="w3d-controls">${isTouch()
-          ? '👈 左側ドラッグ：移動　👉 右側ドラッグ：見回す'
-          : '<b>WASD / ↑↓</b> 移動　<b>←→</b> 向き　<b>ドラッグ</b> 見回す　<b>Space</b> ダッシュ　<b>E</b> 話す'}</div>
+          ? '👆 タップ：そこへ歩く・話しかける　👈 左ドラッグ：移動　👉 右ドラッグ：見回す'
+          : '<b>クリック</b> そこへ歩く・話す　<b>WASD / ↑↓</b> 移動　<b>←→</b> 向き　<b>ドラッグ</b> 見回す　<b>Space</b> ダッシュ　<b>E</b> 話す'}</div>
 
         <div class="w3d-joy" hidden><div class="w3d-joy-knob"></div></div>
 
@@ -99,8 +100,8 @@
             ${UI.hamsterSays(cfg.helpText, { mood: 'happy', size: 'md' })}
             <ul class="w3d-help-list">
               ${isTouch()
-                ? '<li>👈 画面の<b>左半分</b>をドラッグ … 歩く</li><li>👉 画面の<b>右半分</b>をドラッグ … 見回す</li><li>💬 近くで出るボタンをタップ … 話す・調べる</li>'
-                : '<li><b>W A S D</b> / <b>↑ ↓</b> … 歩く（<b>Space</b> でダッシュ）</li><li><b>← →</b> … 向きを変える</li><li><b>マウスでドラッグ</b> … 見回す</li><li><b>E</b>（または表示されるボタン）… 話す・調べる</li>'}
+                ? '<li>👆 行きたい場所を<b>タップ</b> … そこまで歩く</li><li>🧑 人を<b>タップ</b> … 近くまで歩いて話しかける</li><li>👈 画面の<b>左半分</b>をドラッグ … 自分で歩く</li><li>👉 画面の<b>右半分</b>をドラッグ … 見回す</li><li>💬 近くで出るボタンをタップ … 話す・調べる</li>'
+                : '<li>🖱️ 行きたい場所・人を<b>クリック</b> … そこまで歩く・話しかける</li><li><b>W A S D</b> / <b>↑ ↓</b> … 歩く（<b>Space</b> でダッシュ）</li><li><b>← →</b> … 向きを変える</li><li><b>マウスでドラッグ</b> … 見回す</li><li><b>E</b>（または表示されるボタン）… 話す・調べる</li>'}
             </ul>
             <button class="btn btn-primary btn-block" data-help-close>歩いてみる ▶</button>
           </div>
@@ -164,7 +165,8 @@
         el.loading.innerHTML = '<p>この端末では 3D 表示ができないみたい…</p><button class="btn btn-primary" data-go="map">${backLabel}</button>';
         return;
       }
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      // スマホは画素数をおさえて軽くする
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isTouch() ? 1.5 : 2));
       el.canvas.appendChild(renderer.domElement);
 
       const scene = new THREE.Scene();
@@ -209,8 +211,8 @@
       let reading = null; // いま画面に「🔍 読む」ボタンを出している看板
       let culNear = null; // いま「📖 文化メモ」ボタンを出している場所
 
-      const input = App.Input3D.create(renderer.domElement, { onInteract: interact, joyEl: el.joy });
-      const setBusy = (v) => { game.busy = v; input.setEnabled(!v); };
+      const input = App.Input3D.create(renderer.domElement, { onInteract: interact, onTap: tapAt, joyEl: el.joy });
+      const setBusy = (v) => { game.busy = v; input.setEnabled(!v); if (v) stopWalk(); };
 
       /* ---------- 当たり判定 ---------- */
       const hitsPerson = (x, z, r) => people.some((p) =>
@@ -611,6 +613,145 @@
         });
       }
 
+      /* ---------- タップで移動・話しかける ---------- */
+      // walk = { kind: 'point'|'person'|'spot', x, z, p?, it?, stuckT }
+      let walk = null;
+      const marker = new THREE.Mesh(new THREE.RingGeometry(0.32, 0.5, 28),
+        new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, opacity: 0.9, depthWrite: false }));
+      marker.rotation.x = -Math.PI / 2;
+      marker.visible = false;
+      marker.renderOrder = 5;
+      scene.add(marker);
+      const raycaster = new THREE.Raycaster();
+      const ndc = new THREE.Vector2();
+      // タップで当たりを調べるもの（空・雲・遠くの山・裏面だけの空の球はのぞく）
+      function pickables() {
+        const skip = new Set(scene.userData.follow || []);
+        const list = [];
+        scene.children.forEach((o) => {
+          if (skip.has(o) || o === marker || o.isLight) return;
+          o.traverse((m) => {
+            if (!m.isMesh || !m.visible) return;
+            const mat = Array.isArray(m.material) ? m.material[0] : m.material;
+            if (mat && mat.side === THREE.BackSide) return;
+            list.push(m);
+          });
+        });
+        return list;
+      }
+      function stopWalk() {
+        walk = null;
+        marker.visible = false;
+      }
+      function startWalk(w) {
+        walk = Object.assign({ stuckT: 0, side: 1, bestD: Infinity, slowT: 0 }, w);
+        marker.visible = w.kind === 'point';
+        if (marker.visible) marker.position.set(w.x, ground(w.x, w.z) + 0.06, w.z);
+      }
+      const isInside = (root, o) => { for (let n = o; n; n = n.parent) if (n === root) return true; return false; };
+      function tapAt(cx, cy) {
+        if (game.busy) return;
+        const rect = renderer.domElement.getBoundingClientRect();
+        ndc.set(((cx - rect.left) / rect.width) * 2 - 1, -((cy - rect.top) / rect.height) * 2 + 1);
+        raycaster.setFromCamera(ndc, camera);
+        raycaster.far = 120;
+        const hit = raycaster.intersectObjects(pickables(), false)[0];
+        // 1) 人をタップ → 近くまで歩いて話しかける（人は細いので、画面の上で近ければ OK。壁のむこうの人はのぞく）
+        const w = el.wrap.clientWidth;
+        const h = el.wrap.clientHeight;
+        const pxPerM = h / (2 * Math.tan((camera.fov * Math.PI) / 360)); // 1m 先の 1m が何 px か
+        let tapped = null;
+        let tappedScore = 1;
+        people.forEach((p) => {
+          const m = p.model;
+          const cy3 = m.position.y + 0.9 * m.scale.y; // からだの真ん中
+          const camD = camera.position.distanceTo(tmp.set(m.position.x, cy3, m.position.z));
+          if (camD > 45 || (hit && hit.distance < camD - 1.2 && !isInside(m, hit.object))) return;
+          tmp.project(camera);
+          if (tmp.z >= 1) return;
+          // 人の形（よこ 0.3m・たて 1m）のだ円＋指の太さ 22px の中なら当たり
+          const rx = (0.3 * pxPerM) / camD + 22;
+          const ry = (1.0 * m.scale.y * pxPerM) / camD + 22;
+          const ex = ((tmp.x * 0.5 + 0.5) * w - cx) / rx;
+          const ey = ((-tmp.y * 0.5 + 0.5) * h - cy) / ry;
+          const score = Math.hypot(ex, ey);
+          if (score < tappedScore) { tapped = p; tappedScore = score; }
+        });
+        if (tapped) {
+          App.Sfx.play('tap');
+          const d = Math.hypot(player.x - tapped.model.position.x, player.z - tapped.model.position.z);
+          if (d < C.PERSON_TALK) { stopWalk(); target = { kind: 'person', p: tapped }; talkToPerson(tapped); } else startWalk({ kind: 'person', p: tapped });
+          return;
+        }
+        if (!hit) return;
+        const hx = hit.point.x;
+        const hz = hit.point.z;
+        // 2) 看板をタップ（読める距離なら、そのまま読む）
+        const sign = readables.find((r) => hit.point.distanceTo(tmp.set(r.x, r.y, r.z)) < Math.max(1.6, r.h * 0.9));
+        if (sign && Math.hypot(player.x - sign.x, player.z - sign.z) <= readDist(sign)) { stopWalk(); openSign(sign); return; }
+        // 3) 調べる場所（カウンター・屋台・出口など）の近く → 歩いて行って調べる
+        let spot = null;
+        let spotD = Infinity;
+        interactables.forEach((it) => {
+          const d = Math.hypot(hx - it.x, hz - it.z);
+          if (d < it.r + 1.2 && d < spotD && cfg.interactLabel(it.id, ctx)) { spot = it; spotD = d; }
+        });
+        if (spot) {
+          App.Sfx.play('tap');
+          if (Math.hypot(player.x - spot.x, player.z - spot.z) < spot.r) { stopWalk(); target = { kind: 'spot', id: spot.id }; interact(); } else startWalk({ kind: 'spot', it: spot, x: spot.x, z: spot.z });
+          return;
+        }
+        // 4) ふつうの場所 → そこまで歩く（壁などをタップしたら、ぶつかるところまで）
+        startWalk({ kind: 'point', x: hx, z: hz });
+      }
+      // 毎フレーム：目的地に向かって歩く。着いたら話しかける・調べる。進めなくなったら止まる
+      function updateWalk(dt) {
+        if (!walk) return false;
+        if (walk.kind === 'person') { walk.x = walk.p.model.position.x; walk.z = walk.p.model.position.z; }
+        const dx = walk.x - player.x;
+        const dz = walk.z - player.z;
+        const d = Math.hypot(dx, dz);
+        const reach = walk.kind === 'person' ? C.PERSON_TALK - 0.6 : walk.kind === 'spot' ? Math.max(0.6, walk.it.r * 0.55) : 0.35;
+        if (d <= reach) {
+          const w = walk;
+          stopWalk();
+          if (w.kind === 'person') { target = { kind: 'person', p: w.p }; talkToPerson(w.p); }
+          else if (w.kind === 'spot' && cfg.interactLabel(w.it.id, ctx)) { target = { kind: 'spot', id: w.it.id }; interact(); }
+          return false;
+        }
+        // 進む方向に向きを合わせる（前 = (-sin yaw, -cos yaw)）
+        let diff = Math.atan2(-dx, -dz) - player.yaw;
+        diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+        player.yaw += diff * Math.min(1, dt * 7);
+        player.pitch += (-0.08 - player.pitch) * Math.min(1, dt * 3);
+        const run = d > 12;
+        const step = Math.min(d, (run ? C.RUN : C.SPEED) * dt);
+        const bx = player.x;
+        const bz = player.z;
+        const base = Math.atan2(dx, dz);
+        let moved = 0;
+        // まっすぐ → 少し横 → もっと横…と試して、進める向きへ（人や柱をよける）
+        for (const a of [0, 0.45, -0.45, 0.9, -0.9, 1.4, -1.4]) {
+          const ang = base + a * walk.side;
+          player.x = bx;
+          player.z = bz;
+          moveWithCollision(player, Math.sin(ang) * step, Math.cos(ang) * step, C.RADIUS);
+          moved = Math.hypot(player.x - bx, player.z - bz);
+          if (moved >= step * 0.6) { if (a < 0) walk.side = -walk.side; break; }
+        }
+        // ほとんど進めない／目的地に近づけない時間が続いたら止まる
+        walk.stuckT = moved < step * 0.25 ? walk.stuckT + dt : 0;
+        if (d < walk.bestD - 0.3) { walk.bestD = d; walk.slowT = 0; } else walk.slowT += dt;
+        if (walk.stuckT > 0.5 || walk.slowT > 2) {
+          const kind = walk.kind;
+          stopWalk();
+          if (kind !== 'point') hamsterSay('うーん、まっすぐは行けないみたい…<br><small>まわり道してみてね</small>', 3);
+          return false;
+        }
+        player.walk += dt * (run ? 13 : 9);
+        return run ? 'run' : 'walk';
+      }
+
       /* ---------- ヘルプ ---------- */
       const openHelp = () => { setBusy(true); el.help.hidden = false; };
       $('[data-help]', root).onclick = openHelp;
@@ -685,6 +826,8 @@
         if (!game.busy) {
           player.yaw -= look.x * C.LOOK + s.turn * C.TURN * dt;
           player.pitch = clampB(player.pitch - look.y * C.LOOK, -1.1, 1.1);
+          if (s.moveX || s.moveZ || s.turn || Math.abs(look.x) > 2) stopWalk(); // 自分で動かしたらタップ移動はやめる
+          if (updateWalk(dt)) moving = true;
           if (s.moveX || s.moveZ) {
             const sp = (s.run ? C.RUN : C.SPEED) * dt;
             const sin = Math.sin(player.yaw);
@@ -698,6 +841,7 @@
           }
         }
         const bob = moving ? Math.sin(player.walk) * (s.run ? 0.06 : 0.045) : 0;
+        if (marker.visible) marker.material.opacity = 0.55 + Math.sin(t * 6) * 0.35;
         camera.position.set(player.x, C.EYE + bob + ground(player.x, player.z), player.z);
         camera.rotation.set(player.pitch, player.yaw, 0);
 

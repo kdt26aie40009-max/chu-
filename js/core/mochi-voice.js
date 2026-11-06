@@ -198,6 +198,7 @@
         prev = item;
         t += Math.min(u.step, b.duration / RATE);
       });
+      if (App.Music) App.Music.duck(t - c.currentTime + 0.3); // しゃべっている間は BGM を小さく
     }).catch(() => { /* 声が出せなくてもゲームは続ける */ });
     return true;
   };

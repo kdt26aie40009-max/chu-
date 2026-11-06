@@ -37,7 +37,7 @@
       },
       {
         id: 'hutong', region: 'beijing', kind: 'side', name: '胡同さんぽ', emoji: '🏘️', field: 'hutong3d', after: 'hotel', level: 1,
-        desc: '寄り道。古い路地で、地元の人とのんびりおしゃべり', goal: '路地の人と話す',
+        desc: '寄り道。古い路地で、地元の人とのんびりおしゃべり。奥には湖の什刹海や鼓楼も', goal: '路地の人と話す',
         words: ['hutong', 'laoren', 'haizi', 'niao'],
       },
       {

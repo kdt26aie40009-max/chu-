@@ -1,5 +1,5 @@
 /* 図鑑
- *   ことば … コースのユニットごとに、覚えた言葉の一覧（未習得はシルエット）
+ *   ことば … コースのユニットごとに、覚えた言葉の一覧（未習得はシルエット。チート中は全部見られる）
  *   文化   … 旅先の建物・食べ物の文化メモ（js/data/culture.js）。いつでも読める。読んだものに ✓
  */
 (function (App) {
@@ -12,6 +12,7 @@
   App.screens.dictionary = (root, params = {}) => {
     if (params.tab === 'culture') { cultureTab(root); return; }
     const learned = App.Store.state.learned;
+    const all = App.cheat(); // チート（Ctrl を 3 回）中は、まだ覚えていない言葉も見られる
     const units = App.Course.units();
     const ids = Array.from(new Set(units.flatMap((u) => u.lessons.filter((l) => !l.review).flatMap((l) => l.ids))));
     const count = ids.filter((id) => learned[id]).length;
@@ -26,10 +27,10 @@
             ${uIds.map((id) => {
               const p = App.PHRASES[id];
               const e = learned[id];
-              if (!e) return `<li class="is-locked"><span class="zh">？？？</span><span class="muted">${esc((App.PHRASE_LESSON[id] || u).title)}で覚えるよ</span></li>`;
+              if (!e && !all) return `<li class="is-locked"><span class="zh">？？？</span><span class="muted">${esc((App.PHRASE_LESSON[id] || u).title)}で覚えるよ</span></li>`;
               return `<li>
                 <div class="dict-main"><span class="zh">${esc(p.zh)}</span>${UI.pinyin(p.py, { force: true })}</div>
-                <div class="dict-sub"><span class="ja">${esc(p.ja)}</span>${UI.stars(e.strength)}</div>
+                <div class="dict-sub"><span class="ja">${esc(p.ja)}</span>${e ? UI.stars(e.strength) : '<span class="muted small">まだ覚えていない</span>'}</div>
                 ${UI.speakBtn(p.zh, { cls: 'speak-sm' })}
               </li>`;
             }).join('')}
@@ -44,7 +45,7 @@
         <div class="dict-summary card">
           <div><b class="big-num">${count}</b> / ${ids.length} 語</div>
           <div class="progress"><div class="progress-fill" style="width:${ids.length ? (count / ids.length) * 100 : 0}%"></div></div>
-          <p class="muted small">★は覚え度。レッスンや復習で正解すると増えるよ</p>
+          <p class="muted small">★は覚え度。レッスンや復習で正解すると増えるよ${all ? '<br>🔓 チート中：まだ覚えていない言葉も全部見られるよ' : ''}</p>
         </div>
         ${groups}
       </main>

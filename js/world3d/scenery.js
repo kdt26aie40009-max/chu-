@@ -1,6 +1,6 @@
 /* 3D の背景（空・雲・遠くの山・森）の共通部品
- *   sky(THREE, scene, { top, horizon, ground })          グラデーションの空（カメラについてくる）＋太陽の光
- *   clouds(THREE, scene, { count, y, r })                ふわふわの雲（カメラについてくる＝とても遠くに見える）
+ *   sky(THREE, scene, { top, horizon, ground, sun, sunColor, sunSize })  グラデーションの空（カメラについてくる）＋太陽の光
+ *   clouds(THREE, scene, { count, y, r, tint })          ふわふわの雲（カメラについてくる＝とても遠くに見える。tint で夕焼け色にも）
  *   farMountains(THREE, scene, { r, colors })            地平線の山なみ（カメラについてくる・霧なしの淡い色）
  *   forest(THREE, scene, points)                         木をまとめて置く（InstancedMesh で軽い）
  *     points: [{ x, y, z, s, kind: 'pine'|'round', color? }]
@@ -23,7 +23,7 @@
     };
   }
 
-  function sky(THREE, scene, { top = '#4F9BE0', horizon = '#D9ECF7', ground = '#CFE3C0', sun = [-0.45, 0.35, -0.8] } = {}) {
+  function sky(THREE, scene, { top = '#4F9BE0', horizon = '#D9ECF7', ground = '#CFE3C0', sun = [-0.45, 0.35, -0.8], sunColor = '#FFFFFF', sunSize = 80 } = {}) {
     const geo = new THREE.SphereGeometry(360, 32, 16);
     const cTop = new THREE.Color(top);
     const cHor = new THREE.Color(horizon);
@@ -54,10 +54,10 @@
       g.fillStyle = gr;
       g.fillRect(0, 0, w, h);
     });
-    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, fog: false, depthWrite: false, transparent: true }));
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, color: sunColor, fog: false, depthWrite: false, transparent: true }));
     const v = new THREE.Vector3(sun[0], sun[1], sun[2]).normalize().multiplyScalar(330);
     glow.position.copy(v);
-    glow.scale.set(80, 80, 1);
+    glow.scale.set(sunSize, sunSize, 1);
     glow.renderOrder = -9;
     const holder = new THREE.Group();
     holder.add(glow);
@@ -94,14 +94,14 @@
     });
   }
 
-  function clouds(THREE, scene, { count = 14, y = [70, 120], r = [140, 300], seed = 7 } = {}) {
+  function clouds(THREE, scene, { count = 14, y = [70, 120], r = [140, 300], seed = 7, tint = '#FFFFFF' } = {}) {
     const rnd = rand(seed);
     const group = new THREE.Group();
     const texes = [0, 1, 2].map((k) => cloudTexture(THREE, seed * 10 + k));
     for (let i = 0; i < count; i++) {
       const a = (i / count) * Math.PI * 2 + rnd() * 0.5;
       const d = r[0] + rnd() * (r[1] - r[0]);
-      const mat = new THREE.SpriteMaterial({ map: texes[i % 3], fog: false, depthWrite: false, transparent: true, opacity: 0.85 + rnd() * 0.15 });
+      const mat = new THREE.SpriteMaterial({ map: texes[i % 3], color: tint, fog: false, depthWrite: false, transparent: true, opacity: 0.85 + rnd() * 0.15 });
       const sp = new THREE.Sprite(mat);
       const sc = 50 + rnd() * 60;
       sp.scale.set(sc, sc * 0.45, 1);

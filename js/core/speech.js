@@ -80,6 +80,12 @@
     if (voice) u.voice = voice;
     const rate = Speech.rate();
     u.rate = slow ? Math.max(0.5, rate * 0.6) : rate;
+    // 読み上げの間は BGM を小さく
+    if (App.Music) {
+      u.onstart = () => App.Music.duck(15);
+      u.onend = () => App.Music.duck(0);
+      u.onerror = () => App.Music.duck(0);
+    }
     synth.speak(u);
     return true;
   };
