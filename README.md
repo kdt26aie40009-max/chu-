@@ -13,6 +13,8 @@
   - 声は `tools/build_mochi_voice.py`、漢字の読みは `tools/build_kana_dict.py` で作ります（セリフを増やしたら読みの辞書を作り直す）
 - タイトル画面の「🔊 タイトルコール」で、録音したタイトルコールが流れます（`tools/build_title_call.py` で作成）
 - 「声に出して言ってみる」（音声認識）は Chrome / Edge で使えます。マイクの許可が必要です
+- BGM が後ろで小さく流れます（最初のタップ・キー操作のあとから。設定の「BGM（音楽）」でオン・オフ）
+- スマホでも遊べます。3D は行きたい場所や人をタップするだけで歩いて・話しかけられます
 - 進み具合はブラウザの localStorage に保存されます
 - 3D 表示には [Three.js](https://threejs.org/)（r128）を使い、3D 画面に入ったときだけ CDN から読み込みます（3D はインターネット接続が必要）
 
@@ -107,18 +109,19 @@ css/style.css
 js/
   core/
     util.js / storage.js / speech.js
+    music.js       BGM（WebAudio で作る曲。声の間は小さく・設定でオン・オフ）
     progress.js    EXP・レベル・覚え度と間隔反復・学習の記録
     course.js      2D コースの進行と、覚え度に合わせた問題づくり
     trip.js        3D 旅行の進行（ステージの解放・クリア・旧セーブの引き継ぎ）
     dev.js         開発者向けテスト機能
     ai.js          AI 会話の差し込み口（今は未使用）
-    mochi-voice.js モチ（ハムスター）の声：セリフをひらがなにして 50 音の録音をつなげる
+    mochi-voice.js ハムスターの声：セリフをひらがなにして 50 音の録音をつなげる
   data/
     phrases.js     フレーズ辞書（255 語）
     signs.js       街の看板の中国語
     culture.js     文化メモ（建物・食べ物の説明と歴史）
-    kana-dict.js   モチの声用の「漢字 → ひらがな」辞書（自動生成）
-    voice-mochi.js モチの声（録音した 50 音。自動生成）
+    kana-dict.js   ハムスターの声用の「漢字 → ひらがな」辞書（自動生成）
+    voice-mochi.js ハムスターの声（録音した 50 音。自動生成）
     dialogues.js   2D の会話ロールプレイ
     course.js      2D コース（カテゴリ・ユニット・レッスン・文法・読解）
     trip.js        3D の行き先（地域・ステージ・単語チェックの言葉）
@@ -129,14 +132,15 @@ js/
     landmarks.js   旅のマップの名所イラスト
     culture.js     文化メモのカード・シート
   world3d/
-    engine.js      3D 共通エンジン（歩く・坂・会話・メニュー・人・発見・看板・ラベル）
-    input.js / models.js
+    engine.js      3D 共通エンジン（歩く・タップ移動・坂・会話・メニュー・人・発見・看板・ラベル）
+    input.js       キー・ドラッグ・スティック・タップの入力
+    models.js
     scenery.js     空・雲・遠くの山・森（背景の共通部品）
     airport.js / hotel.js / stall.js（商店街）/ capital.js（天安門〜故宮）/ hutong.js / greatwall.js / shaolin.js
   screens/
     title / course / lesson / review / map（旅のマップ・単語チェック）/ dictionary / journal / settings
     airport3d / hotel3d / stall3d / capital3d / hutong3d / greatwall3d / shaolin3d
-  main.js          画面切り替え
+  main.js          画面切り替え・BGM の開始・チート（Ctrl×3）
 ```
 
 ## 拡張のしかた
