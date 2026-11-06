@@ -203,6 +203,8 @@
       sheetWrap.hidden = false;
     }
 
+    App.MochiVoice.speak(msg);
+
     // 出発前の「単語チェック」（挑戦・スキップ・次から出さない を選べる。どれを選んでも不利にならない）
     function beforeDepart(s) {
       const settings = App.Store.state.settings;

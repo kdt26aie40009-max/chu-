@@ -2,6 +2,7 @@
 (function (App) {
   'use strict';
   App.screens = App.screens || {};
+  let titleCall = null;
 
   App.screens.title = (root) => {
     root.innerHTML = `
@@ -11,6 +12,7 @@
           <span class="title-tag" data-devtap>${App.Dev.on ? '🛠 開発者モード' : '仮タイトル'}</span>
           <h1>ハムスターと行く<br><span>中国旅行</span></h1>
           <p class="title-zh">和仓鼠一起去中国旅行</p>
+          ${App.TITLE_CALL ? '<button class="title-call" data-title-call aria-label="タイトルコールを聞く">🔊 タイトルコール</button>' : ''}
         </div>
         <div class="title-hero">
           <div class="bubble bubble-up">${App.Progress.welcomeMessage()}</div>
@@ -26,6 +28,21 @@
           </div>
         </nav>
       </div>`;
+
+    // タイトルコール（録音した声。js/data/title-call.js）
+    const callBtn = root.querySelector('[data-title-call]');
+    if (callBtn) {
+      callBtn.onclick = () => {
+        App.Speech.stop();
+        App.MochiVoice.stop();
+        if (!titleCall) titleCall = new Audio(App.TITLE_CALL);
+        titleCall.currentTime = 0;
+        titleCall.play().catch(() => {});
+        callBtn.classList.remove('is-playing');
+        void callBtn.offsetWidth;
+        callBtn.classList.add('is-playing');
+      };
+    }
 
     // 開発者モードの切り替え（「仮タイトル」を 7 回タップ）
     let taps = 0;

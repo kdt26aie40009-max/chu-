@@ -11,7 +11,7 @@
   const hamsterMsg = (s) => `
     <div class="msg msg-hamster pop-in">
       ${App.Hamster.figure({ mood: s.mood || 'normal', size: 'xs' })}
-      <div class="msg-bubble">${s.text}</div>
+      <div class="msg-bubble">${s.text}${UI.mochiBtn(s.text)}</div>
     </div>`;
 
   const npcMsg = (s, npc, hideJa) => `
@@ -106,7 +106,7 @@
         if (s.type === 'say') return say(s);
         if (s.type === 'understand') return understand(s);
 
-        if (s.who === 'hamster') push(hamsterMsg(s));
+        if (s.who === 'hamster') { push(hamsterMsg(s)); App.MochiVoice.speak(s.text); }
         else { push(npcMsg(s, npcOf(s.who), false)); App.Speech.speak(s.zh); }
 
         if (isInteractive(steps[i])) setTimeout(() => { if (log.isConnected) step(); }, 500);
