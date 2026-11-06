@@ -191,6 +191,7 @@
       const before = s.after && T.find(s.after);
       const words = s.words.map((id) => App.PHRASES[id]).filter(Boolean);
       const rec = App.Store.state.trip.cleared[s.id];
+      const cul = App.Culture.byStage(s.id);
       sheet.innerHTML = `
         <div class="cs-sheet-head" style="--c:${s.region === 'henan' ? '#7A3A12' : '#2BB5A0'}">
           <span>${esc(T.region(s.region).name)}・${s.kind === 'main' ? `ステージ ${s.no}` : s.kind === 'side' ? '寄り道' : '特別な旅先'}</span>
@@ -199,6 +200,7 @@
         </div>
         <p class="tm-goal">🎯 目的：<b>${esc(s.goal)}</b>${rec ? `<br><small class="muted">クリア ${rec.count}回</small>` : ''}</p>
         ${words.length ? `<p class="muted small">ここで役立つ言葉</p><ul class="cs-words">${words.map((p) => `<li><span class="zh">${esc(p.zh)}</span><span class="muted">${esc(p.ja)}</span></li>`).join('')}</ul>` : ''}
+        ${cul.length ? `<p class="muted small">📖 この場所の文化メモ（タップで読めるよ）</p><div class="cul-chips">${cul.map(App.Culture.chip).join('')}</div>` : ''}
         ${st === 'locked' ? `<p class="tm-lock">🔒 <b>${esc(before.emoji + ' ' + before.name)}</b> をクリアすると行けるよ</p>` : ''}
         ${st === 'soon' ? '<p class="tm-lock">🛠 この場所はいま準備中だよ</p>' : ''}
         ${st !== 'locked' && st !== 'soon' ? '<button class="btn btn-primary btn-lg btn-block" data-depart>🌏 出発する</button>' : ''}
@@ -206,6 +208,9 @@
       const dep = $('[data-depart]', sheet);
       if (dep) dep.onclick = () => { App.Sfx.play('tap'); beforeDepart(s); };
       $('[data-close]', sheet).onclick = () => { App.Sfx.play('tap'); close(); };
+      sheet.querySelectorAll('[data-culture]').forEach((b) => {
+        b.onclick = () => App.Culture.open(b.dataset.culture, { onClose: () => openStage(s) });
+      });
       sheetWrap.hidden = false;
     }
 

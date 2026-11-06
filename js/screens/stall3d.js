@@ -168,6 +168,12 @@
     },
   };
   const MEALS = ['xlb', 'shuan', 'zhajiang', 'duck'];
+  // お店 → 文化メモ（js/data/culture.js）。食べたあとに「📖 〜の話を読む」を出す
+  const SHOP_CULTURE = { xlb: 'xiaolongbao', shuan: 'shuanyangrou', zhajiang: 'zhajiangmian', duck: 'beijingkaoya', tanghulu: 'tanghulu' };
+  const cultureBtn = (ctx, id) => {
+    const c = App.Culture.get(SHOP_CULTURE[id]);
+    return c ? [{ label: `📖 ${c.emoji} ${c.name}の話を読む`, primary: false, onClick: () => ctx.openCulture(SHOP_CULTURE[id]) }] : [];
+  };
   const fillText = (str, v) => String(str).replace(/\{(\w+)\}/g, (m, k) => (v && v[k] != null ? v[k] : m));
 
   const done = (ctx, id) => !!ctx.saved.dishes[id];
@@ -234,6 +240,7 @@
         ]) + ctx.hamsterLine(`あつあつ…はふはふ…おいしい〜！🥟<br>${nextHint(r.next, ctx)}`, 'happy'),
         buttons: [
           { label: '🧭 商店街を見てまわる' },
+          ...cultureBtn(ctx, 'xlb'),
           { label: '🗺️ 旅のマップへ戻る', primary: false, onClick: () => App.go('map') },
         ],
       });
@@ -255,6 +262,7 @@
         body: App.Fields3D.usedList(shop.used(item)) + ctx.hamsterLine(shop.extra ? 'いい買い物だったね！🎉' : nextHint(r.next, ctx), 'happy'),
         buttons: [
           { label: '🧭 商店街を見てまわる' },
+          ...cultureBtn(ctx, id),
           { label: '🗺️ 旅のマップへ戻る', primary: false, onClick: () => App.go('map') },
         ],
       });

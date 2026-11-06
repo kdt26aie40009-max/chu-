@@ -175,8 +175,11 @@
     const signRead = (id, opts, width, x, y, z, rotY = 0, extra) => readables.push(Md.readable(Md.sign(THREE, scene, opts, width, x, y, z, rotY, extra), id));
 
     /* ---------- 空・光（よく晴れた北京） ---------- */
-    scene.background = new THREE.Color('#A9D6F5');
+    scene.background = new THREE.Color('#C9E4F5');
     scene.fog = new THREE.Fog('#C9E4F5', 90, 230);
+    App.Scenery3D.sky(THREE, scene, { top: '#3F8FDA', horizon: '#C9E4F5', ground: '#D8D0C0', sun: [-0.5, 0.45, 0.6] });
+    App.Scenery3D.farMountains(THREE, scene, { r: 300, colors: ['#9DB6C0', '#BACFD8'], height: [18, 45] });
+    App.Scenery3D.clouds(THREE, scene, { count: 14, seed: 5 });
     scene.add(new THREE.HemisphereLight(0xf2f8ff, 0x8a7f6a, 0.8));
     const sun = new THREE.DirectionalLight(0xfff1d6, 0.7);
     sun.position.set(-30, 50, 30);
@@ -383,12 +386,13 @@
         { obj: palaceGuide, y: 2.35, text: '🧑‍🏫 故宮のガイドさん', maxDist: 18 },
       ],
       facePlayer: [guard, seller, palaceGuide],
+      cultures: [{ id: 'shizi', x: -6, z: -56, r: 3.2 }, { id: 'shizi', x: 6, z: -56, r: 3.2 }, { id: 'taihedian', x: 0, z: -61, r: 6 }],
       discoveries: [
-        { id: 'monument', x: 0, z: 46, r: 4, say: '<b>人民英雄纪念碑</b>（人民英雄記念碑）。<br>広場のまんなかに立つ大きな記念碑だよ' },
-        { id: 'flag', x: 0, z: 20, r: 4, say: '毎朝、日の出と一緒にここで旗をあげる式があるんだって' },
-        { id: 'bridge', x: 0, z: 12, r: 3, say: '<b>金水桥</b>。橋は 5 本あって、昔はまんなかの橋は皇帝しか渡れなかったんだ' },
+        { id: 'monument', x: 0, z: 46, r: 4, culture: 'monument', say: '<b>人民英雄纪念碑</b>（人民英雄記念碑）。<br>広場のまんなかに立つ大きな記念碑だよ' },
+        { id: 'flag', x: 0, z: 20, r: 4, culture: 'tiananmen', say: '毎朝、日の出と一緒にここで旗をあげる式があるんだって' },
+        { id: 'bridge', x: 0, z: 12, r: 3, culture: 'jinshuiqiao', say: '<b>金水桥</b>。橋は 5 本あって、昔はまんなかの橋は皇帝しか渡れなかったんだ' },
         { id: 'lion', x: 0, z: -56, r: 4, say: '銅の<b>狮子</b>（獅子）！門を守る守り神だよ' },
-        { id: 'roof', x: 0, z: -44, r: 3.5, say: '黄色い屋根は皇帝の色。故宮の部屋は約 9000！' },
+        { id: 'roof', x: 0, z: -44, r: 3.5, culture: 'gugong', say: '黄色い屋根は皇帝の色。故宮の部屋は約 9000！' },
       ],
       zones: [{ id: 'hall', x1: -16, x2: 16, z1: -60, z2: -52 }],
       update(dt, t) {

@@ -23,6 +23,7 @@
     // ---- 3D 旅行 ----
     trip: { cleared: {}, last: null },      // stageId -> { count, firstAt, lastAt }
     world3d: {},   // 3D フィールドごとの細かい進み具合 world3d[fieldId] = { done, talked, ... }
+    culture: {},   // 読んだ文化メモ cultureId -> 初めて読んだ日 'YYYY-MM-DD'
     settings: { rate: 1.0, showPinyin: true, sfx: true, wordCheck: true, hamsterVoice: true },
   });
 

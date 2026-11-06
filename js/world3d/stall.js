@@ -185,6 +185,8 @@
     /* ---------- 空・光（夕焼け） ---------- */
     scene.background = new THREE.Color('#F2A27E');
     scene.fog = new THREE.Fog('#F2A27E', 40, 110);
+    App.Scenery3D.sky(THREE, scene, { top: '#5B6FB8', horizon: '#F6B088', ground: '#F2A27E', sun: [-0.5, 0.12, -0.85] });
+    App.Scenery3D.clouds(THREE, scene, { count: 10, y: [55, 95], r: [100, 220], seed: 4 });
     scene.add(new THREE.HemisphereLight(0xffe9d2, 0x7a5a48, 0.75));
     scene.add(new THREE.AmbientLight(0xffffff, 0.15));
     const sun = new THREE.DirectionalLight(0xffc89a, 0.45);
@@ -549,13 +551,14 @@
         { obj: duckChef, y: 2.25, text: '🦆 北京烤鸭', maxDist: 18 },
         { obj: souvenirStaff, y: 2.25, text: '🎁 お土産', maxDist: 16 },
       ],
+      cultures: [{ id: 'xiaolongbao', x: -3.4, z: -16.5, r: 4.5 }],
       discoveries: [
-        { id: 'gate', x: 0, z: 23, r: 2.6, say: '<b>美食街</b>＝グルメ通り！<br>北京の名物がそろってるよ。看板の値段も読んでみてね' },
-        { id: 'tanghulu', x: -3.2, z: 10, r: 2.4, say: '<b>糖葫芦</b>は果物のあめがけ🍡<br>看板の <b>¥3</b> は <b>三块</b>（sān kuài）！' },
-        { id: 'tongguo', x: 3.2, z: 4, r: 2.4, say: '<b>铜锅</b>（銅の鍋）！真ん中の煙突で炭を燃やして、<br>羊肉をしゃぶしゃぶするんだ。<b>¥40</b>＝<b>四十块</b>' },
-        { id: 'choudoufu', x: -3.2, z: -3, r: 2.4, say: '<b>臭豆腐</b>…「臭い豆腐」！におうけど、おいしいんだって<br><b>¥5</b> は <b>五块</b>（wǔ kuài）' },
-        { id: 'zhajiang', x: 3.2, z: -8, r: 2.4, say: '<b>炸酱面</b>は北京の家庭の味🍜<br><b>¥18</b> は <b>十八块</b>（shíbā kuài）' },
-        { id: 'duck', x: 1.6, z: -23.6, r: 2.4, say: '<b>北京烤鸭</b>！窯でじっくり焼くから、皮がパリパリ🦆<br>奥の窯が見えるかな？' },
+        { id: 'gate', x: 0, z: 23, r: 2.6, culture: 'wangfujing', say: '<b>美食街</b>＝グルメ通り！<br>北京の名物がそろってるよ。看板の値段も読んでみてね' },
+        { id: 'tanghulu', x: -3.2, z: 10, r: 2.4, culture: 'tanghulu', say: '<b>糖葫芦</b>は果物のあめがけ🍡<br>看板の <b>¥3</b> は <b>三块</b>（sān kuài）！' },
+        { id: 'tongguo', x: 3.2, z: 4, r: 2.4, culture: 'shuanyangrou', say: '<b>铜锅</b>（銅の鍋）！真ん中の煙突で炭を燃やして、<br>羊肉をしゃぶしゃぶするんだ。<b>¥40</b>＝<b>四十块</b>' },
+        { id: 'choudoufu', x: -3.2, z: -3, r: 2.4, culture: 'choudoufu', say: '<b>臭豆腐</b>…「臭い豆腐」！におうけど、おいしいんだって<br><b>¥5</b> は <b>五块</b>（wǔ kuài）' },
+        { id: 'zhajiang', x: 3.2, z: -8, r: 2.4, culture: 'zhajiangmian', say: '<b>炸酱面</b>は北京の家庭の味🍜<br><b>¥18</b> は <b>十八块</b>（shíbā kuài）' },
+        { id: 'duck', x: 1.6, z: -23.6, r: 2.4, culture: 'beijingkaoya', say: '<b>北京烤鸭</b>！窯でじっくり焼くから、皮がパリパリ🦆<br>奥の窯が見えるかな？' },
       ],
       update(dt, t) {
         puffs.forEach((p) => {

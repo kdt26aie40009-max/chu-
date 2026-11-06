@@ -134,8 +134,10 @@
     };
 
     /* ---------- 空・光（夕方前のやわらかい光） ---------- */
-    scene.background = new THREE.Color('#BFD9EE');
+    scene.background = new THREE.Color('#D7E6F0');
     scene.fog = new THREE.Fog('#D7E6F0', 30, 90);
+    App.Scenery3D.sky(THREE, scene, { top: '#5A9BD8', horizon: '#F3E3CC', ground: '#D7E6F0', sun: [0.6, 0.3, 0.3] });
+    App.Scenery3D.clouds(THREE, scene, { count: 12, y: [60, 100], r: [90, 200], seed: 9 });
     scene.add(new THREE.HemisphereLight(0xfff6e6, 0x7a6a58, 0.8));
     const sun = new THREE.DirectionalLight(0xffe8c4, 0.55);
     sun.position.set(20, 30, 10);
@@ -304,11 +306,11 @@
       people,
       interactables: [],
       discoveries: [
-        { id: 'sign', x: 0, z: 18, r: 2.6, say: '青い札は路地の名前。<b>胡同</b>（hútòng）は北京の古い路地のことだよ' },
-        { id: 'drum', x: 1.6, z: 14, r: 2, say: '門の前の丸い石は<b>门墩</b>（méndūn）。家を守るお守りなんだって' },
+        { id: 'sign', x: 0, z: 18, r: 2.6, culture: 'hutong', say: '青い札は路地の名前。<b>胡同</b>（hútòng）は北京の古い路地のことだよ' },
+        { id: 'drum', x: 1.6, z: 14, r: 2, culture: 'mendun', say: '門の前の丸い石は<b>门墩</b>（méndūn）。家を守るお守りなんだって' },
         { id: 'trike', x: 0.5, z: -6.5, r: 2.4, say: '<b>三轮车</b>（三輪車）。胡同めぐりのタクシーみたいなものだよ' },
         { id: 'cat', x: 1.6, z: -2, r: 2, say: '塀の上に猫！🐈「<b>猫</b>（māo）」だね' },
-        { id: 'courtyard', x: -4.5, z: -16, r: 2.4, say: 'ここが<b>四合院</b>！中庭を 4 つの建物が囲む北京の伝統の家' },
+        { id: 'courtyard', x: -4.5, z: -16, r: 2.4, culture: 'siheyuan', say: 'ここが<b>四合院</b>！中庭を 4 つの建物が囲む北京の伝統の家' },
       ],
     };
   }
