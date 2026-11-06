@@ -19,6 +19,7 @@
   T.ready = (st) => !!App.screens[st.field];
   T.isUnlocked = (st) => {
     if (App.Dev && App.Dev.on && App.Dev.flags.allStages) return true;
+    if (S().trip.unlockAll) return true; // チート（Ctrl を 3 回押す。main.js）
     return !st.after || T.isCleared(st.after);
   };
   // 次に行くとよい本線のステージ

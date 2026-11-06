@@ -21,7 +21,7 @@
     course: { lessons: {}, lastCat: null }, // lessonId -> { count, best, firstAt, lastAt }
     stats: { answered: 0, correct: 0, byDay: {} }, // 答えた数・正解数（日ごと { a, c }）
     // ---- 3D 旅行 ----
-    trip: { cleared: {}, last: null },      // stageId -> { count, firstAt, lastAt }
+    trip: { cleared: {}, last: null, unlockAll: false }, // cleared: stageId -> { count, firstAt, lastAt }／unlockAll: チートで全ステージ解放
     world3d: {},   // 3D フィールドごとの細かい進み具合 world3d[fieldId] = { done, talked, ... }
     culture: {},   // 読んだ文化メモ cultureId -> 初めて読んだ日 'YYYY-MM-DD'
     settings: { rate: 1.0, showPinyin: true, sfx: true, wordCheck: true, hamsterVoice: true, hamsterName: 'ハムコシ' },
