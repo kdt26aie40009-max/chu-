@@ -207,9 +207,15 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   border: 8px solid transparent; border-top-color: #fff; border-bottom: 0;
 }
 .menu { width: 100%; margin-top: auto; display: grid; gap: 12px; }
-.menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .menu-grid .btn { flex-direction: column; gap: 0; min-height: 76px; border-radius: var(--radius-sm); font-size: 13px; }
 .menu-grid .btn span { font-size: 24px; }
+.menu-grid .btn { position: relative; padding: 8px 4px; font-size: 12px; white-space: nowrap; }
+.menu-badge {
+  position: absolute; top: -6px; right: -4px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px;
+  background: var(--primary); color: #fff; font-size: 12px; font-style: normal; font-weight: 800; line-height: 22px; box-shadow: 0 2px 0 var(--primary-dark);
+}
+.title-ham { padding: 0; border: 0; background: none; cursor: pointer; }
 
 /* ---------- map ---------- */
 .stats-strip { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; margin: 4px 0 12px; }
@@ -937,10 +943,10 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .tm-pill-bar { display: block; width: 36px; height: 7px; border-radius: 999px; background: var(--bg-deep); overflow: hidden; }
 .tm-pill-bar i { display: block; height: 100%; border-radius: 999px; background: var(--primary); }
 
-.tm-chapters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 10px; }
+.tm-chapters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 10px; }
 .tm-chapter {
   display: flex; flex-direction: column; align-items: center; padding: 6px 4px; border: 0; border-radius: 16px;
-  background: #fff; color: var(--ink); font-weight: 800; font-size: 15px; box-shadow: 0 3px 0 var(--line), inset 0 0 0 2px var(--line);
+  background: #fff; color: var(--ink); font-weight: 800; font-size: 14px; box-shadow: 0 3px 0 var(--line), inset 0 0 0 2px var(--line);
 }
 .tm-chapter small { font-size: 11px; color: var(--muted); }
 .tm-chapter.is-cur { background: var(--primary); color: #fff; box-shadow: 0 3px 0 var(--primary-dark); }
@@ -953,6 +959,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   background: #B7E08A;
   box-shadow: inset 0 0 0 4px #4A3426, 0 5px 0 #4A3426, 0 10px 22px rgba(80, 60, 30, .18);
 }
+.tm-board-shanghai { background: #B7E08A; }
 .tm-board-henan { background: linear-gradient(180deg, #CDEBFA 0 42%, #B7E08A 42%); }
 .tm-paths { position: absolute; inset: 0; width: 100%; height: 100%; }
 .tm-river { fill: none; stroke: #7CCBF2; stroke-width: 26; stroke-linecap: round; }
@@ -987,6 +994,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   background: #fff; color: var(--ink); font-size: 14px; font-weight: 700; text-align: center; white-space: nowrap;
   box-shadow: inset 0 0 0 3px #4A3426, 0 4px 0 #4A3426;
 }
+.tm-board-wip { top: 67%; white-space: normal; width: 76%; font-size: 15px; line-height: 1.5; }
+.tm-board-wip small { color: var(--muted); }
 
 /* 名所（ステージ） */
 .lm {
@@ -1132,3 +1141,63 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 }
 .setting-name-input:focus { outline: none; box-shadow: inset 0 0 0 2px var(--primary); }
 @media (max-width: 360px) { .setting-name > :first-child { display: none; } }
+
+/* ---------- 🏠 おうち（ハムスターを育てる） ---------- */
+.pet-room {
+  position: relative; height: 300px; border-radius: var(--radius); overflow: hidden;
+  background: #FFF1D6; box-shadow: inset 0 0 0 3px #4A3426, 0 4px 0 #4A3426;
+  touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.pet-wall { position: absolute; inset: 0 0 38% 0; background: repeating-linear-gradient(90deg, #FFE7C2 0 22px, #FFEFD6 22px 44px); }
+.pet-window {
+  position: absolute; left: 18px; top: 18px; width: 64px; height: 52px; display: grid; place-items: center; font-size: 26px;
+  border-radius: 10px; background: var(--sky); box-shadow: inset 0 0 0 4px #9A6A3E;
+}
+.pet-frame { position: absolute; right: 22px; top: 22px; font-size: 30px; transform: rotate(4deg); }
+.pet-floor { position: absolute; inset: 62% 0 0 0; background: #E9C38B; box-shadow: inset 0 3px 0 #C99A5E; }
+.pet-floor::after { content: ""; position: absolute; inset: 14px 10% 10px; border-radius: 50%; background: #FFF6E4; opacity: .7; }
+.pet-deco { position: absolute; font-size: 38px; pointer-events: none; }
+.pet-house { left: 12px; bottom: 34px; }
+.pet-wheel { right: 14px; bottom: 50px; font-size: 44px; animation: petSpin 8s linear infinite; }
+.pet-water { right: 70px; bottom: 26px; font-size: 26px; }
+@keyframes petSpin { to { transform: rotate(360deg); } }
+.pet-ham {
+  position: absolute; left: 50%; bottom: 22px; width: 150px; margin-left: -75px; padding: 0; border: 0; background: none;
+  cursor: grab; touch-action: none; z-index: 2;
+}
+.pet-ham:active { cursor: grabbing; }
+.pet-ham-body { display: block; transform: scale(var(--s, 1)); transform-origin: 50% 100%; transition: transform .6s cubic-bezier(.3, 1.6, .5, 1); }
+.pet-ham-body svg { display: block; width: 100%; height: auto; pointer-events: none; }
+.pet-ham.is-hop { animation: petHop .45s ease-out; }
+.pet-ham.is-wiggle { animation: petWiggle .5s ease-in-out 2; }
+@keyframes petHop { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-22px); } }
+@keyframes petWiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }
+.pet-bubble {
+  position: absolute; left: 50%; top: 14px; z-index: 3; max-width: 72%; transform: translateX(-50%) scale(.6);
+  padding: 8px 14px; text-align: center; font-size: 14px; font-weight: 700; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+}
+.pet-bubble.is-show { opacity: 1; transform: translateX(-50%) scale(1); }
+.pet-bubble small { color: var(--muted); }
+.pet-fx { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.pet-pop { position: absolute; font-size: 24px; transform: translate(-50%, -50%); animation: petPop 1.2s ease-out forwards; }
+.pet-pop.is-big { font-size: 34px; }
+@keyframes petPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.4); } 20% { opacity: 1; transform: translate(-50%, -70%) scale(1.1); } 100% { opacity: 0; transform: translate(-50%, -260%) scale(1); } }
+.pet-fly { position: absolute; z-index: 5; font-size: 34px; margin: -17px 0 0 -17px; transition: transform .5s cubic-bezier(.3, -.3, .6, 1), opacity .5s; }
+
+.pet-status { display: grid; gap: 10px; }
+.pet-name { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 18px; }
+.pet-meter { display: grid; grid-template-columns: 6.4em 1fr; align-items: center; gap: 2px 10px; font-weight: 800; font-size: 14px; }
+.pet-meter small { grid-column: 2; color: var(--muted); font-size: 12px; font-weight: 700; }
+.pet-meter.is-love .progress-fill { background: linear-gradient(90deg, #FF7FA0, #FFB3C6); }
+.pet-meter.is-exp .progress-fill { background: linear-gradient(90deg, #F5B92E, #FFE07A); }
+
+.pet-foods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0 8px; }
+.pet-food {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 8px 4px; border: 0; border-radius: var(--radius-sm);
+  background: #fff; color: var(--ink); font-size: 12px; box-shadow: 0 3px 0 var(--line), inset 0 0 0 2px var(--line); cursor: pointer;
+}
+.pet-food:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--line), inset 0 0 0 2px var(--line); }
+.pet-food-emoji { font-size: 30px; line-height: 1.1; }
+.pet-food .zh { color: var(--accent-dark); font-size: 12px; }
+.pet-food i { position: absolute; top: 4px; right: 6px; font-style: normal; font-weight: 800; color: var(--primary-dark); }
+.pet-food.is-empty { opacity: .45; cursor: default; }

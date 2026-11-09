@@ -55,7 +55,7 @@
     },
     // 3D を全部クリア扱い
     clearAll3D() {
-      App.Trip.stages().forEach((s) => {
+      App.Trip.stages().filter(App.Trip.ready).forEach((s) => {
         if (!App.Trip.isCleared(s.id)) App.Store.state.trip.cleared[s.id] = { count: 1, firstAt: App.U.todayKey(), lastAt: App.U.todayKey(), dev: true };
       });
       App.Store.save();

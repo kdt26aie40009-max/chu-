@@ -19,11 +19,22 @@
       <path d="M84 49 l-12 3" stroke="#B9773F" stroke-width="2.4" stroke-linecap="round"/>`,
   };
 
+  EYES.eat = EYES.happy;
+  EYES.love = `
+      <path d="M43 63 l-6 -6 a3.6 3.6 0 0 1 6 -4 a3.6 3.6 0 0 1 6 4 z" fill="#F0506E"/>
+      <path d="M77 63 l-6 -6 a3.6 3.6 0 0 1 6 -4 a3.6 3.6 0 0 1 6 4 z" fill="#F0506E"/>`;
+
   const MOUTH = {
     normal: '<path d="M55 69.5 q2.5 3 5 0 q2.5 3 5 0" stroke="#8A5532" stroke-width="1.7" fill="none" stroke-linecap="round"/>',
     happy: '<path d="M54.5 69 q5.5 8 11 0 z" fill="#E36B6B" stroke="#8A5532" stroke-width="1.4" stroke-linejoin="round"/>',
     wow: '<ellipse cx="60" cy="72" rx="3.4" ry="4" fill="#E36B6B" stroke="#8A5532" stroke-width="1.3"/>',
     think: '<path d="M56 71 q4 -2 8 0" stroke="#8A5532" stroke-width="1.7" fill="none" stroke-linecap="round"/>',
+    eat: '<ellipse cx="60" cy="71" rx="3" ry="2.2" fill="#8A5532"/>',
+  };
+  MOUTH.love = MOUTH.happy;
+  // ごはんを食べているときの、ふくらんだほっぺ（ほお袋）
+  const CHEEKS = {
+    eat: '<ellipse cx="31" cy="77" rx="16" ry="14" fill="#FFE6CC"/><ellipse cx="89" cy="77" rx="16" ry="14" fill="#FFE6CC"/>',
   };
 
   function svg(mood = 'normal') {
@@ -35,6 +46,7 @@
   <circle cx="90" cy="30" r="12" fill="#E9A060"/><circle cx="90" cy="30" r="6.5" fill="#F6B3A9"/>
   <ellipse cx="60" cy="62" rx="46" ry="42" fill="#F4B26A"/>
   <ellipse cx="60" cy="78" rx="31" ry="26" fill="#FFF5E6"/>
+  ${CHEEKS[m] || ''}
   <path d="M52 22 q8 -6 16 0" stroke="#E9A060" stroke-width="3" fill="none" stroke-linecap="round"/>
   ${EYES[m]}
   <ellipse cx="30" cy="70" rx="7.5" ry="4.5" fill="#FF8F8F" opacity=".55"/>

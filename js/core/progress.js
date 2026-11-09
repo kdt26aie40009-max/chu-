@@ -24,7 +24,14 @@
     const before = P.level();
     S().exp += n;
     const after = P.level();
-    return { before, after, levelUp: after.level > before.level };
+    const levelUp = after.level > before.level;
+    // レベルが上がったら、ハムスターのごはんがもらえる（js/core/pet.js）
+    const food = levelUp ? App.Pet.sync() : [];
+    if (food.length) {
+      U.toast(`⬆️ レベルアップ！ <b>Lv.${after.level}</b><br>${food.map((f) => f.emoji + ' ' + f.name).join('・')} をもらったよ！`
+        + `<br><small>🏠 おうちで${App.Hamster.name}にあげよう</small>`);
+    }
+    return { before, after, levelUp, food };
   };
 
   P.learnedCount = () => Object.keys(S().learned).filter((id) => App.PHRASES[id]).length;

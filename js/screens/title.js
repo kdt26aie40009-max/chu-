@@ -16,12 +16,13 @@
         </div>
         <div class="title-hero">
           <div class="bubble bubble-up">${App.Progress.welcomeMessage()}</div>
-          ${App.Hamster.figure({ mood: 'happy', size: 'xl', bounce: true })}
+          <button class="title-ham" data-go="pet" aria-label="おうちへ">${App.Hamster.figure({ mood: 'happy', size: 'xl', bounce: true })}</button>
         </div>
         <nav class="menu">
           <button class="btn btn-primary btn-lg btn-block" data-go="course">📘 中国語を学ぶ<small class="btn-sub-label">2D・1回5分</small></button>
           <button class="btn btn-accent btn-lg btn-block" data-go="map">🗺️ 中国を旅する<small class="btn-sub-label">3D・冒険</small></button>
           <div class="menu-grid">
+            <button class="btn btn-sub" data-go="pet"><span>🏠</span>おうち${App.Pet.total() ? `<i class="menu-badge">${App.Pet.total()}</i>` : ''}</button>
             <button class="btn btn-sub" data-go="dictionary"><span>📖</span>中国語図鑑</button>
             <button class="btn btn-sub" data-go="journal"><span>📔</span>記録</button>
             <button class="btn btn-sub" data-go="settings"><span>⚙️</span>設定</button>

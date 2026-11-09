@@ -42,6 +42,7 @@
     PERSON_R: 0.32,    // 人の当たり判定
     NPC_SPEED: 1.15,   // 歩いている人の速さ
     TALK_EXP: 3,       // 初めて話した人ごとの EXP
+    REPLAY_RATE: 0.5,  // 2 回目からの EXP（初回の半分。1 回の訪問で同じことは 1 回だけ）
   };
 
   const isTouch = () => window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
@@ -199,6 +200,7 @@
         flags: {},
         found: new Set(),
         talked: new Set(),
+        earned: new Set(), // この訪問でもう EXP をもらったこと（同じフィールドをまた遊んでも、来るたびにもらえる）
         busy: false,
         talkingTo: null,
         tempSay: '',
@@ -406,8 +408,8 @@
           }
 
           if (s.type === 'hamster') {
+            // ハムスターの声は 🔊 を押したときだけ（hamsterSays の中のボタン）
             t.innerHTML = UI.hamsterSays(s.text, { mood: s.mood || 'happy', size: 'sm' });
-            App.MochiVoice.speak(s.text);
             nextBtn(s.next || 'つぎへ ▶');
             return;
           }
@@ -557,6 +559,15 @@
         App.Store.save();
       }
 
+      // EXP をもらう：初めてなら exp、2 回目からは REPLAY_RATE 倍。同じ訪問の中では key ごとに 1 回だけ
+      function earn(key, exp, first) {
+        if (game.earned.has(key)) return 0;
+        game.earned.add(key);
+        const n = first ? exp : Math.max(1, Math.ceil(exp * C.REPLAY_RATE));
+        reward(n);
+        return n;
+      }
+
       function teleport(to) {
         player.x = to.x;
         player.z = to.z;
@@ -569,7 +580,7 @@
 
       const ctx = {
         THREE, scene, world, game, saved, player, el, C,
-        runTalk, closeTalk, successCard, hamsterSay, hamsterLine, toast, teleport, reward, openCulture,
+        runTalk, closeTalk, successCard, hamsterSay, hamsterLine, toast, teleport, reward, earn, openCulture,
         setBusy, // 3D の上に別の画面（武術大会など）を出すときに、歩けないようにする
         save: () => App.Store.save(),
         near: null,
@@ -594,17 +605,15 @@
         const def = p.def;
         runTalk({ name: def.name, emoji: def.emoji }, def.script, () => {
           const first = !saved.talked.includes(def.id);
-          if (first) {
-            saved.talked.push(def.id);
-            reward(C.TALK_EXP);
-          }
+          if (first) saved.talked.push(def.id);
+          const gained = earn(`talk:${def.id}`, C.TALK_EXP, first);
           game.talked.add(def.id);
           if (cfg.onTalked) cfg.onTalked(def, ctx);
           successCard({
             emoji: def.emoji,
             title: '会話できた！',
             sub: `${esc(def.name)}とおしゃべりしたよ`,
-            exp: first ? C.TALK_EXP : 0,
+            exp: gained,
             body: hamsterLine(game.talked.size >= game.totals.people
               ? 'ここにいる人<b>全員</b>と話せたね！すごい！🎉'
               : `その調子！あと <b>${game.totals.people - game.talked.size}人</b> と話せるよ`, 'happy'),
