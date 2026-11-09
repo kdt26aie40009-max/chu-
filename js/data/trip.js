@@ -1,7 +1,7 @@
 /* 3D 旅行モードの行き先（ステージ）
  * 2D 学習とは独立。3D の中でクリアすると次のステージが開く（after: クリアが必要なステージ）。
  *
- * region: { id, name, zh, desc, how? }   北京と、高速鉄道で行く河南省（少林寺）
+ * region: { id, name, zh, desc, how? }   北京・上海（制作中）と、高速鉄道で行く河南省（少林寺）
  * stage:  { id, region, kind, no?, name, emoji, field, params?, after, desc, goal, words, level }
  *   kind   … 'main'（本線・番号つき）/ 'side'（寄り道）/ 'special'（特別な旅先）
  *   field  … 3D 画面（js/screens/<field>.js）。まだ無いものはマップで「準備中」になる
@@ -14,6 +14,10 @@
   App.TRIP = {
     regions: [
       { id: 'beijing', name: '北京', zh: '北京 Běijīng', desc: '中国の首都。空港に着いたら旅のはじまり！' },
+      {
+        id: 'shanghai', name: '上海', zh: '上海 Shànghǎi', desc: '中国いちばんの大都会。古い街並みと高層ビルが並ぶ港町',
+        how: '🚄 北京から高速鉄道で約 4 時間半',
+      },
       {
         id: 'henan', name: '河南省・嵩山', zh: '河南 Hénán', desc: '北京から南西へ約 700km。少林寺のある山',
         how: '🚄 高速鉄道（高铁）で約 2 時間半',
@@ -54,6 +58,22 @@
         id: 'greatwall', region: 'beijing', kind: 'main', no: 6, name: '万里の長城', emoji: '🧱', field: 'greatwall3d', after: 'gugong', level: 2,
         desc: '北京の北の山へ。城壁を登って、てっぺんの見張り台へ', goal: '好汉坡まで登る',
         words: ['changcheng', 'menpiao', 'haolei', 'haohan', 'jiayou'],
+      },
+      // 第2章・上海（制作中。3D 画面ができたら遊べるようになる）
+      {
+        id: 'bund', region: 'shanghai', kind: 'main', no: 1, name: '外灘', emoji: '🌃', field: 'bund3d', after: 'greatwall', level: 2,
+        desc: '川沿いに古い洋館が並ぶ散歩道。対岸には高層ビル', goal: '（制作中）',
+        words: [],
+      },
+      {
+        id: 'yuyuan', region: 'shanghai', kind: 'main', no: 2, name: '豫園', emoji: '🥟', field: 'yuyuan3d', after: 'bund', level: 2,
+        desc: '昔ながらの庭園と商店街。本場の小籠包も', goal: '（制作中）',
+        words: [],
+      },
+      {
+        id: 'pearl', region: 'shanghai', kind: 'main', no: 3, name: '東方明珠', emoji: '🗼', field: 'pearl3d', after: 'yuyuan', level: 3,
+        desc: '上海のシンボルのテレビ塔。展望台から街を見下ろそう', goal: '（制作中）',
+        words: [],
       },
       {
         id: 'shaolin', region: 'henan', kind: 'special', name: '少林寺', emoji: '🥋', field: 'shaolin3d', after: 'airport', level: 3,

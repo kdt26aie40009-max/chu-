@@ -1,6 +1,7 @@
 /* ② 3D 旅行マップ（ステージ選択画面）
  * 明るい絵地図（草原・川・池・木）の上で、名所のイラストが道路でつながる。通った道は黄色に。
  *   第一章「北京」：上から番号順に進む一本道＋寄り道（胡同）
+ *   第二章「上海」：制作中。章は開けるが、ステージはまだ遊べない
  *   特別章「嵩山・少林寺」：高速鉄道で行く別の旅先（空港に着いたら行ける・高難度）
  * 名所をタップ → 概要と「出発する」 → （任意）単語チェック → 3D へ。
  * 2D 学習の進み具合は関係なく、3D の中でクリアした順に行き先が開く。
@@ -22,6 +23,14 @@
       route: ['airport', 'hotel', 'market', 'tiananmen', 'gugong', 'greatwall'],
       branches: [['hotel', 'hutong']],
       deco: 'beijing',
+    },
+    {
+      id: 'shanghai', no: '第2章', title: '上海の旅', region: 'shanghai', wip: true,
+      start: [92, 96], startLabel: '🚄 北京から高速鉄道',
+      nodes: { bund: [256, 190], yuyuan: [96, 300], pearl: [256, 520] },
+      route: ['@start', 'bund', 'yuyuan', 'pearl'],
+      branches: [],
+      deco: 'shanghai',
     },
     {
       id: 'henan', no: '特別章', title: '嵩山・少林寺', region: 'henan',
@@ -55,6 +64,13 @@
       ${hill(312, 600, 120, 34)}${hill(220, 600, 90, 22, '#A6DB7E')}
       ${tree(28, 220)}${tree(48, 238, 9, '#7ACB55')}${tree(176, 98, 10)}${tree(340, 470, 12)}${tree(322, 486, 9, '#7ACB55')}${tree(170, 470, 10, '#7ACB55')}${tree(24, 560, 10)}${tree(178, 270, 8, '#7ACB55')}
       ${cloud(150, 16, 0.9)}${cloud(300, 40, 0.7)}`,
+    shanghai: `
+      <g opacity=".55" fill="#D3F0A8">${[[60, 470, 50], [300, 330, 46], [190, 150, 40]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>
+      <path class="tm-river" d="M370 120 Q300 280 340 360 T300 610"/>
+      <path class="tm-river-line" d="M370 120 Q300 280 340 360 T300 610"/>
+      ${[[20, 18], [36, 30], [52, 22]].map(([x, h]) => `<rect x="${x}" y="${600 - h * 2}" width="14" height="${h * 2}" fill="#B9C7D6" stroke="#4A3426" stroke-width="2"/>`).join('')}
+      ${tree(40, 250)}${tree(180, 280, 9, '#7ACB55')}${tree(30, 400, 10)}${tree(170, 560, 10, '#7ACB55')}
+      ${cloud(200, 30, 0.9)}${cloud(30, 180, 0.7)}`,
     henan: `
       ${hill(60, 250, 170, 90, '#8FCF6A')}${hill(190, 260, 200, 120, '#7CC35A')}${hill(320, 250, 160, 80, '#8FCF6A')}
       <rect x="0" y="250" width="360" height="350" fill="#B7E08A"/>
@@ -83,7 +99,7 @@
     const st = App.Store.state;
     const lv = P.level();
     const next = T.next();
-    const all = T.stages();
+    const all = T.stages().filter(T.ready);
     const shaolinOpen = T.isUnlocked(T.find('shaolin'));
 
     const stateOf = (s) => {
@@ -104,7 +120,7 @@
     for (let i = 0; i < ch.route.length - 1; i++) {
       const a = ch.route[i];
       const b = ch.route[i + 1];
-      const done = a === '@start' ? shaolinOpen : T.isCleared(a);
+      const done = a === '@start' ? (ch.wip ? false : shaolinOpen) : T.isCleared(a);
       segs.push({ d: curve(posOf(a), posOf(b)), done, side: false, rail: a === '@start' });
     }
     ch.branches.forEach(([a, b]) => segs.push({ d: curve(posOf(a), posOf(b)), done: T.isCleared(a), side: true }));
@@ -128,7 +144,7 @@
 
     const msg = next
       ? `次の行き先は <b>${next.emoji} ${esc(next.name)}</b>！<small>${esc(next.goal)}</small>`
-      : all.filter(T.ready).every((s) => T.isCleared(s.id))
+      : all.every((s) => T.isCleared(s.id))
         ? '行ける場所はぜんぶ旅したね！🎉<small>★3 を目指して、街の人とたくさん話そう</small>'
         : '寄り道や、少林寺にも行ってみよう！';
 
@@ -160,6 +176,7 @@
         ${ch.start ? `<span class="tm-start" style="${pct(ch.start)}">${ch.startLabel}</span>` : ''}
         ${Object.keys(ch.nodes).map(node).join('')}
         ${COMPASS}
+        ${ch.wip ? '<div class="tm-board-lock tm-board-wip">🛠 <b>上海ステージは制作中！</b><br><small>もうちょっと待っててね🐹</small></div>' : ''}
         ${ch.id === 'henan' && !shaolinOpen ? '<div class="tm-board-lock">🔒 北京の<b>空港</b>に着いたら行けるよ</div>' : ''}
       </section>
 
@@ -202,7 +219,7 @@
         ${words.length ? `<p class="muted small">ここで役立つ言葉</p><ul class="cs-words">${words.map((p) => `<li><span class="zh">${esc(p.zh)}</span><span class="muted">${esc(p.ja)}</span></li>`).join('')}</ul>` : ''}
         ${cul.length ? `<p class="muted small">📖 この場所の文化メモ（タップで読めるよ）</p><div class="cul-chips">${cul.map(App.Culture.chip).join('')}</div>` : ''}
         ${st === 'locked' ? `<p class="tm-lock">🔒 <b>${esc(before.emoji + ' ' + before.name)}</b> をクリアすると行けるよ</p>` : ''}
-        ${st === 'soon' ? '<p class="tm-lock">🛠 この場所はいま準備中だよ</p>' : ''}
+        ${st === 'soon' ? '<p class="tm-lock">🛠 この場所はいま制作中だよ。もうちょっと待っててね</p>' : ''}
         ${st !== 'locked' && st !== 'soon' ? '<button class="btn btn-primary btn-lg btn-block" data-depart>🌏 出発する</button>' : ''}
         <button class="btn btn-sub btn-block" data-close>とじる</button>`;
       const dep = $('[data-depart]', sheet);

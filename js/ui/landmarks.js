@@ -82,6 +82,32 @@
       <rect x="40" y="56" width="12" height="12" fill="#5A2A1A" stroke="${O}" stroke-width="1.5"/>
       <rect x="40" y="43" width="12" height="5" fill="#2A2420" stroke="${O}" stroke-width="1"/>
       <path d="M76 68 v-8 h6 v8 z M75 60 h8 l-1 -4 h-6 z M76 56 h6 v-6 h-6 z M75 50 h8 l-4 -6 z" fill="#B7B2A8" stroke="${O}" stroke-width="1.5"/>`,
+    // 外灘（川沿いの洋館と時計塔）
+    bund: `
+      <rect x="18" y="42" width="22" height="28" fill="#E9DCC0" stroke="${O}" stroke-width="2"/>
+      <rect x="40" y="30" width="20" height="40" fill="#F3E7CC" stroke="${O}" stroke-width="2"/>
+      <rect x="46" y="18" width="8" height="12" fill="#E9DCC0" stroke="${O}" stroke-width="2"/>
+      <circle cx="50" cy="24" r="2.6" fill="#fff" stroke="${O}" stroke-width="1.2"/>
+      <path d="M45 18 L50 10 L55 18 Z" fill="#5BA48A" stroke="${O}" stroke-width="1.8"/>
+      <rect x="60" y="38" width="22" height="32" fill="#E9DCC0" stroke="${O}" stroke-width="2"/>
+      ${[22, 30, 64, 72].map((x) => `<rect x="${x}" y="48" width="5" height="7" fill="#7FB6DE" stroke="${O}" stroke-width="1"/>`).join('')}
+      <rect x="45" y="56" width="10" height="14" fill="#8E5A2E" stroke="${O}" stroke-width="1.5"/>`,
+    // 豫園（反り屋根の楼閣と池）
+    yuyuan: `
+      <ellipse cx="50" cy="68" rx="30" ry="5" fill="#7CCBF2" stroke="${O}" stroke-width="1.5"/>
+      <rect x="36" y="40" width="28" height="24" fill="#C0392B" stroke="${O}" stroke-width="2"/>
+      <path d="M22 42 Q30 38 34 30 H66 Q70 38 78 42 Z" fill="#3E4A52" stroke="${O}" stroke-width="2"/>
+      <rect x="40" y="22" width="20" height="9" fill="#C0392B" stroke="${O}" stroke-width="2"/>
+      <path d="M30 24 Q38 22 40 14 H60 Q62 22 70 24 Z" fill="#3E4A52" stroke="${O}" stroke-width="2"/>
+      <rect x="45" y="50" width="10" height="14" fill="#F5D46B" stroke="${O}" stroke-width="1.5"/>`,
+    // 東方明珠（球が 2 つのテレビ塔）
+    pearl: `
+      <path d="M36 70 L46 44 M64 70 L54 44 M50 70 V44" stroke="${O}" stroke-width="3"/>
+      <circle cx="50" cy="42" r="10" fill="#E85A8A" stroke="${O}" stroke-width="2"/>
+      <rect x="47" y="14" width="6" height="26" fill="#C9D3DC" stroke="${O}" stroke-width="1.8"/>
+      <circle cx="50" cy="20" r="6" fill="#E85A8A" stroke="${O}" stroke-width="2"/>
+      <path d="M50 14 V2" stroke="${O}" stroke-width="2"/>
+      <circle cx="46" cy="39" r="2.5" fill="#fff" opacity=".6"/>`,
   };
 
   App.Landmarks = {
