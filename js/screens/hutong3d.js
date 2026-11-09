@@ -35,9 +35,10 @@
       if (ctx.game.talked.size >= GOAL && !ctx.game.flags.cleared) {
         ctx.game.flags.cleared = true;
         const first = !ctx.saved.done;
-        if (first) { ctx.saved.done = true; ctx.reward(CLEAR_EXP); }
+        if (first) ctx.saved.done = true;
+        const gained = ctx.earn('done', CLEAR_EXP, first);
         App.Trip.clear('hutong');
-        ctx.toast(`🏘️ 胡同さんぽ クリア！${first ? `（+${CLEAR_EXP} EXP）` : ''}`);
+        ctx.toast(`🏘️ 胡同さんぽ クリア！${gained ? `（+${gained} EXP）` : ''}`);
       }
     },
   });

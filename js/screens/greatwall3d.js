@@ -36,10 +36,8 @@
   function buyTicket(ctx) {
     ctx.runTalk(SELLER, TICKET_SCRIPT, () => {
       const first = !ctx.saved.ticket;
-      if (first) {
-        ctx.saved.ticket = true;
-        ctx.reward(TICKET_EXP);
-      }
+      if (first) ctx.saved.ticket = true;
+      const gained = ctx.earn('ticket', TICKET_EXP, first);
       const g = ctx.game;
       g.flags.ticket = true;
       g.phase = 'climb';
@@ -50,7 +48,7 @@
         emoji: '🎫',
         title: '入場券ゲット！',
         sub: '関門が開いたよ',
-        exp: first ? TICKET_EXP : 0,
+        exp: gained,
         body: App.Fields3D.usedList([
           ['我要一张门票', 'Wǒ yào yì zhāng ménpiào', '入場券を1枚ください'],
           ['四十块', 'sìshí kuài', '40元'],
@@ -64,17 +62,15 @@
   function reachTop(ctx) {
     ctx.runTalk(CLIMBERS, TOP_SCRIPT, () => {
       const first = !ctx.saved.done;
-      if (first) {
-        ctx.saved.done = true;
-        ctx.reward(TOP_EXP);
-      }
+      if (first) ctx.saved.done = true;
+      const gained = ctx.earn('done', TOP_EXP, first);
       App.Trip.clear('greatwall');
       ctx.game.phase = 'done';
       ctx.successCard({
         emoji: '🏆',
         title: '万里の長城 登頂！',
         sub: 'これであなたも<b>好汉</b>（りっぱな人）！',
-        exp: first ? TOP_EXP : 0,
+        exp: gained,
         body: App.Fields3D.usedList([
           ['不到长城非好汉', 'Bú dào Chángchéng fēi hǎohàn', '長城に登らずして好漢にあらず'],
           ['太美了', 'Tài měi le', 'きれい！'],

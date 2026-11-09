@@ -164,6 +164,8 @@
     tap: () => tone(660, 0, 0.06, 'sine', 0.04),
     correct: () => { tone(880, 0, 0.12, 'triangle'); tone(1320, 0.1, 0.2, 'triangle'); },
     wrong: () => { tone(240, 0, 0.16, 'square', 0.05); tone(190, 0.12, 0.2, 'square', 0.05); },
+    pet: () => { tone(988, 0, 0.1, 'sine', 0.05); tone(1319, 0.08, 0.14, 'sine', 0.05); },
+    eat: () => [0, 0.09, 0.18].forEach((t) => tone(320 + Math.random() * 80, t, 0.05, 'square', 0.03)),
     clear: () => [523, 659, 784, 1047].forEach((f, k) => tone(f, k * 0.11, 0.3, 'triangle', 0.1)),
   };
 

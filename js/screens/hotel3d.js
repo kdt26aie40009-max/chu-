@@ -47,17 +47,15 @@
   function checkin(ctx) {
     ctx.runTalk(STAFF, CHECKIN_SCRIPT, () => {
       const first = !ctx.saved.checkedIn;
-      if (first) {
-        ctx.saved.checkedIn = true;
-        ctx.reward(CHECKIN_EXP);
-      }
+      if (first) ctx.saved.checkedIn = true;
+      const gained = ctx.earn('checkedIn', CHECKIN_EXP, first);
       ctx.game.flags.checkedIn = true;
       ctx.game.phase = 'toRoom';
       ctx.successCard({
         emoji: '🔑',
         title: 'チェックイン成功！',
         sub: 'ルームキーをもらった（302号室）',
-        exp: first ? CHECKIN_EXP : 0,
+        exp: gained,
         body: App.Fields3D.usedList([
           ['我想办理入住', 'Wǒ xiǎng bànlǐ rùzhù', 'チェックインしたいです'],
           ['这是我的护照', 'Zhè shì wǒ de hùzhào', 'これは私のパスポートです'],
@@ -70,17 +68,15 @@
 
   function arriveRoom(ctx) {
     const first = !ctx.saved.done;
-    if (first) {
-      ctx.saved.done = true;
-      ctx.reward(ROOM_EXP);
-    }
+    if (first) ctx.saved.done = true;
+    const gained = ctx.earn('done', ROOM_EXP, first);
     ctx.game.phase = 'done';
     App.Trip.clear('hotel');
     ctx.successCard({
       emoji: '🛏️',
       title: '302号室に到着！',
       sub: 'ホテルのミッション クリア',
-      exp: first ? ROOM_EXP : 0,
+      exp: gained,
       body: App.Fields3D.usedList([
         ['三楼', 'sān lóu', '3階'],
         ['三零二', 'sān líng èr', '302'],

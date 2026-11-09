@@ -23,6 +23,7 @@
     // ---- 3D 旅行 ----
     trip: { cleared: {}, last: null, unlockAll: false }, // cleared: stageId -> { count, firstAt, lastAt }／unlockAll: チート（3D の全ステージ・2D の全レッスン・図鑑の全部の言葉を開く）
     world3d: {},   // 3D フィールドごとの細かい進み具合 world3d[fieldId] = { done, talked, ... }
+    pet: { food: {}, growth: 0, love: 0, fed: 0, lvGiven: 0, petDay: null, petLove: 0 }, // ハムスターを育てる（js/core/pet.js）
     culture: {},   // 読んだ文化メモ cultureId -> 初めて読んだ日 'YYYY-MM-DD'
     settings: { rate: 1.0, showPinyin: true, sfx: true, music: true, wordCheck: true, hamsterVoice: true, hamsterName: 'ハムコシ' },
   });

@@ -202,10 +202,8 @@
   function order(ctx) {
     ctx.runTalk(AUNTIE, ORDER_SCRIPT, () => {
       const first = !ctx.saved.ordered;
-      if (first) {
-        ctx.saved.ordered = true;
-        ctx.reward(ORDER_EXP);
-      }
+      if (first) ctx.saved.ordered = true;
+      const gained = ctx.earn('ordered', ORDER_EXP, first);
       const g = ctx.game;
       g.flags.ordered = true;
       g.phase = 'wait';
@@ -216,7 +214,7 @@
         emoji: '🎫',
         title: '注文できた！',
         sub: '番号札：<b>三号</b>（3番）',
-        exp: first ? ORDER_EXP : 0,
+        exp: gained,
         body: App.Fields3D.usedList([
           ['五块', 'wǔ kuài', '5元'],
           ['一笼', 'yì lóng', '1せいろ'],
@@ -230,17 +228,15 @@
   function pickup(ctx) {
     ctx.runTalk(CHEF, PICKUP_SCRIPT, () => {
       const first = !ctx.saved.done;
-      if (first) {
-        ctx.saved.done = true;
-        ctx.reward(PICKUP_EXP);
-      }
+      if (first) ctx.saved.done = true;
+      const gained = ctx.earn('done', PICKUP_EXP, first);
       ctx.game.phase = 'done';
       const r = finishDish(ctx, 'xlb');
       ctx.successCard({
         emoji: '🥟',
         title: '小籠包ゲット！',
         sub: '小籠包の屋台 クリア',
-        exp: first ? PICKUP_EXP : 0,
+        exp: gained,
         body: App.Fields3D.usedList([
           ['三号', 'sān hào', '3番'],
           ['小心烫', 'xiǎoxīn tàng', '熱いから気をつけて'],
@@ -283,14 +279,14 @@
     const shop = SHOPS[id];
     ctx.runTalk(shop.who, shop.script, (v) => {
       const r = finishDish(ctx, id);
-      if (r.first) ctx.reward(DISH_EXP);
+      const gained = ctx.earn(`dish:${id}`, DISH_EXP, r.first);
       const menu = shop.script.find((s) => s.type === 'menu');
       const item = v || (menu ? menu.items[0] : {});
       ctx.successCard({
         emoji: item.emoji || shop.emoji,
         title: fillText(shop.done, item),
         sub: `${shop.name}`,
-        exp: r.first ? DISH_EXP : 0,
+        exp: gained,
         body: App.Fields3D.usedList(shop.used(item)) + ctx.hamsterLine(shop.extra ? 'いい買い物だったね！🎉' : nextHint(r.next, ctx), 'happy'),
         buttons: [
           { label: '🧭 商店街を見てまわる' },

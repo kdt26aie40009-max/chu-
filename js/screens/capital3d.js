@@ -61,7 +61,8 @@
   function takePhoto(ctx) {
     ctx.runTalk(GUIDE, PHOTO_SCRIPT, () => {
       const first = !ctx.saved.photo;
-      if (first) { ctx.saved.photo = true; ctx.reward(PHOTO_EXP); }
+      if (first) ctx.saved.photo = true;
+      const gained = ctx.earn('photo', PHOTO_EXP, first);
       flash(ctx);
       App.Trip.clear('tiananmen');
       ctx.game.flags.photo = true;
@@ -71,7 +72,7 @@
         emoji: '📸',
         title: '天安門で記念写真！',
         sub: '天安門の扉が開いたよ',
-        exp: first ? PHOTO_EXP : 0,
+        exp: gained,
         body: `<div class="w3d-photo"><span>🏛️</span><span>🐹🧳</span><small>天安门广场 · ${App.U.todayKey()}</small></div>`
           + App.Fields3D.usedList([
             ['可以帮我拍照吗？', 'Kěyǐ bāng wǒ pāizhào ma?', '写真を撮ってもらえますか？'],
@@ -89,7 +90,8 @@
   function buyTicket(ctx) {
     ctx.runTalk(SELLER, TICKET_SCRIPT, () => {
       const first = !ctx.saved.ticket;
-      if (first) { ctx.saved.ticket = true; ctx.reward(TICKET_EXP); }
+      if (first) ctx.saved.ticket = true;
+      const gained = ctx.earn('ticket', TICKET_EXP, first);
       ctx.game.flags.ticket = true;
       ctx.world.ticket.open = true;
       ctx.world.ticket.collider.off = true;
@@ -97,7 +99,7 @@
         emoji: '🎫',
         title: '故宮の入場券ゲット！',
         sub: '检票口（入場口）を通れるよ',
-        exp: first ? TICKET_EXP : 0,
+        exp: gained,
         body: App.Fields3D.usedList([
           ['我要一张门票', 'Wǒ yào yì zhāng ménpiào', '入場券を1枚ください'],
           ['六十块', 'liùshí kuài', '60元'],
@@ -111,14 +113,15 @@
     if (ctx.game.busy) return;
     ctx.runTalk(PGUIDE, HALL_SCRIPT, () => {
       const first = !ctx.saved.done;
-      if (first) { ctx.saved.done = true; ctx.reward(HALL_EXP); }
+      if (first) ctx.saved.done = true;
+      const gained = ctx.earn('done', HALL_EXP, first);
       App.Trip.clear('gugong');
       ctx.game.flags.hall = true;
       ctx.successCard({
         emoji: '🏯',
         title: '故宮・太和殿に到着！',
         sub: '故宮のステージ クリア',
-        exp: first ? HALL_EXP : 0,
+        exp: gained,
         body: App.Fields3D.usedList([
           ['太和殿', 'Tàihé Diàn', '太和殿'],
           ['可以拍照吗？', 'Kěyǐ pāizhào ma?', '写真を撮ってもいいですか？'],

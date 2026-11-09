@@ -33,17 +33,15 @@
     const who = { name: 'チェックインの係員さん', emoji: '🧑‍✈️' };
     ctx.runTalk(who, CHECKIN_SCRIPT, () => {
       const first = !ctx.saved.done;
-      if (first) {
-        ctx.saved.done = true;
-        ctx.reward(CHECKIN_EXP);
-      }
+      if (first) ctx.saved.done = true;
+      const gained = ctx.earn('done', CHECKIN_EXP, first);
       ctx.game.flags.checkedIn = true;
       App.Trip.clear('airport');
       ctx.game.phase = ctx.game.found.size >= ctx.game.totals.found ? 'done' : 'explore';
       ctx.successCard({
         emoji: '🎫',
         title: 'チェックイン成功！',
-        exp: first ? CHECKIN_EXP : 0,
+        exp: gained,
         body: usedList([['你好', 'Nǐ hǎo', 'こんにちは'], ['谢谢', 'Xièxie', 'ありがとう']])
           + ctx.hamsterLine('やったね！せっかくだから、<b>空港を探索</b>してみよう。<br>空港にいる<b>人にも話しかけて</b>みてね！', 'happy'),
         buttons: [

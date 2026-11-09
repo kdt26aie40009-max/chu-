@@ -144,27 +144,30 @@
       onWin: () => {
         if (boss === DUMMY) {
           const first = !ctx.saved.practiced;
-          if (first) { ctx.saved.practiced = true; ctx.reward(PRACTICE_EXP); }
+          if (first) ctx.saved.practiced = true;
+          const gained = ctx.earn('practiced', PRACTICE_EXP, first);
           ctx.setBusy(false);
-          ctx.hamsterSay(`練習完了！${first ? `（+${PRACTICE_EXP} EXP）` : ''}<br>本番は<b>奥の擂台</b>で！`, 6);
+          ctx.hamsterSay(`練習完了！${gained ? `（+${gained} EXP）` : ''}<br>本番は<b>奥の擂台</b>で！`, 6);
           return;
         }
         if (boss === BOSS_A) {
           const first = !ctx.saved.beatA;
-          if (first) { ctx.saved.beatA = true; ctx.reward(WIN_A_EXP); }
+          if (first) ctx.saved.beatA = true;
+          ctx.game.flags.expA = ctx.earn('beatA', WIN_A_EXP, first);
           ctx.save();
           // 連戦：沈岳が登場
           ctx.runTalk(SHENYUE, INTERLUDE, () => { ctx.closeTalk(); fight(ctx, BOSS_B); });
           return;
         }
         const first = !ctx.saved.done;
-        if (first) { ctx.saved.done = true; ctx.reward(WIN_B_EXP); }
+        if (first) ctx.saved.done = true;
+        const gained = ctx.earn('done', WIN_B_EXP, first);
         App.Trip.clear('shaolin');
         ctx.successCard({
           emoji: '🏆',
           title: '少林武術大会 優勝！',
           sub: '2 人の達人に連勝！',
-          exp: first ? WIN_A_EXP + WIN_B_EXP : 0,
+          exp: (ctx.game.flags.expA || 0) + gained,
           body: `<div class="bt-trophy">${App.BattleArt(BOSS_A)}${App.BattleArt(BOSS_B)}</div>`
             + App.Fields3D.usedList([
               ['跳・蹲・左・右', 'tiào・dūn・zuǒ・yòu', 'ジャンプ・しゃがむ・左・右'],
