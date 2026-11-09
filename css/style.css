@@ -937,10 +937,10 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .tm-pill-bar { display: block; width: 36px; height: 7px; border-radius: 999px; background: var(--bg-deep); overflow: hidden; }
 .tm-pill-bar i { display: block; height: 100%; border-radius: 999px; background: var(--primary); }
 
-.tm-chapters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0 10px; }
+.tm-chapters { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 10px; }
 .tm-chapter {
   display: flex; flex-direction: column; align-items: center; padding: 6px 4px; border: 0; border-radius: 16px;
-  background: #fff; color: var(--ink); font-weight: 800; font-size: 15px; box-shadow: 0 3px 0 var(--line), inset 0 0 0 2px var(--line);
+  background: #fff; color: var(--ink); font-weight: 800; font-size: 14px; box-shadow: 0 3px 0 var(--line), inset 0 0 0 2px var(--line);
 }
 .tm-chapter small { font-size: 11px; color: var(--muted); }
 .tm-chapter.is-cur { background: var(--primary); color: #fff; box-shadow: 0 3px 0 var(--primary-dark); }
@@ -953,6 +953,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   background: #B7E08A;
   box-shadow: inset 0 0 0 4px #4A3426, 0 5px 0 #4A3426, 0 10px 22px rgba(80, 60, 30, .18);
 }
+.tm-board-shanghai { background: #B7E08A; }
 .tm-board-henan { background: linear-gradient(180deg, #CDEBFA 0 42%, #B7E08A 42%); }
 .tm-paths { position: absolute; inset: 0; width: 100%; height: 100%; }
 .tm-river { fill: none; stroke: #7CCBF2; stroke-width: 26; stroke-linecap: round; }
@@ -987,6 +988,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   background: #fff; color: var(--ink); font-size: 14px; font-weight: 700; text-align: center; white-space: nowrap;
   box-shadow: inset 0 0 0 3px #4A3426, 0 4px 0 #4A3426;
 }
+.tm-board-wip { top: 67%; white-space: normal; width: 76%; font-size: 15px; line-height: 1.5; }
+.tm-board-wip small { color: var(--muted); }
 
 /* 名所（ステージ） */
 .lm {
