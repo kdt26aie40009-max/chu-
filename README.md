@@ -35,6 +35,33 @@
 
 ---
 
+## 📸 遊んでいるところ
+
+<table>
+  <tr>
+    <td align="center" width="33%"><img src="docs/images/title.png" width="240" alt="タイトル画面"><br><b>タイトル</b><br>学ぶ・旅する・おうち を選ぶ</td>
+    <td align="center" width="33%"><img src="docs/images/lesson.png" width="240" alt="2D 学習のクイズ"><br><b>📘 学ぶ（2D）</b><br>4 択クイズ。🔊 で中国語を聞ける</td>
+    <td align="center" width="33%"><img src="docs/images/culture.png" width="240" alt="文化メモ"><br><b>📖 文化メモ</b><br>建物・食べ物の説明と歴史</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/map.png" width="240" alt="北京の旅のマップ"><br><b>🗺️ 旅のマップ（北京）</b><br>クリアした場所に ✓ と ★</td>
+    <td align="center"><img src="docs/images/map-shanghai.png" width="240" alt="上海のマップ（制作中）"><br><b>🛠 上海（制作中）</b><br>地図は見られるが、まだ出発できない</td>
+    <td align="center"><img src="docs/images/3d-airport.png" width="240" alt="3D の空港"><br><b>✈️ 3D 空港</b><br>最初にハムコシが操作を教えてくれる</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/3d-market.png" width="240" alt="3D の商店街"><br><b>🏮 3D 北京の商店街</b><br>街の人と話して、ごはんを注文</td>
+    <td align="center"><img src="docs/images/3d-gugong.png" width="240" alt="3D の故宮"><br><b>🏯 3D 故宮</b><br>入場券を買って太和殿へ</td>
+    <td align="center"><img src="docs/images/3d-shaolin.png" width="240" alt="3D の少林寺"><br><b>🥋 3D 少林寺</b><br>奥の擂台で武術大会</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/pet.png" width="240" alt="おうち"><br><b>🏠 おうち</b><br>ごはんをあげて育てる・なでる</td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+---
+
 ## 📝 プロジェクトのまとめ（課題 → 解決 → 設計 → デモ → 工夫 → 出来なかったこと）
 
 ### 1. 課題
