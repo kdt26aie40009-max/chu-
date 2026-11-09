@@ -54,9 +54,9 @@
     <td align="center"><img src="docs/images/3d-shaolin.png" width="240" alt="3D の少林寺"><br><b>🥋 3D 少林寺</b><br>奥の擂台で武術大会</td>
   </tr>
   <tr>
+    <td align="center"><img src="docs/images/3d-talk-airport.png" width="240" alt="3D の空港で会話"><br><b>💬 3D で会話（空港）</b><br>中国語で話しかけられて、意味を答える</td>
+    <td align="center"><img src="docs/images/3d-talk-market.png" width="240" alt="3D の商店街で会話"><br><b>💬 3D で会話（商店街）</b><br>中国語のあいさつを選んで返す</td>
     <td align="center"><img src="docs/images/pet.png" width="240" alt="おうち"><br><b>🏠 おうち</b><br>ごはんをあげて育てる・なでる</td>
-    <td></td>
-    <td></td>
   </tr>
 </table>
 
