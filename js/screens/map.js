@@ -182,7 +182,7 @@
 
       <div class="tm-next">
         ${App.Hamster.figure({ mood: 'happy', size: 'xs' })}
-        <p>${msg}</p>
+        <p>${msg}${UI.mochiBtn(msg)}</p>
         ${next ? `<button class="btn btn-primary tm-go" data-stage="${next.id}">出発 ▶</button>` : ''}
       </div>
 
@@ -230,8 +230,6 @@
       });
       sheetWrap.hidden = false;
     }
-
-    App.MochiVoice.speak(msg);
 
     // 出発前の「単語チェック」（挑戦・スキップ・次から出さない を選べる。どれを選んでも不利にならない）
     function beforeDepart(s) {

@@ -408,8 +408,8 @@
           }
 
           if (s.type === 'hamster') {
+            // ハムスターの声は 🔊 を押したときだけ（hamsterSays の中のボタン）
             t.innerHTML = UI.hamsterSays(s.text, { mood: s.mood || 'happy', size: 'sm' });
-            App.MochiVoice.speak(s.text);
             nextBtn(s.next || 'つぎへ ▶');
             return;
           }

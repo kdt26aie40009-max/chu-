@@ -18,7 +18,9 @@
 
   function pickVoice() {
     const vs = window.speechSynthesis.getVoices();
-    voice = vs.find((v) => /zh[-_]CN/i.test(v.lang)) || vs.find((v) => /^zh/i.test(v.lang)) || null;
+    // 中国語（普通話）の音声。きれいな声（Natural・Online・Google）を優先する
+    const cn = vs.filter((v) => /zh[-_]CN/i.test(v.lang));
+    voice = cn.find((v) => /Natural|Online|Google/i.test(v.name)) || cn[0] || vs.find((v) => /^zh/i.test(v.lang)) || null;
     voiceCount = vs.length;
     return vs.length;
   }
@@ -35,7 +37,7 @@
 
   const NOTICE = {
     unsupported: '⚠️ このブラウザは音声読み上げに対応していません。中国語・ピンインを見ながら進めてね（Chrome / Edge 推奨）',
-    missing: '⚠️ この端末に中国語（zh-CN）の音声が見つかりません。読み上げが正しく聞こえないことがあります（Chrome / Edge 推奨）',
+    missing: '⚠️ この端末に中国語（zh-CN）の音声が見つかりません。インターネットの中国語音声で読み上げます（Windows の「設定 → 時刻と言語 → 音声認識（スピーチ）→ 音声を追加」で「中国語（簡体字、中国）」を入れると、オフラインでも聞けます）',
   };
   Speech.noticeText = () => NOTICE[Speech.voiceState()] || '';
 
@@ -61,18 +63,40 @@
     App.Store.save();
   };
 
+  // 端末に中国語の音声が無いとき：インターネットの中国語音声（Google 翻訳の読み上げ）を <audio> で鳴らす。
+  // 日本語の音声のまま読むと漢字が日本語読みになってしまうので、中国語の音声が無ければ端末の読み上げは使わない
+  let netAudio = null;
+  function speakNet(text, slow) {
+    if (netAudio) netAudio.pause();
+    const q = encodeURIComponent(String(text).slice(0, 180));
+    netAudio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=zh-CN&q=${q}`);
+    netAudio.playbackRate = slow ? 0.6 : Speech.rate();
+    if (App.Music) {
+      netAudio.onplay = () => App.Music.duck(15);
+      netAudio.onended = () => App.Music.duck(0);
+    }
+    netAudio.onerror = () => {
+      if (App.Music) App.Music.duck(0);
+      App.U.toast('中国語の音声を読み込めなかった…<br><small>インターネットにつながっているか確かめてね</small>');
+    };
+    netAudio.play().catch(() => { /* 再生できないときは onerror でお知らせ */ });
+    return true;
+  }
+
   Speech.speak = (text, { slow = false } = {}) => {
     if (!text) return false;
     if (Speech.supported) pickVoice();
     const state = Speech.voiceState();
-    if ((state === 'unsupported' || state === 'missing') && !warned) {
-      warned = true;
-      App.U.toast(state === 'unsupported'
-        ? 'このブラウザは読み上げに対応していないみたい…<br>Chrome か Edge がおすすめだよ'
-        : '中国語の音声が見つからないみたい…<br>Chrome か Edge がおすすめだよ');
+    if (App.MochiVoice) App.MochiVoice.stop();
+    if (state !== 'ok') { // 中国語の音声がまだ無い（読み込み中も含む）
+      if (state !== 'loading' && !warned) {
+        warned = true;
+        App.U.toast('この端末には中国語の音声が無いので、<br>インターネットの中国語音声で読むよ');
+      }
+      if (Speech.supported) window.speechSynthesis.cancel();
+      return speakNet(text, slow);
     }
     if (!Speech.supported) return false;
-    if (App.MochiVoice) App.MochiVoice.stop();
     const synth = window.speechSynthesis;
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
@@ -90,7 +114,10 @@
     return true;
   };
 
-  Speech.stop = () => { if (Speech.supported) window.speechSynthesis.cancel(); };
+  Speech.stop = () => {
+    if (Speech.supported) window.speechSynthesis.cancel();
+    if (netAudio) netAudio.pause();
+  };
 
   /* ---------- 音声認識（声に出して練習） ---------- */
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
